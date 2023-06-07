@@ -1,0 +1,23 @@
+<!-- sample_menu.xml -->
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- https://fonts.google.com/icons?selected=Material+Icons -->
+
+    <item
+        android:id="@+id/action_applications"
+        android:title="Applications"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_export_file"
+        android:title="Export File"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_export_binary_file"
+        android:title="Export binary File"
+        app:showAsAction="never"/>
+
+</menu>
