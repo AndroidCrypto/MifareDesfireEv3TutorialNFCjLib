@@ -1,6 +1,16 @@
 package de.androidcrypto.mifaredesfireev3examplesdes;
 
+import java.security.SecureRandom;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 public class Ev3 {
+
+
+
+
 
     public static String getErrorCode(byte[] twoByteResponse) {
         if (twoByteResponse == null) {
@@ -32,6 +42,65 @@ public class Ev3 {
         }
         return "undefined error code";
     }
+
+    /**
+     * section for DES encryption
+     */
+
+    public static byte[] decrypt(byte[] data, byte[] key, byte[] IV) throws Exception {
+        Cipher cipher = getCipher(Cipher.DECRYPT_MODE, key, IV);
+        return cipher.doFinal(data);
+    }
+
+    public static byte[] encrypt(byte[] data, byte[] key, byte[] IV) throws Exception {
+        Cipher cipher = getCipher(Cipher.ENCRYPT_MODE, key, IV);
+        return cipher.doFinal(data);
+    }
+
+    public static Cipher getCipher(int mode, byte[] key, byte[] IV) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/CBC/NoPadding");
+        SecretKeySpec keySpec = new SecretKeySpec(key, "DES");
+        IvParameterSpec algorithmParamSpec = new IvParameterSpec(IV);
+        cipher.init(mode, keySpec, algorithmParamSpec);
+        return cipher;
+    }
+
+    public static byte[] rotateLeft(byte[] data) {
+        byte[] rotated = new byte[data.length];
+        rotated[data.length - 1] = data[0];
+        for (int i = 0; i < data.length - 1; i++) {
+            rotated[i] = data[i + 1];
+        }
+        return rotated;
+    }
+
+    public static byte[] rotateRight(byte[] data) {
+        byte[] unrotated = new byte[data.length];
+        for (int i = 1; i < data.length; i++) {
+            unrotated[i] = data[i - 1];
+        }
+        unrotated[0] = data[data.length - 1];
+        return unrotated;
+    }
+
+    public static byte[] concatenate(byte[] dataA, byte[] dataB) {
+        byte[] concatenated = new byte[dataA.length + dataB.length];
+        for (int i = 0; i < dataA.length; i++) {
+            concatenated[i] = dataA[i];
+        }
+        for (int i = 0; i < dataB.length; i++) {
+            concatenated[dataA.length + i] = dataB[i];
+        }
+        return concatenated;
+    }
+
+    public static byte[] getRndADes() {
+        byte[] value = new byte[8];
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(value);
+        return value;
+    }
+
 
 
 }

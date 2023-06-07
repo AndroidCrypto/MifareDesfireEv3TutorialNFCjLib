@@ -30,11 +30,24 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback  {
 
     private com.google.android.material.textfield.TextInputEditText output, errorCode;
+    /**
+     * section for application handling
+     */
     private LinearLayout llApplicationHandling;
     private Button applicationList, applicationCreate, applicationSelect;
     private com.google.android.material.textfield.TextInputEditText numberOfKeys, applicationId, applicationSelected;
-
     private byte[] selectedApplicationId = null;
+
+    /**
+     * section for standard file handling
+     */
+
+    private LinearLayout llStandardFile;
+    private Button fileList, fileStandardCreate, fileStandardRead, authenticate;
+    private com.google.android.material.textfield.TextInputEditText fileId, fileSize;
+
+    // constants
+    private byte[] DES_DEFAULT_KEY = new byte[8];
 
     // variables for NFC handling
 
@@ -61,11 +74,23 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         applicationSelected = findViewById(R.id.etSelectedApplicationId);
         numberOfKeys = findViewById(R.id.etNumberOfKeys);
         applicationId = findViewById(R.id.etApplicationId);
+        // standard file handling
+        llStandardFile = findViewById(R.id.llStandardFile);
+        fileList = findViewById(R.id.btnListFiles);
+        authenticate = findViewById(R.id.btnAuthenticate);
+        fileStandardCreate = findViewById(R.id.btnCreateStandardFile);
+        fileStandardRead = findViewById(R.id.btnReadStandardFile);
+        fileId = findViewById(R.id.etFileId);
+        fileSize = findViewById(R.id.etFileSize);
+
 
         allLayoutsInvisible(); // default
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
+        /**
+         * section for applications
+         */
         applicationList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -149,8 +174,220 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        /**
+         * section  for standard files
+         */
+
+        authenticate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the default DES key
+                clearOutputFields();
+                byte[] responseData = new byte[2];
+                byte keyId = (byte) 0x00; // we authenticate with keyId 1
+                byte[] keyDataDes;
+                boolean result = authenticateApplicationDes(output, keyId, DES_DEFAULT_KEY, true, responseData);
+                writeToUiAppend(output, "result of authenticateApplicationDes: " + result);
+                writeToUiAppend(errorCode, "authenticateApplicationDes: " + Ev3.getErrorCode(responseData));
+            }
+        });
+
+        fileStandardCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // create a new standard file
+                // get the input and sanity checks
+                clearOutputFields();
+                byte fileIdByte = Byte.parseByte(fileId.getText().toString());
+                int fileSizeInt = Integer.parseInt(fileSize.getText().toString());
+                if (fileIdByte > (byte) 0x0f) {
+                    writeToUiAppend(errorCode, "you entered a wrong file ID");
+                    return;
+                }
+                if (fileSizeInt != 32) {
+                    writeToUiAppend(errorCode, "you entered a wrong file size, 32 bytes allowed only");
+                    return;
+                }
+                byte[] responseData = new byte[2];
+                boolean result = createStandardFile(output, fileIdByte, fileSizeInt, responseData);
+                writeToUiAppend(output, "result of createAStandardFile: " + result);
+                writeToUiAppend(errorCode, "createAStandardFile: " + Ev3.getErrorCode(responseData));
+            }
+        });
+
     }
 
+    /**
+     * section for authentication with DES
+     */
+
+    // if verbose = true all steps are printed out
+    private boolean authenticateApplicationDes(TextView logTextView, byte keyId, byte[] key, boolean verbose, byte[] response) {
+        try {
+            writeToUiAppend(logTextView, "authenticateApplicationDes for keyId " + keyId + " and key " + Utils.bytesToHex(key));
+            // do DES auth
+            //String getChallengeCommand = "901a0000010000";
+            //String getChallengeCommand = "9084000000"; // IsoGetChallenge
+            byte[] getChallengeResponse = isoDep.transceive(wrapMessage((byte) 0x1a, new byte[]{(byte) (keyId & 0xFF)}));
+            if (verbose)
+                writeToUiAppend(logTextView, printData("getChallengeResponse", getChallengeResponse));
+            // cf5e0ee09862d90391af
+            // 91 af at the end shows there is more data
+
+            byte[] challenge = Arrays.copyOf(getChallengeResponse, getChallengeResponse.length - 2);
+            if (verbose) writeToUiAppend(logTextView, printData("challengeResponse", challenge));
+
+            // Of course the rndA shall be a random number,
+            // but we will use a constant number to make the example easier.
+            //byte[] rndA = Utils.hexStringToByteArray("0001020304050607");
+            byte[] rndA = Ev3.getRndADes();
+            if (verbose) writeToUiAppend(logTextView, printData("rndA", rndA));
+
+            // This is the default key for a blank DESFire card.
+            // defaultKey = 8 byte array = [0x00, ..., 0x00]
+            //byte[] defaultDESKey = Utils.hexStringToByteArray("0000000000000000");
+            byte[] defaultDESKey = key.clone();
+            byte[] IV = new byte[8];
+
+            // Decrypt the challenge with default keybyte[] rndB = decrypt(challenge, defaultDESKey, IV);
+            byte[] rndB = Ev3.decrypt(challenge, defaultDESKey, IV);
+            if (verbose) writeToUiAppend(logTextView, printData("rndB", rndB));
+            // Rotate left the rndB byte[] leftRotatedRndB = rotateLeft(rndB);
+            byte[] leftRotatedRndB = Ev3.rotateLeft(rndB);
+            if (verbose)
+                writeToUiAppend(logTextView, printData("leftRotatedRndB", leftRotatedRndB));
+            // Concatenate the RndA and rotated RndB byte[] rndA_rndB = concatenate(rndA, leftRotatedRndB);
+            byte[] rndA_rndB = Ev3.concatenate(rndA, leftRotatedRndB);
+            if (verbose) writeToUiAppend(logTextView, printData("rndA_rndB", rndA_rndB));
+
+            // Encrypt the bytes of the last step to get the challenge answer byte[] challengeAnswer = encrypt(rndA_rndB, defaultDESKey, IV);
+            IV = challenge;
+            byte[] challengeAnswer = Ev3.encrypt(rndA_rndB, defaultDESKey, IV);
+            if (verbose)
+                writeToUiAppend(logTextView, printData("challengeAnswer", challengeAnswer));
+
+            IV = Arrays.copyOfRange(challengeAnswer, 8, 16);
+                /*
+                    Build and send APDU with the answer. Basically wrap the challenge answer in the APDU.
+                    The total size of apdu (for this scenario) is 22 bytes:
+                    > 0x90 0xAF 0x00 0x00 0x10 [16 bytes challenge answer] 0x00
+                */
+            byte[] challengeAnswerAPDU = new byte[22];
+            challengeAnswerAPDU[0] = (byte) 0x90; // CLS
+            challengeAnswerAPDU[1] = (byte) 0xAF; // INS
+            challengeAnswerAPDU[2] = (byte) 0x00; // p1
+            challengeAnswerAPDU[3] = (byte) 0x00; // p2
+            challengeAnswerAPDU[4] = (byte) 0x10; // data length: 16 bytes
+            challengeAnswerAPDU[challengeAnswerAPDU.length - 1] = (byte) 0x00;
+            System.arraycopy(challengeAnswer, 0, challengeAnswerAPDU, 5, challengeAnswer.length);
+            if (verbose)
+                writeToUiAppend(logTextView, printData("challengeAnswerAPDU", challengeAnswerAPDU));
+
+            /*
+             * Sending the APDU containing the challenge answer.
+             * It is expected to be return 10 bytes [rndA from the Card] + 9100
+             */
+            byte[] challengeAnswerResponse = isoDep.transceive(challengeAnswerAPDU);
+            // response = channel.transmit(new CommandAPDU(challengeAnswerAPDU));
+            if (verbose)
+                writeToUiAppend(logTextView, printData("challengeAnswerResponse", challengeAnswerResponse));
+            byte[] challengeAnswerResp = Arrays.copyOf(challengeAnswerResponse, getChallengeResponse.length - 2);
+            if (verbose)
+                writeToUiAppend(logTextView, printData("challengeAnswerResp", challengeAnswerResp));
+
+            /*
+             * At this point, the challenge was processed by the card. The card decrypted the
+             * rndA rotated it and sent it back.
+             * Now we need to check if the RndA sent by the Card is valid.
+             */// encrypted rndA from Card, returned in the last step byte[] encryptedRndAFromCard = response.getData();
+
+            // Decrypt the rnd received from the Card.byte[] rotatedRndAFromCard = decrypt(encryptedRndAFromCard, defaultDESKey, IV);
+            //byte[] rotatedRndAFromCard = decrypt(encryptedRndAFromCard, defaultDESKey, IV);
+            byte[] rotatedRndAFromCard = Ev3.decrypt(challengeAnswerResp, defaultDESKey, IV);
+            if (verbose)
+                writeToUiAppend(logTextView, printData("rotatedRndAFromCard", rotatedRndAFromCard));
+
+            // As the card rotated left the rndA,// we shall un-rotate the bytes in order to get compare it to our original rndA.byte[] rndAFromCard = rotateRight(rotatedRndAFromCard);
+            byte[] rndAFromCard = Ev3.rotateRight(rotatedRndAFromCard);
+            if (verbose) writeToUiAppend(logTextView, printData("rndAFromCard", rndAFromCard));
+            writeToUiAppend(logTextView, "********** AUTH RESULT **********");
+            //System.arraycopy(createApplicationResponse, 0, response, 0, createApplicationResponse.length);
+            if (Arrays.equals(rndA, rndAFromCard)) {
+                writeToUiAppend(logTextView, "Authenticated");
+                return true;
+            } else {
+                writeToUiAppend(logTextView, "Authentication failed");
+                return false;
+                //System.err.println(" ### Authentication failed. ### ");
+                //log("rndA:" + toHexString(rndA) + ", rndA from Card: " + toHexString(rndAFromCard));
+            }
+            //writeToUiAppend(logTextView, "********** AUTH RESULT END **********");
+            //return false;
+        } catch (Exception e) {
+            //throw new RuntimeException(e);
+            writeToUiAppend(logTextView, "authenticateApplicationDes transceive failed: " + e.getMessage());
+            writeToUiAppend(logTextView, "authenticateApplicationDes transceive failed: " + Arrays.toString(e.getStackTrace()));
+        }
+        //System.arraycopy(createApplicationResponse, 0, response, 0, createApplicationResponse.length);
+        return false;
+    }
+
+    /**
+     * section for standard file handling
+     */
+
+    private boolean createStandardFile(TextView logTextView, byte fileNumber, int fileSize, byte[] response) {
+        // we create a standard file within the selected application
+        byte createStandardFileCommand = (byte) 0xcd;
+        // CD | File No | Comms setting byte | Access rights (2 bytes) | File size (3 bytes)
+        byte commSettingsByte = 0; // plain communication without any encryption
+                /*
+                M0775031 DESFIRE
+                Plain Communication = 0;
+                Plain communication secured by DES/3DES MACing = 1;
+                Fully DES/3DES enciphered communication = 3;
+                 */
+        //byte[] accessRights = new byte[]{(byte) 0xee, (byte) 0xee}; // should mean plain/free access without any keys
+                /*
+                There are four different Access Rights (2 bytes for each file) stored for each file within
+                each application:
+                - Read Access
+                - Write Access
+                - Read&Write Access
+                - ChangeAccessRights
+                 */
+        // here we are using key 2 for read and key3 for write access access, key0 has read&write access and key1 has change rights !
+        byte accessRightsRwCar = (byte) 0x01; // Read&Write Access & ChangeAccessRights
+        byte accessRightsRW = (byte) 0x23; // Read Access & Write Access // read with key 1, write with key 2
+        byte[] fileSizeArray = Utils.intTo3ByteArrayInversed(fileSize); // lsb
+        byte[] createStandardFileParameters = new byte[7];
+        createStandardFileParameters[0] = fileNumber;
+        createStandardFileParameters[1] = commSettingsByte;
+        createStandardFileParameters[2] = accessRightsRwCar;
+        createStandardFileParameters[3] = accessRightsRW;
+        System.arraycopy(fileSizeArray, 0, createStandardFileParameters, 4, 3);
+        writeToUiAppend(logTextView, printData("createStandardFileParameters", createStandardFileParameters));
+        byte[] createStandardFileResponse = new byte[0];
+        try {
+            createStandardFileResponse = isoDep.transceive(wrapMessage(createStandardFileCommand, createStandardFileParameters));
+        } catch (Exception e) {
+            //throw new RuntimeException(e);
+            writeToUiAppend(logTextView, "transceive failed: " + e.getMessage());
+            return false;
+        }
+        writeToUiAppend(logTextView, printData("createStandardFileResponse", createStandardFileResponse));
+        System.arraycopy(returnStatusBytes(createStandardFileResponse), 0, response, 0, 2);
+        writeToUiAppend(logTextView, printData("createStandardFileResponse", createStandardFileResponse));
+        if (checkDuplicateError(createStandardFileResponse)) {
+            writeToUiAppend(logTextView, "the file was not created as it already exists, proceed");
+            return true;
+        }
+        if (checkResponse(createStandardFileResponse)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * section for application handling
@@ -327,6 +564,27 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     }
 
     /**
+     * checks if the response has an 0x'91de' at the end means the data
+     * element is already existing
+     * if any other trailing bytes show up the method returns false
+     *
+     * @param data
+     * @return true is code is 91DE
+     */
+    private boolean checkDuplicateError(@NonNull byte[] data) {
+        // simple sanity check
+        if (data.length < 2) {
+            return false;
+        } // not ok
+        int status = ((0xff & data[data.length - 2]) << 8) | (0xff & data[data.length - 1]);
+        if (status != 0x91DE) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * splits a byte array in chunks
      *
      * @param source
@@ -433,6 +691,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
     private void allLayoutsInvisible() {
         llApplicationHandling.setVisibility(View.GONE);
+        llStandardFile.setVisibility(View.GONE);
     }
 
     /**
@@ -486,6 +745,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public boolean onMenuItemClick(MenuItem item) {
                 allLayoutsInvisible();
                 llApplicationHandling.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
+
+        MenuItem mStandardFile = menu.findItem(R.id.action_standard_file);
+        mStandardFile.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                allLayoutsInvisible();
+                llStandardFile.setVisibility(View.VISIBLE);
                 return false;
             }
         });
