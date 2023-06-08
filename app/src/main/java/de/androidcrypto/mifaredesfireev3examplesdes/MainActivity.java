@@ -184,8 +184,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // authenticate with the default DES key
                 clearOutputFields();
                 byte[] responseData = new byte[2];
-                byte keyId = (byte) 0x00; // we authenticate with keyId 1
-                byte[] keyDataDes;
+                byte keyId = (byte) 0x01; // we authenticate with keyId 1
                 boolean result = authenticateApplicationDes(output, keyId, DES_DEFAULT_KEY, true, responseData);
                 writeToUiAppend(output, "result of authenticateApplicationDes: " + result);
                 writeToUiAppend(errorCode, "authenticateApplicationDes: " + Ev3.getErrorCode(responseData));
@@ -314,9 +313,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             //System.arraycopy(createApplicationResponse, 0, response, 0, createApplicationResponse.length);
             if (Arrays.equals(rndA, rndAFromCard)) {
                 writeToUiAppend(logTextView, "Authenticated");
+                response = new byte[]{(byte) 0x91, (byte) 0x00};
                 return true;
             } else {
                 writeToUiAppend(logTextView, "Authentication failed");
+                response = new byte[]{(byte) 0x91, (byte) 0xFF};
                 return false;
                 //System.err.println(" ### Authentication failed. ### ");
                 //log("rndA:" + toHexString(rndA) + ", rndA from Card: " + toHexString(rndAFromCard));
@@ -375,7 +376,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             writeToUiAppend(logTextView, "transceive failed: " + e.getMessage());
             return false;
         }
-        writeToUiAppend(logTextView, printData("createStandardFileResponse", createStandardFileResponse));
         System.arraycopy(returnStatusBytes(createStandardFileResponse), 0, response, 0, 2);
         writeToUiAppend(logTextView, printData("createStandardFileResponse", createStandardFileResponse));
         if (checkDuplicateError(createStandardFileResponse)) {
