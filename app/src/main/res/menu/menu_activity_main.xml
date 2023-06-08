@@ -7,7 +7,7 @@
 
     <item
         android:id="@+id/action_applications"
-        android:title="Applications"
+        android:title="applications"
         app:showAsAction="never"/>
 
     <item

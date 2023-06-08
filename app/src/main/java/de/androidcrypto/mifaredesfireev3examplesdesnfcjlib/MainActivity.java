@@ -1,4 +1,4 @@
-package de.androidcrypto.mifaredesfireev3examplesdes;
+package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,11 +21,19 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.github.skjolber.desfire.ev1.model.DesfireApplicationId;
+import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
+import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import nfcjlib.core.DESFireAdapter;
+import nfcjlib.core.DESFireEV1;
+import nfcjlib.core.KeyType;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback  {
 
@@ -47,13 +55,17 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private com.google.android.material.textfield.TextInputEditText fileId, fileSize;
 
     // constants
-    private byte[] DES_DEFAULT_KEY = new byte[8];
+    private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3];
+    private final byte[] DES_DEFAULT_KEY = new byte[8];
+    private final byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks
 
     // variables for NFC handling
 
     private NfcAdapter mNfcAdapter;
     private IsoDep isoDep;
     private byte[] tagIdByte;
+    DESFireEV1 desfire;
+    private DESFireAdapter desFireAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 clearOutputFields();
                 byte numberOfKeysByte = Byte.parseByte(numberOfKeys.getText().toString());
                 byte[] applicationIdentifier = Utils.hexStringToByteArray(applicationId.getText().toString());
+                Utils.reverseByteArrayInPlace(applicationIdentifier); // change to LSB
                 if (applicationIdentifier == null) {
                     writeToUiAppend(errorCode, "you entered a wrong application ID");
                     return;
@@ -125,10 +138,31 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(errorCode, "you did not enter a 6 hex string application ID");
                     return;
                 }
-                byte[] responseData = new byte[2];
-                boolean result = createApplicationPlainDes(output, applicationIdentifier, numberOfKeysByte, responseData);
-                writeToUiAppend(output, "result of createAnApplication: " + result);
-                writeToUiAppend(errorCode, "createAnApplication: " + Ev3.getErrorCode(responseData));
+                try {
+
+                    boolean success = desfire.createApplication(applicationIdentifier, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, numberOfKeysByte);
+                    writeToUiAppend(output, "createApplicationSuccess: " + success);
+                    if (!success) {
+
+                        writeToUiAppend(output, "createApplication NOT Success, aborted");
+                        writeToUiAppend(output, "createApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    }
+
+
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "Exception: " + e.getMessage());
+                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+
             }
         });
 
@@ -137,20 +171,34 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public void onClick(View view) {
                 // get all applications and show them in a listview for selection
                 clearOutputFields();
-                byte[] responseData = new byte[2];
-                List<byte[]> applicationIdList = getApplicationIdsList(output, responseData);
-                writeToUiAppend(errorCode, "getApplicationIdsList: " + Ev3.getErrorCode(responseData));
-                if (applicationIdList != null) {
-                    for (int i = 0; i < applicationIdList.size(); i++) {
-                        // writeToUiAppend(output, "entry " + i + " app id : " + Utils.bytesToHex(applicationIdList.get(i)));
+
+                String[] applicationList;
+                try {
+                    // select PICC (is selected by default but...)
+                    boolean success = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "selectMasterApplicationSuccess: " + success);
+                    if (!success) {
+                        writeToUiAppend(output, "selectMasterApplication NOT Success, aborted");
+                        return;
                     }
-                } else {
-                    writeToUiAppend(errorCode, "getApplicationIdsList: returned NULL");
+                    List<DesfireApplicationId> desfireApplicationIdList = desfire.getApplicationsIds();
+
+                    applicationList = new String[desfireApplicationIdList.size()];
+                    for (int i = 0; i < desfireApplicationIdList.size(); i++) {
+                        applicationList[i] = desfireApplicationIdList.get(i).getIdString();
+                    }
+
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
                     return;
-                }
-                String[] applicationList = new String[applicationIdList.size()];
-                for (int i = 0; i < applicationIdList.size(); i++) {
-                    applicationList[i] = Utils.bytesToHex(applicationIdList.get(i));
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "Exception: " + e.getMessage());
+                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
                 }
 
                 // setup the alert builder
@@ -184,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // authenticate with the default DES key
                 clearOutputFields();
                 byte[] responseData = new byte[2];
-                byte keyId = (byte) 0x01; // we authenticate with keyId 1
+                byte keyId = (byte) 0x00; // we authenticate with keyId 1
                 boolean result = authenticateApplicationDes(output, keyId, DES_DEFAULT_KEY, true, responseData);
                 writeToUiAppend(output, "result of authenticateApplicationDes: " + result);
                 writeToUiAppend(errorCode, "authenticateApplicationDes: " + Ev3.getErrorCode(responseData));
@@ -642,6 +690,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 tagIdByte = tag.getId();
                 writeToUiAppend(output, "tag id: " + Utils.bytesToHex(tagIdByte));
                 writeToUiAppend(output, "NFC tag connected");
+                IsoDepWrapper isoDepWrapper = new DefaultIsoDepWrapper(isoDep);
+                desFireAdapter = new DESFireAdapter(isoDepWrapper, true);
+                desfire = new DESFireEV1();
+                desfire.setAdapter(desFireAdapter);
 
             }
 

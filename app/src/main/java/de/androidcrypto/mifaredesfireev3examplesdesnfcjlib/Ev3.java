@@ -1,4 +1,4 @@
-package de.androidcrypto.mifaredesfireev3examplesdes;
+package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
 
 import java.security.SecureRandom;
 

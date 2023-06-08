@@ -271,7 +271,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
                         android:layout_weight="1"
-                        android:text="read" />
+                        android:text="authenticate" />
 
                 </LinearLayout>
 
@@ -295,6 +295,14 @@
                         android:layout_marginLeft="8dp"
                         android:layout_weight="1"
                         android:text="read" />
+
+                    <Button
+                        android:id="@+id/btnWriteStandardFile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="write" />
 
                 </LinearLayout>
 
