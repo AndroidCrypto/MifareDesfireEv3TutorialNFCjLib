@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3];
     private final byte[] DES_DEFAULT_KEY = new byte[8];
     private final byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks
+    private final byte KEY_NUMBER_RW = (byte) 0x00;
 
     // variables for NFC handling
 
@@ -139,17 +140,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     return;
                 }
                 try {
-
                     boolean success = desfire.createApplication(applicationIdentifier, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, numberOfKeysByte);
                     writeToUiAppend(output, "createApplicationSuccess: " + success);
                     if (!success) {
-
                         writeToUiAppend(output, "createApplication NOT Success, aborted");
                         writeToUiAppend(output, "createApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         return;
                     }
-
-
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
                     writeToUiAppend(output, "IOException: " + e.getMessage());
@@ -231,11 +228,36 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public void onClick(View view) {
                 // authenticate with the default DES key
                 clearOutputFields();
+                try {
+                    boolean success = desfire.authenticate(DES_DEFAULT_KEY, KEY_NUMBER_RW, KeyType.DES);
+                    writeToUiAppend(output, "authenticateDesSuccess: " + success);
+                    if (!success) {
+                        writeToUiAppend(output, "authenticateDes NOT Success, aborted");
+                        writeToUiAppend(output, "authenticateDes NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    }
+
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "Exception: " + e.getMessage());
+                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+
+                /*
                 byte[] responseData = new byte[2];
                 byte keyId = (byte) 0x00; // we authenticate with keyId 1
                 boolean result = authenticateApplicationDes(output, keyId, DES_DEFAULT_KEY, true, responseData);
                 writeToUiAppend(output, "result of authenticateApplicationDes: " + result);
                 writeToUiAppend(errorCode, "authenticateApplicationDes: " + Ev3.getErrorCode(responseData));
+
+                 */
             }
         });
 
@@ -255,10 +277,29 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(errorCode, "you entered a wrong file size, 32 bytes allowed only");
                     return;
                 }
-                byte[] responseData = new byte[2];
-                boolean result = createStandardFile(output, fileIdByte, fileSizeInt, responseData);
-                writeToUiAppend(output, "result of createAStandardFile: " + result);
-                writeToUiAppend(errorCode, "createAStandardFile: " + Ev3.getErrorCode(responseData));
+                try {
+                    PayloadBuilder pb = new PayloadBuilder();
+                    byte[] payloadStandardFile = pb.createStandardFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
+                            0, 1, 2, 3, fileSizeInt);
+                    boolean success = desfire.createStdDataFile(payloadStandardFile);
+                    writeToUiAppend(output, "createStdDataFileSuccess: " + success);
+                    if (!success) {
+                        writeToUiAppend(output, "createStdDataFile NOT Success, aborted");
+                        writeToUiAppend(output, "createStdDataFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    }
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "Exception: " + e.getMessage());
+                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
             }
         });
 
