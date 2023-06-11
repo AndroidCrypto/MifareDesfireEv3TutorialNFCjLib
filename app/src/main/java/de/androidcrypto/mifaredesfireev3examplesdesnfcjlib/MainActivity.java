@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.github.skjolber.desfire.ev1.model.DesfireApplicationId;
+import com.github.skjolber.desfire.ev1.model.VersionInfo;
 import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
 
@@ -38,6 +39,14 @@ import nfcjlib.core.KeyType;
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback  {
 
     private com.google.android.material.textfield.TextInputEditText output, errorCode;
+
+    /**
+     * section for general workflow
+     */
+
+    private LinearLayout llGeneralWorkflow;
+    private Button tagVersion;
+
     /**
      * section for application handling
      */
@@ -79,6 +88,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         output = findViewById(R.id.etOutput);
         errorCode = findViewById(R.id.etErrorCode);
 
+        // general workflow
+        tagVersion = findViewById(R.id.btnGetTagVersion);
+
+
         // application handling
         llApplicationHandling = findViewById(R.id.llApplications);
         applicationList = findViewById(R.id.btnListApplications);
@@ -100,6 +113,41 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         allLayoutsInvisible(); // default
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        /**
+         * section for general workflow
+         */
+
+        tagVersion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // get the tag version data
+                VersionInfo versionInfo;
+                try {
+                    versionInfo = desfire.getVersion();
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "Exception: " + e.getMessage());
+                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+                if (versionInfo == null) {
+                    writeToUiAppend(output, "getVersionInfo is NULL");
+                    return;
+                }
+                //String hardwareVersion = versionInfo.getHardwareVersion();
+                //String softwareVersion = versionInfo.getSoftwareVersion();
+                writeToUiAppend(output, "getVersionInfo: " + dumpVersionInfo(versionInfo));
+                //writeToUiAppend(output, "getSoftwareVersion: " + softwareVersion);
+                writeToUiAppend(output, "getVersion: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+            }
+        });
 
         /**
          * section for applications
@@ -303,6 +351,37 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+    }
+
+    /**
+     * section for general workflow
+     */
+
+    public String dumpVersionInfo(VersionInfo vi) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("hardwareVendorId: ").append(vi.getHardwareVendorId()).append("\n");
+        sb.append("hardwareType: ").append(vi.getHardwareType()).append("\n");
+        sb.append("hardwareSubtype: ").append(vi.getHardwareSubtype()).append("\n");
+        sb.append("hardwareVersionMajor: ").append(vi.getHardwareVersionMajor()).append("\n");
+        sb.append("hardwareVersionMinor: ").append(vi.getHardwareVersionMinor()).append("\n");
+        sb.append("hardwareStorageSize: ").append(vi.getHardwareStorageSize()).append("\n");
+
+        sb.append("hardwareProtocol: ").append(vi.getHardwareProtocol()).append("\n");
+        sb.append("softwareVendorId: ").append(vi.getSoftwareVendorId()).append("\n");
+        sb.append("softwareType: ").append(vi.getSoftwareType()).append("\n");
+        sb.append("softwareSubtype: ").append(vi.getSoftwareSubtype()).append("\n");
+
+        sb.append("softwareVersionMajor: ").append(vi.getSoftwareVersionMajor()).append("\n");
+        sb.append("softwareVersionMinor: ").append(vi.getSoftwareVersionMinor()).append("\n");
+        sb.append("softwareStorageSize: ").append(vi.getSoftwareStorageSize()).append("\n");
+
+        sb.append("softwareProtocol: ").append(vi.getSoftwareProtocol()).append("\n");
+        sb.append("Uid: ").append(Utils.bytesToHex(vi.getUid())).append("\n");
+        sb.append("batchNumber: ").append(Utils.bytesToHex(vi.getBatchNumber())).append("\n");
+        sb.append("productionWeek: ").append(vi.getProductionWeek()).append("\n");
+        sb.append("productionYear: ").append(vi.getProductionYear()).append("\n");
+        sb.append("*** dump ended ***").append("\n");
+        return sb.toString();
     }
 
     /**

@@ -1164,7 +1164,7 @@ public class DESFireEV1 {
 	
 	public VersionInfo getVersion() throws Exception {
 		byte[] bytes = getVersionImpl();
-		
+		Log.d(TAG, "getVersion from Impl: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(bytes));
 		if(bytes != null) {
 		    VersionInfo version = new VersionInfo();
 		    version.read(bytes);
@@ -1187,15 +1187,19 @@ public class DESFireEV1 {
 		};
 		preprocess(apdu, DesfireFileCommunicationSettings.PLAIN);
 		responseAPDU = adapter.transmitChain(apdu);
-		
+		Log.d(TAG, "getVersion responseAPDU: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(responseAPDU));
 		feedback(apdu, responseAPDU);
 
 		code = getSW2(responseAPDU);
-
+		Log.d(TAG, "getVersionImpl code: " + code);
 		if(code == 0x00) {
+			Log.d(TAG, "getVersionImpl code== 0x00");
+			Log.d(TAG, "getVersionImpl postprocess: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN)));
 			return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
 		}
-		return null;
+		//return null;
+		// todo check this, without this workaround the code is 22 (=last data byte) and the method returns null
+		return responseAPDU;
 	}
 
 	/**
