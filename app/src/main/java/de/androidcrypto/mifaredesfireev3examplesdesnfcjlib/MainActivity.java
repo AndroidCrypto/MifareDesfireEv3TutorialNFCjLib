@@ -25,12 +25,16 @@ import com.github.skjolber.desfire.ev1.model.DesfireApplicationId;
 import com.github.skjolber.desfire.ev1.model.VersionInfo;
 import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
+import com.github.skjolber.desfire.ev1.model.file.DesfireFile;
+import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import nfcjlib.core.DESFireAdapter;
 import nfcjlib.core.DESFireEV1;
@@ -39,6 +43,12 @@ import nfcjlib.core.KeyType;
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback  {
 
     private com.google.android.material.textfield.TextInputEditText output, errorCode;
+
+    /**
+     * section for temporary actions
+     */
+
+    private Button setupCompleteApplication, standardWriteRead, standardWriteReadDefaultKeys;
 
     /**
      * section for general workflow
@@ -56,6 +66,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private byte[] selectedApplicationId = null;
 
     /**
+     * section for key handling
+     */
+
+    private Button changeKeyD3, changeKeyD4;
+
+    /**
      * section for standard file handling
      */
 
@@ -65,10 +81,28 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3];
+    private final byte[] MASTER_APPLICATION_KEY = new byte[8];
+    private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
+    private final byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
     private final byte[] DES_DEFAULT_KEY = new byte[8];
+    private final byte[] APPLICATION_KEY_MASTER_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte APPLICATION_KEY_MASTER_NUMBER = (byte) 0x00;
     private final byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks
     private final byte KEY_NUMBER_RW = (byte) 0x00;
+    private final byte[] APPLICATION_KEY_RW_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte APPLICATION_KEY_RW_NUMBER = (byte) 0x01;
+    private final byte[] APPLICATION_KEY_CAR_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte APPLICATION_KEY_CAR_NUMBER = (byte) 0x02;
 
+    private final byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_R = Utils.hexStringToByteArray("B300000000000000");
+    private final byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
+
+    private final byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("B400000000000000");
+    private final byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
+
+    private byte STANDARD_FILE_NUMBER = (byte) 0x01;
     // variables for NFC handling
 
     private NfcAdapter mNfcAdapter;
@@ -88,6 +122,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         output = findViewById(R.id.etOutput);
         errorCode = findViewById(R.id.etErrorCode);
 
+        // temporary workflow
+        setupCompleteApplication = findViewById(R.id.btnSetupCompleteApplication);
+        standardWriteRead = findViewById(R.id.btnStandardFileWriteRead);
+        //standardWriteReadDefaultKeys = findViewById(R.id.btnStandardFileWriteReadDefaultKeys);
+
         // general workflow
         tagVersion = findViewById(R.id.btnGetTagVersion);
 
@@ -100,6 +139,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         applicationSelected = findViewById(R.id.etSelectedApplicationId);
         numberOfKeys = findViewById(R.id.etNumberOfKeys);
         applicationId = findViewById(R.id.etApplicationId);
+
+        // key handling
+        changeKeyD3 = findViewById(R.id.btnChangeKeyD3);
+        changeKeyD4 = findViewById(R.id.btnChangeKeyD4);
+
+
         // standard file handling
         llStandardFile = findViewById(R.id.llStandardFile);
         fileList = findViewById(R.id.btnListFiles);
@@ -113,6 +158,288 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         allLayoutsInvisible(); // default
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        /**
+         * section for temporary workflow
+         */
+
+        setupCompleteApplication.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // setup a complete application: app with 5 DES keys, standard file 32 byte, write and read
+                writeToUiAppend(output, "setup a complete application with a standard file");
+                try {
+                    byte[] AID_MASTER = Utils.hexStringToByteArray("000000");
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(AID_MASTER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
+                    byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
+
+                    boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
+                    writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // as of the key settings we do not need an authentication to create a file ?
+
+
+                    byte APPLICATION_COMMUNICATION_SETTINGS = (byte) 0x00; // plain access (no MAC nor Encryption)
+                    byte APPLICATION_ACCESS_RIGHTS_RW_CAR = (byte) 0x12; // Read&Write Access & ChangeAccessRights
+                    byte APPLICATION_ACCESS_RIGHTS_R_W = (byte) 0x34;    // Read Access & Write Access // read with key 3, write with key 4
+                    byte[] STANDARD_FILE_SIZE = new byte[]{(byte) 0x20, (byte) 0x00, (byte) 0x00}; // 32 bytes, LSB
+
+                    byte[] payloadStandardFile = new byte[7];
+                    payloadStandardFile[0] = STANDARD_FILE_NUMBER; // fileNumber
+                    payloadStandardFile[1] = APPLICATION_COMMUNICATION_SETTINGS;
+                    payloadStandardFile[2] = APPLICATION_ACCESS_RIGHTS_RW_CAR;
+                    payloadStandardFile[3] = APPLICATION_ACCESS_RIGHTS_R_W;
+                    System.arraycopy(STANDARD_FILE_SIZE, 0, payloadStandardFile, 4, 3);
+                    writeToUiAppend(output, printData("payloadStandardFile", payloadStandardFile));
+                    boolean dfCreateStandardFile = desfire.createStdDataFile(payloadStandardFile);
+                    writeToUiAppend(output, "dfCreateStandardFileResult: " + dfCreateStandardFile);
+                    writeToUiAppend(output, "dfCreateStandardFileResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                }
+
+            }
+        });
+
+        standardWriteRead.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // write to a standard file and read from a standard file
+                writeToUiAppend(output, "write to a standard file and read from a standard file");
+                try {
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    //byte[] MASTER_APPLICATION_KEY = new byte[8];
+                    //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
+                    //byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
+                    //byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
+
+                    //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
+                    //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to write to a file
+                    //byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+                    //byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
+                    // authenticate with ApplicationWriteKey
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W, APPLICATION_KEY_W_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+
+                    // get a random payload with 32 bytes
+                    UUID uuid = UUID.randomUUID(); // this is 36 characters long
+                    byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
+
+                    byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning
+                    byte lengthOfData = (byte) (dataToWrite.length & 0xFF);
+                    byte[] payloadWriteData = new byte[7 + dataToWrite.length]; // 7 + length of data
+                    payloadWriteData[0] = STANDARD_FILE_NUMBER; // fileNumber
+                    System.arraycopy(offset, 0, payloadWriteData, 1, 3);
+                    payloadWriteData[4] = lengthOfData; // lsb
+                    //payloadStandardFile[5] = 0; // is 0x00 // lsb
+                    //payloadStandardFile[6] = 0; // is 0x00 // lsb
+                    System.arraycopy(dataToWrite, 0, payloadWriteData, 7, dataToWrite.length);
+                    writeToUiAppend(output, printData("payloadWriteData", payloadWriteData));
+                    boolean dfWriteStandard = desfire.writeData(payloadWriteData);
+
+                    writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
+                    writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    writeToUiAppend(output, "");
+                    writeToUiAppend(output, "now we are reading the content of the file");
+
+                    // select master application
+                    dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    //byte[] MASTER_APPLICATION_KEY = new byte[8];
+                    //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
+                    dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
+                    //byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
+                    //byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
+
+                    //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
+                    //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
+
+                    dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to read from a file
+                    byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+                    byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
+                    // authenticate with ApplicationWReadKey
+                    boolean dfAuthAppRead = desfire.authenticate(APPLICATION_KEY_R, APPLICATION_KEY_R_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthAppRead);
+
+
+                    // todo get the maximal length from getFileSettings
+                    DesfireFile fileSettings = desfire.getFileSettings(STANDARD_FILE_NUMBER);
+                    // todo check that it is a standard file !
+                    StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
+                    int fileSize = standardDesfireFile.getFileSize();
+                    writeToUiAppend(output, "fileSize: " + fileSize);
+
+                    byte[] readStandard = desfire.readData(STANDARD_FILE_NUMBER, 0, fileSize);
+                    writeToUiAppend(output, printData("readStandard", readStandard));
+                    if (readStandard != null) {
+                        writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
+                    }
+
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+/*
+        standardWriteReadDefaultKeys.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // write to a standard file and read from a standard file
+                writeToUiAppend(output, "write to a standard file and read from a standard file using default keys");
+                try {
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    //byte[] MASTER_APPLICATION_KEY = new byte[8];
+                    //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
+                    //byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
+                    //byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
+
+                    //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
+                    //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to write to a file
+                    //byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+                    //byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
+                    // authenticate with ApplicationWriteKey
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W_DEFAULT, APPLICATION_KEY_W_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+
+                    // get a random payload with 32 bytes
+                    UUID uuid = UUID.randomUUID(); // this is 36 characters long
+                    byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
+
+                    byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning
+                    byte lengthOfData = (byte) (dataToWrite.length & 0xFF);
+                    byte[] payloadWriteData = new byte[7 + dataToWrite.length]; // 7 + length of data
+                    payloadWriteData[0] = STANDARD_FILE_NUMBER; // fileNumber
+                    System.arraycopy(offset, 0, payloadWriteData, 1, 3);
+                    payloadWriteData[4] = lengthOfData; // lsb
+                    //payloadStandardFile[5] = 0; // is 0x00 // lsb
+                    //payloadStandardFile[6] = 0; // is 0x00 // lsb
+                    System.arraycopy(dataToWrite, 0, payloadWriteData, 7, dataToWrite.length);
+                    writeToUiAppend(output, printData("payloadWriteData", payloadWriteData));
+                    boolean dfWriteStandard = desfire.writeData(payloadWriteData);
+
+                    writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
+                    writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    writeToUiAppend(output, "");
+                    writeToUiAppend(output, "now we are reading the content of the file");
+
+                    // select master application
+                    dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    //byte[] MASTER_APPLICATION_KEY = new byte[8];
+                    //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
+                    dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
+                    //byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
+                    //byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
+
+                    //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
+                    //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
+
+                    dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to read from a file
+                    byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+                    byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
+                    // authenticate with ApplicationWReadKey
+                    boolean dfAuthAppRead = desfire.authenticate(APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthAppRead);
+
+
+                    // todo get the maximal length from getFileSettings
+                    DesfireFile fileSettings = desfire.getFileSettings(STANDARD_FILE_NUMBER);
+                    // todo check that it is a standard file !
+                    StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
+                    int fileSize = standardDesfireFile.getFileSize();
+                    writeToUiAppend(output, "fileSize: " + fileSize);
+
+                    byte[] readStandard = desfire.readData(STANDARD_FILE_NUMBER, 0, fileSize);
+                    writeToUiAppend(output, printData("readStandard", readStandard));
+                    if (readStandard != null) {
+                        writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
+                    }
+
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+*/
 
         /**
          * section for general workflow
@@ -264,6 +591,94 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // create and show the alert dialog
                 AlertDialog dialog = builder.create();
                 dialog.show();
+            }
+        });
+
+        /**
+         * section for key handling
+         */
+
+        changeKeyD3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x03 = read access key
+                writeToUiAppend(output, "change the key number 0x03 = read access key");
+                try {
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to change a key with the application master key = 0x00
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+
+                    // change the key
+                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_R_NUMBER, KeyType.DES, APPLICATION_KEY_R, APPLICATION_KEY_R_DEFAULT);
+                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
+                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        changeKeyD4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x04 = write access key
+                writeToUiAppend(output, "change the key number 0x04 = write access key");
+                try {
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to change a key with the application master key = 0x00
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+
+                    // change the key
+                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_W_NUMBER, KeyType.DES, APPLICATION_KEY_W, APPLICATION_KEY_W_DEFAULT);
+                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
+                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+
             }
         });
 
