@@ -385,8 +385,9 @@ public class DESFireEV1 {
 					crc = CRC16.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 2, 2);
 				}
-
+				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, null);
+				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				break;
 			case TKTDES:
 			case AES:
@@ -401,8 +402,9 @@ public class DESFireEV1 {
 					crc = CRC32.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 4, crc.length);
 				}
-
+				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, iv);
+				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				iv = Arrays.copyOfRange(ciphertext, ciphertext.length - iv.length, ciphertext.length);
 				break;
 			default:

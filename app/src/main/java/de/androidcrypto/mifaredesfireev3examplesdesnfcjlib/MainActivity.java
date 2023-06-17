@@ -99,7 +99,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
 
     private final byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-    private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("B400000000000000");
+    //private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("B400000000000000");
+    private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("D400000000000000");
     private final byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
 
     private byte STANDARD_FILE_NUMBER = (byte) 0x01;
