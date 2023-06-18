@@ -30,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text="Mifare DESFire EV3 Examples DES"
+                android:text="Mifare DESFire EV3 Examples DES using NFCJLib"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -362,6 +362,37 @@
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnAuthD2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="auth D2" />
+
+                    <Button
+                        android:id="@+id/btnAuthD3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="auth D3" />
+
+                    <Button
+                        android:id="@+id/btnAuthD4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="auth D4" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout
@@ -389,12 +420,12 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/btnChangeKey"
+                        android:id="@+id/btnChangeKeyD0"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="change key" />
+                        android:text="change D0" />
 
                     <Button
                         android:id="@+id/btnChangeKeyD2"

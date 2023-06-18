@@ -66,10 +66,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private byte[] selectedApplicationId = null;
 
     /**
+     * section for authentication
+     */
+
+    private Button authKeyD0, authKeyD1, authKeyD2, authKeyD3, authKeyD4;
+
+    /**
      * section for key handling
      */
 
-    private Button changeKeyD3, changeKeyD4;
+    private Button changeKeyD0, changeKeyD1, changeKeyD2, changeKeyD3, changeKeyD4;
 
     /**
      * section for standard file handling
@@ -83,9 +89,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3];
     private final byte[] MASTER_APPLICATION_KEY = new byte[8];
     private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-    private final byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
+    //private final byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
+    //private final byte[] AID_DES = Utils.hexStringToByteArray("A3A2A1"); // wrong, LSB
+    private final byte[] AID_DES = Utils.hexStringToByteArray("A1A2A3");
     private final byte[] DES_DEFAULT_KEY = new byte[8];
     private final byte[] APPLICATION_KEY_MASTER_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_MASTER = Utils.hexStringToByteArray("D000000000000000");
     private final byte APPLICATION_KEY_MASTER_NUMBER = (byte) 0x00;
     private final byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks
     private final byte KEY_NUMBER_RW = (byte) 0x00;
@@ -95,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte APPLICATION_KEY_CAR_NUMBER = (byte) 0x02;
 
     private final byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-    private final byte[] APPLICATION_KEY_R = Utils.hexStringToByteArray("B300000000000000");
+    private final byte[] APPLICATION_KEY_R = Utils.hexStringToByteArray("D300000000000000");
     private final byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
 
     private final byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
@@ -131,6 +140,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         // general workflow
         tagVersion = findViewById(R.id.btnGetTagVersion);
 
+        // authentication handling
+        authKeyD0 = findViewById(R.id.btnAuthD0);
+        authKeyD1 = findViewById(R.id.btnAuthD1);
+        authKeyD3 = findViewById(R.id.btnAuthD3);
+        authKeyD4 = findViewById(R.id.btnAuthD4);
 
         // application handling
         llApplicationHandling = findViewById(R.id.llApplications);
@@ -142,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         applicationId = findViewById(R.id.etApplicationId);
 
         // key handling
+        changeKeyD0 = findViewById(R.id.btnChangeKeyD0);
         changeKeyD3 = findViewById(R.id.btnChangeKeyD3);
         changeKeyD4 = findViewById(R.id.btnChangeKeyD4);
 
@@ -469,10 +484,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, "getVersionInfo is NULL");
                     return;
                 }
-                //String hardwareVersion = versionInfo.getHardwareVersion();
-                //String softwareVersion = versionInfo.getSoftwareVersion();
-                writeToUiAppend(output, "getVersionInfo: " + dumpVersionInfo(versionInfo));
-                //writeToUiAppend(output, "getSoftwareVersion: " + softwareVersion);
+                writeToUiAppend(output, "getVersionInfo: " + versionInfo.dump());
                 writeToUiAppend(output, "getVersion: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
             }
         });
@@ -596,8 +608,65 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
 
         /**
+         * section for authentication
+         */
+
+        authKeyD0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the application master key = d0
+                //clearOutputFields();
+
+
+
+
+            }
+        });
+
+        /**
          * section for key handling
          */
+
+        changeKeyD0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = master application key
+                writeToUiAppend(output, "change the key number 0x00 = master application key");
+                try {
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to change a key with the application master key = 0x00
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+
+                    // change the key
+                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_MASTER_NUMBER, KeyType.DES, APPLICATION_KEY_MASTER, APPLICATION_KEY_MASTER_DEFAULT);
+                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
+                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "IOException Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Exception Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
 
         changeKeyD3.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -773,7 +842,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      * section for general workflow
      */
 
-    public String dumpVersionInfo(VersionInfo vi) {
+    public String dumpVersionInfo(VersionInfoTest vi) {
         StringBuilder sb = new StringBuilder();
         sb.append("hardwareVendorId: ").append(vi.getHardwareVendorId()).append("\n");
         sb.append("hardwareType: ").append(vi.getHardwareType()).append("\n");

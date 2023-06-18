@@ -793,15 +793,14 @@ public class DESFireEV1 {
 		};
 		preprocess(apdu, DesfireFileCommunicationSettings.PLAIN);
 		responseAPDU = adapter.transmitChain(apdu);
-
 		feedback(apdu, responseAPDU);
-
 		code = getSW2(responseAPDU);
-
 		if(code == 0x00) {
 			return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
 		}
-		return null;
+		//return null; // todo ERROR as adapter.transmitChain will not return the status = SW2
+		//return responseAPDU;
+		return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
 	}
 
 	/**

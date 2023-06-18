@@ -20,12 +20,14 @@ package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
  ****************************************************************************/
 
 
+import static de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.byteToHex;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
 
-public class VersionInfo {
+public class VersionInfoTest {
 
     private int hardwareVendorId;
     private int hardwareType;
@@ -47,10 +49,12 @@ public class VersionInfo {
     byte[] batchNumber = new byte[5]; //[5];
     private int productionWeek;
     private int productionYear;
+    private byte productionWeekByte;
+    private byte productionYearByte;
 
     // Source: https://github.com/skjolber/external-nfc-api/blob/d1cf337dbfca6d34b6a71fd951e60fb467ea2f01/core/src/main/java/com/github/skjolber/nfc/service/desfire/VersionInfo.java
 
-    public VersionInfo(byte[] bytes) throws IOException {
+    public VersionInfoTest(byte[] bytes) throws IOException {
         if(bytes.length < 7 + 7 + uid.length + batchNumber.length + 2) {
             throw new IllegalArgumentException();
         }
@@ -78,6 +82,8 @@ public class VersionInfo {
 
         productionWeek = din.read();
         productionYear = din.read();
+        productionWeekByte = (byte) (productionWeek & 0xff);
+        productionYearByte = (byte) (productionYear & 0xff);
     }
 
     public String getHardwareVersion() {
@@ -240,6 +246,22 @@ public class VersionInfo {
         this.productionYear = productionYear;
     }
 
+    public byte getProductionWeekByte() {
+        return productionWeekByte;
+    }
+
+    public void setProductionWeekByte(byte productionWeekByte) {
+        this.productionWeekByte = productionWeekByte;
+    }
+
+    public byte getProductionYearByte() {
+        return productionYearByte;
+    }
+
+    public void setProductionYearByte(byte productionYearByte) {
+        this.productionYearByte = productionYearByte;
+    }
+
     public String dump() {
         StringBuilder sb = new StringBuilder();
         sb.append("hardwareVendorId: ").append(hardwareVendorId).append("\n");
@@ -250,7 +272,6 @@ public class VersionInfo {
         sb.append("hardwareStorageSize: ").append(hardwareStorageSize).append("\n");
 
         sb.append("hardwareProtocol: ").append(hardwareProtocol).append("\n");
-        sb.append("hardwareSubtype: ").append(hardwareSubtype).append("\n");
         sb.append("softwareVendorId: ").append(softwareVendorId).append("\n");
         sb.append("softwareType: ").append(softwareType).append("\n");
         sb.append("softwareSubtype: ").append(softwareSubtype).append("\n");
@@ -264,8 +285,8 @@ public class VersionInfo {
         sb.append("softwareStorageSize: ").append(softwareStorageSize).append("\n");
         sb.append("Uid: ").append(Utils.bytesToHex(uid)).append("\n");
         sb.append("batchNumber: ").append(Utils.bytesToHex(batchNumber)).append("\n");
-        sb.append("productionWeek: ").append(productionWeek).append("\n");
-        sb.append("productionYear: ").append(productionYear).append("\n");
+        sb.append("productionWeek1: ").append(byteToHex(productionWeekByte)).append("\n");
+        sb.append("productionYear: ").append(byteToHex(productionYearByte)).append("\n");
         sb.append("*** dump ended ***").append("\n");
         return sb.toString();
     }

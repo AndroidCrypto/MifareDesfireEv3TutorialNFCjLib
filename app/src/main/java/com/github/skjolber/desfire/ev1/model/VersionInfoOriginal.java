@@ -1,27 +1,5 @@
 package com.github.skjolber.desfire.ev1.model;
 
-/***************************************************************************
- *
- * This file is part of the 'External NFC API' project at
- * https://github.com/skjolber/external-nfc-api
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- ****************************************************************************/
-
-
-import static de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.byteToHex;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -29,8 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+// https://code.google.com/p/nfc-tools/source/browse/trunk/libfreefare/examples/mifare-desfire-info.c?r=751
 
-public class VersionInfo implements Parcelable {
+public class VersionInfoOriginal implements Parcelable {
 
 	private int hardwareVendorId;
 	private int hardwareType;
@@ -48,23 +27,21 @@ public class VersionInfo implements Parcelable {
 	private int softwareStorageSize;
 	private int softwareProtocol;
 
-	byte[] uid = new byte[7]; // [7];
-	byte[] batchNumber = new byte[5]; //[5];
-	private int productionWeek;
-	private int productionYear;
-	private byte productionWeekByte;
-	private byte productionYearByte;
+    byte[] uid = new byte[7]; // [7];
+    byte[] batchNumber = new byte[5]; //[5];
+    private int productionWeek;
+    private int productionYear;
 
-	public VersionInfo() {
+	public VersionInfoOriginal() {
 	}
 
-	public VersionInfo(byte[] bytes) throws IOException {
+	public VersionInfoOriginal(byte[] bytes) throws IOException {
 		read(bytes);
 	}
 
 	public void read(byte[] bytes) throws IOException {
 		DataInputStream din = new DataInputStream(new ByteArrayInputStream(bytes));
-
+		
 		hardwareVendorId = din.read();
 		hardwareType = din.read();
 		hardwareSubtype = din.read();
@@ -72,7 +49,7 @@ public class VersionInfo implements Parcelable {
 		hardwareVersionMinor = din.read();
 		hardwareStorageSize = din.read();
 		hardwareProtocol = din.read();
-
+		
 		softwareVendorId = din.read();
 		softwareType = din.read();
 		softwareSubtype = din.read();
@@ -80,16 +57,14 @@ public class VersionInfo implements Parcelable {
 		softwareVersionMinor = din.read();
 		softwareStorageSize = din.read();
 		softwareProtocol = din.read();
-
+				
 		din.readFully(uid);
 		din.readFully(batchNumber);
-
+		
 		productionWeek = din.read();
 		productionYear = din.read();
-		productionWeekByte = (byte) (productionWeek & 0xff);
-		productionYearByte = (byte) (productionYear & 0xff);
 	}
-
+	
 	public String getHardwareVersion() {
 		return hardwareVersionMajor + "." + hardwareVersionMinor;
 	}
@@ -140,13 +115,13 @@ public class VersionInfo implements Parcelable {
 
 	public int getHardwareStorageSize() {
 		if((hardwareStorageSize & 1) > 0) {
-			// >
+			// > 
 		} else {
 			// =
 		}
-
+		
 		return (int)Math.pow (2, hardwareStorageSize >> 1);
-
+		
 		//return String.format("%s%d", ((hardwareStorageSize & 1) > 0 ? ">" : "="), (int)pow (2, hardwareStorageSize >> 1));
 	}
 
@@ -249,52 +224,7 @@ public class VersionInfo implements Parcelable {
 	public void setProductionYear(int productionYear) {
 		this.productionYear = productionYear;
 	}
-
-	public byte getProductionWeekByte() {
-		return productionWeekByte;
-	}
-
-	public void setProductionWeekByte(byte productionWeekByte) {
-		this.productionWeekByte = productionWeekByte;
-	}
-
-	public byte getProductionYearByte() {
-		return productionYearByte;
-	}
-
-	public void setProductionYearByte(byte productionYearByte) {
-		this.productionYearByte = productionYearByte;
-	}
-
-	public String dump() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("hardwareVendorId: ").append(hardwareVendorId).append("\n");
-		sb.append("hardwareType: ").append(hardwareType).append("\n");
-		sb.append("hardwareSubtype: ").append(hardwareSubtype).append("\n");
-		sb.append("hardwareVersionMajor: ").append(hardwareVersionMajor).append("\n");
-		sb.append("hardwareVersionMinor: ").append(hardwareVersionMinor).append("\n");
-		sb.append("hardwareStorageSize: ").append(hardwareStorageSize).append("\n");
-
-		sb.append("hardwareProtocol: ").append(hardwareProtocol).append("\n");
-		sb.append("softwareVendorId: ").append(softwareVendorId).append("\n");
-		sb.append("softwareType: ").append(softwareType).append("\n");
-		sb.append("softwareSubtype: ").append(softwareSubtype).append("\n");
-
-		sb.append("softwareType: ").append(softwareType).append("\n");
-		sb.append("softwareVersionMajor: ").append(softwareVersionMajor).append("\n");
-		sb.append("softwareVersionMinor: ").append(softwareVersionMinor).append("\n");
-		sb.append("softwareStorageSize: ").append(softwareStorageSize).append("\n");
-
-		sb.append("softwareProtocol: ").append(softwareProtocol).append("\n");
-		sb.append("softwareStorageSize: ").append(softwareStorageSize).append("\n");
-		sb.append("Uid: ").append(bytesToHexNpe(uid)).append("\n");
-		sb.append("batchNumber: ").append(bytesToHexNpe(batchNumber)).append("\n");
-		sb.append("productionWeek1: ").append(byteToHex(productionWeekByte)).append("\n");
-		sb.append("productionYear: ").append(byteToHex(productionYearByte)).append("\n");
-		sb.append("*** dump ended ***").append("\n");
-		return sb.toString();
-	}
-
+	
 	@Override
 	public int describeContents() {
 		return 0;
@@ -309,7 +239,7 @@ public class VersionInfo implements Parcelable {
 		dest.writeInt(hardwareVersionMinor);
 		dest.writeInt(hardwareStorageSize);
 		dest.writeInt(hardwareProtocol);
-
+		
 		dest.writeInt(softwareVendorId);
 		dest.writeInt(softwareType);
 		dest.writeInt(softwareSubtype);
@@ -320,62 +250,50 @@ public class VersionInfo implements Parcelable {
 
 		dest.writeInt(uid.length);
 		dest.writeByteArray(uid);
-
+		
 		dest.writeInt(batchNumber.length);
 		dest.writeByteArray(batchNumber);
-
+		
 		dest.writeInt(productionWeek);
 		dest.writeInt(productionYear);
 	}
+	
+    public static final Creator<VersionInfoOriginal> CREATOR = new Creator<VersionInfoOriginal>() {
+        public VersionInfoOriginal createFromParcel(Parcel din) {
+       	 
+        	VersionInfoOriginal item = new VersionInfoOriginal();
+       	
+        	item.hardwareVendorId = din.readInt();
+        	item.hardwareType = din.readInt();
+        	item.hardwareSubtype = din.readInt();
+        	item.hardwareVersionMajor = din.readInt();
+        	item.hardwareVersionMinor = din.readInt();
+        	item.hardwareStorageSize = din.readInt();
+        	item.hardwareProtocol = din.readInt();
+    		
+        	item.softwareVendorId = din.readInt();
+        	item.softwareType = din.readInt();
+        	item.softwareSubtype = din.readInt();
+        	item.softwareVersionMajor = din.readInt();
+        	item.softwareVersionMinor = din.readInt();
+        	item.softwareStorageSize = din.readInt();
+        	item.softwareProtocol = din.readInt();
+    			
+        	item.uid = new byte[din.readInt()];
+        	din.readByteArray(item.uid);
 
-	public static final Creator<VersionInfo> CREATOR = new Creator<VersionInfo>() {
-		public VersionInfo createFromParcel(Parcel din) {
+        	item.batchNumber = new byte[din.readInt()];
+        	din.readByteArray(item.batchNumber);
 
-			VersionInfo item = new VersionInfo();
+        	item.productionWeek = din.readInt();
+        	item.productionYear = din.readInt();
+       	 
+            return item;
+        }
 
-			item.hardwareVendorId = din.readInt();
-			item.hardwareType = din.readInt();
-			item.hardwareSubtype = din.readInt();
-			item.hardwareVersionMajor = din.readInt();
-			item.hardwareVersionMinor = din.readInt();
-			item.hardwareStorageSize = din.readInt();
-			item.hardwareProtocol = din.readInt();
+        public VersionInfoOriginal[] newArray(int size) {
+            return new VersionInfoOriginal[size];
+        }
+    };
 
-			item.softwareVendorId = din.readInt();
-			item.softwareType = din.readInt();
-			item.softwareSubtype = din.readInt();
-			item.softwareVersionMajor = din.readInt();
-			item.softwareVersionMinor = din.readInt();
-			item.softwareStorageSize = din.readInt();
-			item.softwareProtocol = din.readInt();
-
-			item.uid = new byte[din.readInt()];
-			din.readByteArray(item.uid);
-
-			item.batchNumber = new byte[din.readInt()];
-			din.readByteArray(item.batchNumber);
-
-			item.productionWeek = din.readInt();
-			item.productionYear = din.readInt();
-
-			return item;
-		}
-
-		public VersionInfo[] newArray(int size) {
-			return new VersionInfo[size];
-		}
-	};
-
-	private String byteToHex(Byte input) {
-		return String.format("%02X", input);
-		//return String.format("0x%02X", input);
-	}
-
-	private String bytesToHexNpe(byte[] bytes) {
-		if (bytes == null) return "";
-		StringBuffer result = new StringBuffer();
-		for (byte b : bytes)
-			result.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
-		return result.toString();
-	}
 }

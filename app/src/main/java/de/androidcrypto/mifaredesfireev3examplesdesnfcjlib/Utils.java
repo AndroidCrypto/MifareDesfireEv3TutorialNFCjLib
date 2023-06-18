@@ -40,6 +40,26 @@ public class Utils {
         return (array[index] & mask) != 0;
     }
 
+    public static String printData(String dataName, byte[] data) {
+        int dataLength;
+        String dataString = "";
+        if (data == null) {
+            dataLength = 0;
+            dataString = "IS NULL";
+        } else {
+            dataLength = data.length;
+            dataString = bytesToHex(data);
+        }
+        StringBuilder sb = new StringBuilder();
+        sb
+                .append(dataName)
+                .append(" length: ")
+                .append(dataLength)
+                .append(" data: ")
+                .append(dataString);
+        return sb.toString();
+    }
+
     public static String bytesToHex(byte[] bytes) {
         if (bytes == null) return "";
         StringBuffer result = new StringBuffer();
@@ -54,6 +74,11 @@ public class Utils {
         for (byte b : bytes)
             result.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
         return result.toString();
+    }
+
+    public static String byteToHex(Byte input) {
+        return String.format("%02X", input);
+        //return String.format("0x%02X", input);
     }
 
     public static byte[] hexStringToByteArray(String s) {
