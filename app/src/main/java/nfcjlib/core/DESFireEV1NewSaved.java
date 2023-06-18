@@ -2387,7 +2387,7 @@ public class DESFireEV1NewSaved {
 		} else {
 			System.out.println("### cs: " + cs.toString());
 		}
-		// rough overwrite
+		// todo rough overwrite
 		cs = DesfireFileCommunicationSettings.ENCIPHERED; // todo ### HARD CODED VALUE
 
 		if (cs == null) return false;

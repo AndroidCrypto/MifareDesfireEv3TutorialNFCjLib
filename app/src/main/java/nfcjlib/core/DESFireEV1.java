@@ -30,6 +30,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import nfcjlib.core.util.AES;
 import nfcjlib.core.util.BitOp;
@@ -933,8 +934,23 @@ public class DESFireEV1 {
 		this.fileSettings[fileNo] = null;
 	}
 
-	private void setFileSettingsCache(int fileNo, DesfireFileCommunicationSettings object) {
-		this.fileSettings[fileNo] = null;
+	//private void setFileSettingsCache(int fileNo, DesfireFileCommunicationSettings object) {
+	private void setFileSettingsCache(int fileNo, DesfireFile object) {	 // todo ERROR ??
+	//public void setFileSettingsCache(int fileNo, DesfireFileCommunicationSettings object) { // todo Change from private to public to get an update
+		//this.fileSettings[fileNo] = null; // todo ERROR- shouldn't this SET the setting and not NULL it ?
+		this.fileSettings[fileNo] = object;
+	}
+
+	/**
+	 * todo new method to externally force the update of communication settings
+	 * @param fileNo
+	 * @return
+	 * @throws Exception
+	 */
+	public DesfireFile forceFileSettingsUpdate(int fileNo) throws Exception {
+		DesfireFile desfireFile = getFileSettings(fileNo);
+		setFileSettingsCache(fileNo, desfireFile);
+		return desfireFile;
 	}
 
 	/**
@@ -1942,10 +1958,27 @@ public class DESFireEV1 {
 
 	/* Support method for writeData/writeRecord. */
 	private boolean write(byte[] payload, byte cmd) throws Exception {
-		DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], true, false, false, true);
-		if (cs == null)
-			return false;
 
+		System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("payload", payload));
+		DesfireFile desfireFile = getFileSettings(payload[0]);
+		int readAccessKey = desfireFile.getReadAccessKey();
+		int writeAccessKey = desfireFile.getWriteAccessKey();
+		String csDescription = desfireFile.getCommunicationSettings().getDescription();
+		System.out.println("read: " + readAccessKey + " write " + writeAccessKey + " comm: " + csDescription);
+		DesfireFileCommunicationSettings desfireFileCommunicationSettings = desfireFile.getCommunicationSettings();
+		Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
+		System.out.println("----- permission map ------");
+		for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
+			System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+		}
+		System.out.println("-----------");
+
+
+		DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], true, false, false, true);
+		if (cs == null) {
+			Log.e(TAG, "write - cs are NULL");
+			return false;
+		}
 		byte[] apdu;
 		byte[] fullApdu = new byte[6 + payload.length];
 		fullApdu[0] = (byte) 0x90;
@@ -1957,6 +1990,11 @@ public class DESFireEV1 {
 		fullApdu = preprocess(fullApdu, 7, cs);  // 7 = 1+3+3 (keyNo+off+len)
 
 		byte[] responseAPDU = adapter.transmitChain(fullApdu);
+		System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
+		byte[] postprocessRes = postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
+		System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("postprocessRes", postprocessRes));
+		boolean post = postprocessRes != null;
+		System.out.println("post: " + post);
 
 		return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN) != null;
 	}

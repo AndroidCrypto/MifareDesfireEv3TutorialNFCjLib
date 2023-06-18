@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
     //private final byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
     //private final byte[] AID_DES = Utils.hexStringToByteArray("A3A2A1"); // wrong, LSB
-    private final byte[] AID_DES = Utils.hexStringToByteArray("A1A2A3");
+    private final byte[] AID_DES = Utils.hexStringToByteArray("A1A2A4");
     private final byte[] DES_DEFAULT_KEY = new byte[8];
     private final byte[] APPLICATION_KEY_MASTER_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
     private final byte[] APPLICATION_KEY_MASTER = Utils.hexStringToByteArray("D000000000000000");
@@ -220,10 +220,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
                     byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
 
-                    boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
+                    byte[] aid = AID_DES.clone();
+                    Utils.reverseByteArrayInPlace(aid);
+
+                    //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
+                    boolean dfCreateApplication = desfire.createApplication(aid, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
                     writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
 
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    //boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    boolean dfSelectApplication = desfire.selectApplication(aid);
                     writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
 
                     // as of the key settings we do not need an authentication to create a file ?
@@ -278,15 +283,17 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
                     //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
                     //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
-
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    byte[] aid = AID_DES.clone();
+                    Utils.reverseByteArrayInPlace(aid);
+                    boolean dfSelectApplication = desfire.selectApplication(aid);
                     writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
 
                     // we do need an authentication to write to a file
                     //byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
                     //byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
                     // authenticate with ApplicationWriteKey
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W, APPLICATION_KEY_W_NUMBER, KeyType.DES);
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W_DEFAULT, APPLICATION_KEY_W_NUMBER, KeyType.DES);
+                    //boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W, APPLICATION_KEY_W_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
 
                     // get a random payload with 32 bytes
@@ -297,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     byte lengthOfData = (byte) (dataToWrite.length & 0xFF);
                     byte[] payloadWriteData = new byte[7 + dataToWrite.length]; // 7 + length of data
                     payloadWriteData[0] = STANDARD_FILE_NUMBER; // fileNumber
+                    //payloadWriteData[0] = (byte) 0x00; // fileNumber // todo change
                     System.arraycopy(offset, 0, payloadWriteData, 1, 3);
                     payloadWriteData[4] = lengthOfData; // lsb
                     //payloadStandardFile[5] = 0; // is 0x00 // lsb
@@ -328,25 +336,29 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
                     //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
 
-                    dfSelectApplication = desfire.selectApplication(AID_DES);
+                    dfSelectApplication = desfire.selectApplication(aid);
                     writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
 
                     // we do need an authentication to read from a file
                     byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-                    byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
+                    //byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
                     // authenticate with ApplicationWReadKey
-                    boolean dfAuthAppRead = desfire.authenticate(APPLICATION_KEY_R, APPLICATION_KEY_R_NUMBER, KeyType.DES);
+                    boolean dfAuthAppRead = desfire.authenticate(APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
+                    //boolean dfAuthAppRead = desfire.authenticate(APPLICATION_KEY_R, APPLICATION_KEY_R_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthAppRead);
 
 
+                    //
                     // todo get the maximal length from getFileSettings
                     DesfireFile fileSettings = desfire.getFileSettings(STANDARD_FILE_NUMBER);
+                    //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
                     // todo check that it is a standard file !
                     StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
                     int fileSize = standardDesfireFile.getFileSize();
                     writeToUiAppend(output, "fileSize: " + fileSize);
 
                     byte[] readStandard = desfire.readData(STANDARD_FILE_NUMBER, 0, fileSize);
+                    //byte[] readStandard = desfire.readData((byte) 0x00, 0, fileSize);
                     writeToUiAppend(output, printData("readStandard", readStandard));
                     if (readStandard != null) {
                         writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
@@ -725,6 +737,39 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        authKeyD3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read access key = 03...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x03 = read access key");
+                try {
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+
+            }
+        });
+
         authKeyD4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -984,6 +1029,22 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         //writeToUiAppend(errorCode, "selectApplicationDes: " + Ev3.getErrorCode(responseData));
 
                         // here we are reading the fileSettings
+                        DesfireFile desfireFile;
+                        try {
+                            desfireFile = desfire.forceFileSettingsUpdate(Integer.parseInt(selectedFileId));
+                        } catch (Exception e) {
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                            return;
+                        }
+                        if (desfireFile == null) {
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "cant update the file communication settings, aborted", COLOR_RED);
+                            return;
+                        }
+                        int readAccessKey = desfireFile.getReadAccessKey();
+                        int writeAccessKey = desfireFile.getWriteAccessKey();
+                        String csDescription = desfireFile.getCommunicationSettings().getDescription();
+                        System.out.println("read: " + readAccessKey + " write " + writeAccessKey + " comm: " + csDescription);
+
                         /*
                         String outputString = fileList[which] + " ";
                         byte fileIdByte = Byte.parseByte(selectedFileId);

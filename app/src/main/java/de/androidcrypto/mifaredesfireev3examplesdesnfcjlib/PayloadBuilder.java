@@ -162,7 +162,7 @@ public class PayloadBuilder {
         if (data.length > MAXIMUM_FILE_SIZE) return null; // avoid framing
 
         // build
-        byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning, fixed
+        byte[] offset = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}; // write at the beginning, fixed
         byte[] lengthOfData = intTo3ByteArrayLsb(data.length);
         byte[] payload = new byte[7 + data.length]; // 7 + length of data
         payload[0] = (byte) (fileNumber & 0xff); // fileNumber
@@ -179,7 +179,7 @@ public class PayloadBuilder {
         if (data.length > MAXIMUM_FILE_SIZE) return null; // avoid framing
 
         // build
-        byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning, fixed
+        byte[] offset = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}; // write at the beginning, fixed
         byte[] lengthOfData = intTo3ByteArrayLsb(data.length);
         byte[] payload = new byte[7 + data.length]; // 7 + length of data
         payload[0] = (byte) (fileNumber & 0xff); // fileNumber
