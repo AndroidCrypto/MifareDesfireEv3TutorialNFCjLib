@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte[] APPLICATION_KEY_MASTER = Utils.hexStringToByteArray("D000000000000000");
     private final byte APPLICATION_KEY_MASTER_NUMBER = (byte) 0x00;
     private final byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks
-    private final byte KEY_NUMBER_RW = (byte) 0x00;
+    private final byte KEY_NUMBER_RW = (byte) 0x01;
     private final byte[] APPLICATION_KEY_RW_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
     private final byte[] APPLICATION_KEY_RW = Utils.hexStringToByteArray("D100000000000000");
     private final byte APPLICATION_KEY_RW_NUMBER = (byte) 0x01;
@@ -630,7 +630,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppend(output, "you  selected nr " + which + " = " + applicationList[which]);
                         boolean dfSelectApplication = false;
                         try {
-                            dfSelectApplication = desfire.selectApplication(AID_DES);
+                            byte[] aid = Utils.hexStringToByteArray(applicationList[which]);
+                            Utils.reverseByteArrayInPlace(aid);
+                            dfSelectApplication = desfire.selectApplication(aid);
                         } catch (IOException e) {
                             //throw new RuntimeException(e);
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
@@ -643,7 +645,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             applicationSelected.setText(applicationList[which]);
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplicationResult: " + dfSelectApplication, COLOR_GREEN);
                         } else {
-                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplicationResult: " + dfSelectApplication, COLOR_RED);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
                         }
                     }
                 });
@@ -660,9 +662,98 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         authKeyD0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // authenticate with the application master key = d0
-                //clearOutputFields();
+                // authenticate with the application master key = 00...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x00 = master application key");
+                try {
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+            } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+            }
 
+            }
+        });
+
+        authKeyD1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x01 = read&write access key");
+                try {
+                    boolean dfAuthApp = desfire.authenticate(DES_DEFAULT_KEY, KEY_NUMBER_RW, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+
+            }
+        });
+
+        authKeyD4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the write access key = 04...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x04 = write access key");
+                try {
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W_DEFAULT, APPLICATION_KEY_W_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
 
             }
         });

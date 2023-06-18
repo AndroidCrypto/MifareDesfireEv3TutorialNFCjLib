@@ -238,14 +238,6 @@
                         android:text="list" />
 
                     <Button
-                        android:id="@+id/btnCreateApplication"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="create" />
-
-                    <Button
                         android:id="@+id/btnSelectApplication"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -278,7 +270,7 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="A3A2A1"
+                        android:text="A1A2A3"
                         tools:ignore="KeyboardInaccessibleWidget" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -309,6 +301,29 @@
                         android:text="5"
                         tools:ignore="KeyboardInaccessibleWidget" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnCreateApplication"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="create" />
+
+                    <Button
+                        android:id="@+id/btnDeleteApplication"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="delete" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
