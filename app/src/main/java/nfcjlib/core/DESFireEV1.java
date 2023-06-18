@@ -1958,7 +1958,7 @@ public class DESFireEV1 {
 
 	/* Support method for writeData/writeRecord. */
 	private boolean write(byte[] payload, byte cmd) throws Exception {
-
+/*
 		System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("payload", payload));
 		DesfireFile desfireFile = getFileSettings(payload[0]);
 		int readAccessKey = desfireFile.getReadAccessKey();
@@ -1972,14 +1972,14 @@ public class DESFireEV1 {
 			System.out.println(entry.getKey() + ":" + entry.getValue().toString());
 		}
 		System.out.println("-----------");
-
+*/
 
 		DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], true, false, false, true);
 		if (cs == null) {
 			Log.e(TAG, "write - cs are NULL");
 			return false;
 		}
-		byte[] apdu;
+		//byte[] apdu;
 		byte[] fullApdu = new byte[6 + payload.length];
 		fullApdu[0] = (byte) 0x90;
 		fullApdu[1] = cmd;
@@ -1990,11 +1990,11 @@ public class DESFireEV1 {
 		fullApdu = preprocess(fullApdu, 7, cs);  // 7 = 1+3+3 (keyNo+off+len)
 
 		byte[] responseAPDU = adapter.transmitChain(fullApdu);
-		System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
+		//System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
 		byte[] postprocessRes = postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
-		System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("postprocessRes", postprocessRes));
+		//System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("postprocessRes", postprocessRes));
 		boolean post = postprocessRes != null;
-		System.out.println("post: " + post);
+		//System.out.println("post: " + post);
 
 		return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN) != null;
 	}
