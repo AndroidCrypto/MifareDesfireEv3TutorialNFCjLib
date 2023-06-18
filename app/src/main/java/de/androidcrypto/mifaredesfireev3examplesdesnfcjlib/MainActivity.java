@@ -29,6 +29,7 @@ import com.github.skjolber.desfire.ev1.model.VersionInfo;
 import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.file.DesfireFile;
+import com.github.skjolber.desfire.ev1.model.file.DesfireFileType;
 import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
     //private final byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
     //private final byte[] AID_DES = Utils.hexStringToByteArray("A3A2A1"); // wrong, LSB
-    private final byte[] AID_DES = Utils.hexStringToByteArray("A1A2A4");
+    private final byte[] AID_DES = Utils.hexStringToByteArray("A1A2A5");
     private final byte[] DES_DEFAULT_KEY = new byte[8];
     private final byte[] APPLICATION_KEY_MASTER_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
     private final byte[] APPLICATION_KEY_MASTER = Utils.hexStringToByteArray("D000000000000000");
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("D400000000000000");
     private final byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
 
-    private byte STANDARD_FILE_NUMBER = (byte) 0x01;
+    private final byte STANDARD_FILE_NUMBER = (byte) 0x01;
 
 
     int COLOR_GREEN = Color.rgb(0, 255, 0);
@@ -270,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     // select master application
                     boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
                     writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
-
+/*
                     // authenticate with MasterApplicationKey
                     //byte[] MASTER_APPLICATION_KEY = new byte[8];
                     //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
@@ -280,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
                     //byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
                     //byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
-
+*/
                     //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
                     //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
                     byte[] aid = AID_DES.clone();
@@ -320,14 +321,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, "now we are reading the content of the file");
 
                     // select master application
-                    dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+                    boolean dfSelectMR = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectMR);
 
                     // authenticate with MasterApplicationKey
                     //byte[] MASTER_APPLICATION_KEY = new byte[8];
                     //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-                    dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+                    boolean dfAuthMR = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthMR);
 
                     //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
                     //byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
@@ -342,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     // we do need an authentication to read from a file
                     byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
                     //byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
-                    // authenticate with ApplicationWReadKey
+                    // authenticate with ApplicationReadKey
                     boolean dfAuthAppRead = desfire.authenticate(APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
                     //boolean dfAuthAppRead = desfire.authenticate(APPLICATION_KEY_R, APPLICATION_KEY_R_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthAppRead);
@@ -1136,6 +1137,26 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 int fileIdInt = Integer.parseInt(selectedFileId);
                 byte fileIdByte = Byte.parseByte(selectedFileId);
 
+                // check that it is a standard file !
+                DesfireFile fileSettings = null;
+                try {
+                    fileSettings = desfire.getFileSettings(fileIdInt);
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                }
+                //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
+                // check that it is a standard file !
+                String fileTypeName = fileSettings.getFileTypeName();
+                writeToUiAppend(output, "file is of type "+ fileTypeName);
+                if (!fileTypeName.equals("Standard")) {
+                    writeToUiAppend(output, "The selected file is not of type Standard but of type " + fileTypeName + ", aborted");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                    return;
+                }
+
                 // get a random payload with 32 bytes
                 UUID uuid = UUID.randomUUID(); // this is 36 characters long
                 //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
@@ -1166,12 +1187,63 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     e.printStackTrace();
                     return;
                 }
-
                 writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
                 writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
             }
         });
+
+        fileStandardRead.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // read from a selected standard file in a selected application
+                clearOutputFields();
+                // this uses the pre selected file
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    //writeToUiAppend(errorCode, "you need to select a file first");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                int fileIdInt = Integer.parseInt(selectedFileId);
+                byte[] readStandard;
+                try {
+                    // get the maximal length from getFileSettings
+                    DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
+                    //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
+                    // check that it is a standard file !
+                    String fileTypeName = fileSettings.getFileTypeName();
+                    writeToUiAppend(output, "file is of type "+ fileTypeName);
+                    if (!fileTypeName.equals("Standard")) {
+                        writeToUiAppend(output, "The selected file is not of type Standard but of type " + fileTypeName + ", aborted");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        return;
+                    }
+                    StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
+                    int fileSize = standardDesfireFile.getFileSize();
+                    writeToUiAppend(output, "fileSize: " + fileSize);
+
+                    readStandard = desfire.readData((byte) (fileIdInt & 0xff), 0, fileSize);
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                    e.printStackTrace();
+                    return;
+                }
+
+                writeToUiAppend(output, printData("readStandard", readStandard));
+                if (readStandard != null) {
+                    writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
+                }
+                writeToUiAppend(output, "finished");
+                writeToUiAppend(output, "");
+            }
+        });
+
 
     }
 
