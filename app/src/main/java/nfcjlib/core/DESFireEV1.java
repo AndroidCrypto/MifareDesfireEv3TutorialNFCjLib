@@ -1533,6 +1533,7 @@ public class DESFireEV1 {
 	 * 					If an error occurs, returns <code>null</code>.
 	 */
 	private byte[] postprocess(byte[] apdu, int length, DesfireFileCommunicationSettings commSett) {
+		code = getSW2(apdu); // todo added
 		if (commSett == null) {
 			Log.e(TAG, "postprocess: commSett is null");
 			return null;
