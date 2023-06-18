@@ -2,6 +2,8 @@ package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
@@ -9,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +30,7 @@ import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.file.DesfireFile;
 import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,6 +47,7 @@ import nfcjlib.core.KeyType;
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback  {
 
     private com.google.android.material.textfield.TextInputEditText output, errorCode;
+    private com.google.android.material.textfield.TextInputLayout errorCodeLayout;
 
     /**
      * section for temporary actions
@@ -82,8 +87,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private LinearLayout llStandardFile;
-    private Button fileList, fileStandardCreate, fileStandardRead, authenticate;
-    private com.google.android.material.textfield.TextInputEditText fileId, fileSize;
+    private Button fileList, fileSelect, fileStandardCreate, fileStandardRead, authenticate;
+    private com.google.android.material.textfield.TextInputEditText fileSize;
+    private com.shawnlin.numberpicker.NumberPicker npFileId;
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3];
@@ -99,8 +105,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks
     private final byte KEY_NUMBER_RW = (byte) 0x00;
     private final byte[] APPLICATION_KEY_RW_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_RW = Utils.hexStringToByteArray("D100000000000000");
     private final byte APPLICATION_KEY_RW_NUMBER = (byte) 0x01;
     private final byte[] APPLICATION_KEY_CAR_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_CAR = Utils.hexStringToByteArray("D200000000000000");
     private final byte APPLICATION_KEY_CAR_NUMBER = (byte) 0x02;
 
     private final byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
@@ -113,6 +121,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private final byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
 
     private byte STANDARD_FILE_NUMBER = (byte) 0x01;
+
+
+    int COLOR_GREEN = Color.rgb(0,255,0);
+    int COLOR_RED = Color.rgb(255,0,0);
+
     // variables for NFC handling
 
     private NfcAdapter mNfcAdapter;
@@ -131,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
         output = findViewById(R.id.etOutput);
         errorCode = findViewById(R.id.etErrorCode);
+        errorCodeLayout = findViewById(R.id.etErrorCodeLayout);
 
         // temporary workflow
         setupCompleteApplication = findViewById(R.id.btnSetupCompleteApplication);
@@ -164,14 +178,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         // standard file handling
         llStandardFile = findViewById(R.id.llStandardFile);
         fileList = findViewById(R.id.btnListFiles);
+        fileSelect = findViewById(R.id.btnSelectFile);
         authenticate = findViewById(R.id.btnAuthenticate);
         fileStandardCreate = findViewById(R.id.btnCreateStandardFile);
         fileStandardRead = findViewById(R.id.btnReadStandardFile);
-        fileId = findViewById(R.id.etFileId);
+        npFileId = findViewById(R.id.npFileId);
         fileSize = findViewById(R.id.etFileSize);
 
-
-        allLayoutsInvisible(); // default
+        //allLayoutsInvisible(); // default
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
@@ -206,7 +220,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
 
                     // as of the key settings we do not need an authentication to create a file ?
-
 
                     byte APPLICATION_COMMUNICATION_SETTINGS = (byte) 0x00; // plain access (no MAC nor Encryption)
                     byte APPLICATION_ACCESS_RIGHTS_RW_CAR = (byte) 0x12; // Read&Write Access & ChangeAccessRights
@@ -470,22 +483,27 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     versionInfo = desfire.getVersion();
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
-                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
                     e.printStackTrace();
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
-                    writeToUiAppend(output, "Exception: " + e.getMessage());
-                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "Exception: " + e.getMessage());
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
                     return;
                 }
                 if (versionInfo == null) {
                     writeToUiAppend(output, "getVersionInfo is NULL");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "getVersionInfo is NULL", COLOR_RED);
                     return;
                 }
                 writeToUiAppend(output, "getVersionInfo: " + versionInfo.dump());
-                writeToUiAppend(output, "getVersion: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "success in getting tagVersion", COLOR_GREEN);
+                writeToUiAppend(errorCode, "getVersion: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
             }
         });
 
@@ -499,13 +517,19 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 clearOutputFields();
                 byte[] responseData = new byte[2];
                 List<byte[]> applicationIdList = getApplicationIdsList(output, responseData);
-                writeToUiAppend(errorCode, "getApplicationIdsList: " + Ev3.getErrorCode(responseData));
+                String errorCodeString = Ev3.getErrorCode(responseData);
+                if (errorCodeString.equals("00 success")) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "getApplicationIdsList: " + errorCodeString, COLOR_GREEN);
+                } else {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "getApplicationIdsList: " + errorCodeString, COLOR_RED);
+                }
                 if (applicationIdList != null) {
                     for (int i = 0; i < applicationIdList.size(); i++) {
                         writeToUiAppend(output, "entry " + i + " app id : " + Utils.bytesToHex(applicationIdList.get(i)));
                     }
                 } else {
-                    writeToUiAppend(errorCode, "getApplicationIdsList: returned NULL");
+                    //writeToUiAppend(errorCode, "getApplicationIdsList: returned NULL");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "getApplicationIdsList returned NULL", COLOR_RED);
                 }
             }
         });
@@ -518,36 +542,35 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 clearOutputFields();
                 byte numberOfKeysByte = Byte.parseByte(numberOfKeys.getText().toString());
                 byte[] applicationIdentifier = Utils.hexStringToByteArray(applicationId.getText().toString());
-                Utils.reverseByteArrayInPlace(applicationIdentifier); // change to LSB
                 if (applicationIdentifier == null) {
-                    writeToUiAppend(errorCode, "you entered a wrong application ID");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong application ID", COLOR_RED);
                     return;
                 }
+                Utils.reverseByteArrayInPlace(applicationIdentifier); // change to LSB
                 if (applicationIdentifier.length != 3) {
-                    writeToUiAppend(errorCode, "you did not enter a 6 hex string application ID");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you did not enter a 6 hex string application ID", COLOR_RED);
                     return;
                 }
                 try {
                     boolean success = desfire.createApplication(applicationIdentifier, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, numberOfKeysByte);
                     writeToUiAppend(output, "createApplicationSuccess: " + success);
                     if (!success) {
-                        writeToUiAppend(output, "createApplication NOT Success, aborted");
-                        writeToUiAppend(output, "createApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "createApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         return;
                     }
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
-                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
-                    writeToUiAppend(output, "Exception: " + e.getMessage());
-                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
                     return;
                 }
-
             }
         });
 
@@ -564,6 +587,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, "selectMasterApplicationSuccess: " + success);
                     if (!success) {
                         writeToUiAppend(output, "selectMasterApplication NOT Success, aborted");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectMasterApplication NOT Success, aborted", COLOR_RED);
                         return;
                     }
                     List<DesfireApplicationId> desfireApplicationIdList = desfire.getApplicationsIds();
@@ -572,16 +596,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     for (int i = 0; i < desfireApplicationIdList.size(); i++) {
                         applicationList[i] = desfireApplicationIdList.get(i).getIdString();
                     }
-
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
-                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
-                    writeToUiAppend(output, "Exception: " + e.getMessage());
-                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
                     return;
                 }
@@ -597,8 +621,23 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         writeToUiAppend(output, "you  selected nr " + which + " = " + applicationList[which]);
-                        selectedApplicationId = Utils.hexStringToByteArray(applicationList[which]);
-                        applicationSelected.setText(applicationList[which]);
+                        boolean dfSelectApplication = false;
+                        try {
+                            dfSelectApplication = desfire.selectApplication(AID_DES);
+                        } catch (IOException e) {
+                            //throw new RuntimeException(e);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                            e.printStackTrace();
+                            return;
+                        }
+                        writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+                        if (dfSelectApplication) {
+                            selectedApplicationId = Utils.hexStringToByteArray(applicationList[which]);
+                            applicationSelected.setText(applicationList[which]);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplicationResult: " + dfSelectApplication, COLOR_GREEN);
+                        } else {
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplicationResult: " + dfSelectApplication, COLOR_RED);
+                        }
                     }
                 });
                 // create and show the alert dialog
@@ -800,36 +839,43 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // create a new standard file
                 // get the input and sanity checks
                 clearOutputFields();
-                byte fileIdByte = Byte.parseByte(fileId.getText().toString());
+                byte fileIdByte = (byte) (npFileId.getValue() & 0xFF);
+
+                // the number of files on an EV1 tag is limited to 32 (00..31), but we are using the limit for the old D40 tag with a maximum of 15 files (00..14)
+                // this limit is hardcoded in the XML file for the fileId numberPicker
+
+                //byte fileIdByte = Byte.parseByte(fileId.getText().toString());
                 int fileSizeInt = Integer.parseInt(fileSize.getText().toString());
                 if (fileIdByte > (byte) 0x0f) {
-                    writeToUiAppend(errorCode, "you entered a wrong file ID");
+                    // this should not happen as the limit is hardcoded in npFileId
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
                     return;
                 }
                 if (fileSizeInt != 32) {
-                    writeToUiAppend(errorCode, "you entered a wrong file size, 32 bytes allowed only");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file size, 32 bytes allowed only", COLOR_RED);
                     return;
                 }
                 try {
                     PayloadBuilder pb = new PayloadBuilder();
                     byte[] payloadStandardFile = pb.createStandardFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
-                            0, 1, 2, 3, fileSizeInt);
+                            1, 2, 3, 4, fileSizeInt);
                     boolean success = desfire.createStdDataFile(payloadStandardFile);
-                    writeToUiAppend(output, "createStdDataFileSuccess: " + success);
+                    writeToUiAppend(output, "createStdDataFileSuccess: " + success + " with FileID: " + Utils.byteToHex(fileIdByte) + " and size: " + fileSizeInt);
                     if (!success) {
-                        writeToUiAppend(output, "createStdDataFile NOT Success, aborted");
-                        writeToUiAppend(output, "createStdDataFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "createStdDataFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         return;
                     }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
-                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
-                    writeToUiAppend(output, "Exception: " + e.getMessage());
-                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
                     return;
                 }
@@ -1347,8 +1393,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      * section for layout handling
      */
     private void allLayoutsInvisible() {
-        llApplicationHandling.setVisibility(View.GONE);
-        llStandardFile.setVisibility(View.GONE);
+        // todo change this
+        //llApplicationHandling.setVisibility(View.GONE);
+        //llStandardFile.setVisibility(View.GONE);
     }
 
     /**
@@ -1357,9 +1404,50 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     private void writeToUiAppend(TextView textView, String message) {
         runOnUiThread(() -> {
-            String newString = message + "\n" + textView.getText().toString();
-            textView.setText(newString);
-            System.out.println(message);
+            String oldString = textView.getText().toString();
+            if (TextUtils.isEmpty(oldString)) {
+                textView.setText(message);
+            } else {
+                String newString = message + "\n" + oldString;
+                textView.setText(newString);
+                System.out.println(message);
+            }
+        });
+    }
+
+    private void writeToUiAppendBorderColor(TextView textView, TextInputLayout textInputLayout, String message, int color) {
+        runOnUiThread(() -> {
+
+            // set the color to green
+            //Color from rgb
+            // int color = Color.rgb(255,0,0); // red
+            //int color = Color.rgb(0,255,0); // green
+            //Color from hex string
+            //int color2 = Color.parseColor("#FF11AA"); light blue
+            int[][] states = new int[][] {
+                    new int[] { android.R.attr.state_focused}, // focused
+                    new int[] { android.R.attr.state_hovered}, // hovered
+                    new int[] { android.R.attr.state_enabled}, // enabled
+                    new int[] { }  //
+            };
+            int[] colors = new int[] {
+                    color,
+                    color,
+                    color,
+                    //color2
+                    color
+            };
+            ColorStateList myColorList = new ColorStateList(states, colors);
+            textInputLayout.setBoxStrokeColorStateList(myColorList);
+
+            String oldString = textView.getText().toString();
+            if (TextUtils.isEmpty(oldString)) {
+                textView.setText(message);
+            } else {
+                String newString = message + "\n" + oldString;
+                textView.setText(newString);
+                System.out.println(message);
+            }
         });
     }
 
@@ -1386,6 +1474,22 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private void clearOutputFields() {
         output.setText("");
         errorCode.setText("");
+        // reset the border color to primary for errorCode
+        int color = R.color.colorPrimary;
+        int[][] states = new int[][] {
+                new int[] { android.R.attr.state_focused}, // focused
+                new int[] { android.R.attr.state_hovered}, // hovered
+                new int[] { android.R.attr.state_enabled}, // enabled
+                new int[] { }  //
+        };
+        int[] colors = new int[] {
+                color,
+                color,
+                color,
+                color
+        };
+        ColorStateList myColorList = new ColorStateList(states, colors);
+        errorCodeLayout.setBoxStrokeColorStateList(myColorList);
     }
 
     /**

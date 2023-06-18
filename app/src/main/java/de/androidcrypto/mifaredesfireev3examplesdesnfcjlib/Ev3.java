@@ -1,5 +1,7 @@
 package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
 
+import android.graphics.Color;
+
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -41,6 +43,17 @@ public class Ev3 {
 
         }
         return "undefined error code";
+    }
+
+    public static int getColorFromErrorCode(String oneByteResponseString) {
+        byte oneByteResponse = Byte.parseByte(oneByteResponseString);
+        int colorRed = Color.rgb(255,0,0); // red
+        int colorGreen = Color.rgb(0,255,0); // green
+        if (oneByteResponse == (byte) 0x00) {
+            return colorGreen;
+        } else {
+            return colorRed;
+        }
     }
 
     /**
