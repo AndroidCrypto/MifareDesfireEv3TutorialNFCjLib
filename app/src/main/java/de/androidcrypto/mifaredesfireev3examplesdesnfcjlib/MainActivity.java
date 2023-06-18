@@ -44,7 +44,7 @@ import nfcjlib.core.DESFireAdapter;
 import nfcjlib.core.DESFireEV1;
 import nfcjlib.core.KeyType;
 
-public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback  {
+public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
 
     private com.google.android.material.textfield.TextInputEditText output, errorCode;
     private com.google.android.material.textfield.TextInputLayout errorCodeLayout;
@@ -87,9 +87,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private LinearLayout llStandardFile;
-    private Button fileList, fileSelect, fileStandardCreate, fileStandardRead, authenticate;
-    private com.google.android.material.textfield.TextInputEditText fileSize;
+    private Button fileList, fileSelect, fileStandardCreate, fileStandardWrite, fileStandardRead, authenticate;
+    private com.google.android.material.textfield.TextInputEditText fileSize, fileSelected, fileData;
     private com.shawnlin.numberpicker.NumberPicker npFileId;
+
+    private String selectedFileId = "";
+    private int selectedFileSize;
+    //private FileSettings selectedFileSettings;
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3];
@@ -123,8 +127,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private byte STANDARD_FILE_NUMBER = (byte) 0x01;
 
 
-    int COLOR_GREEN = Color.rgb(0,255,0);
-    int COLOR_RED = Color.rgb(255,0,0);
+    int COLOR_GREEN = Color.rgb(0, 255, 0);
+    int COLOR_RED = Color.rgb(255, 0, 0);
 
     // variables for NFC handling
 
@@ -181,9 +185,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileSelect = findViewById(R.id.btnSelectFile);
         authenticate = findViewById(R.id.btnAuthenticate);
         fileStandardCreate = findViewById(R.id.btnCreateStandardFile);
+        fileStandardWrite = findViewById(R.id.btnWriteStandardFile);
         fileStandardRead = findViewById(R.id.btnReadStandardFile);
         npFileId = findViewById(R.id.npFileId);
         fileSize = findViewById(R.id.etFileSize);
+        fileData = findViewById(R.id.etFileData);
+        fileSelected = findViewById(R.id.etSelectedFileId);
 
         //allLayoutsInvisible(); // default
 
@@ -657,8 +664,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 //clearOutputFields();
 
 
-
-
             }
         });
 
@@ -833,6 +838,83 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        fileSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // select a file in a selected application
+                clearOutputFields();
+
+                byte[] fileIds;
+                try {
+                    fileIds = desfire.getFileIds();
+                    if (fileIds == null) {
+                        writeToUiAppend(output, "The getFileIds returned NULL");
+                        return;
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    return;
+                    //throw new RuntimeException(e);
+                }
+                if (fileIds.length == 0) {
+                    writeToUiAppend(output, "The getFileIds returned no files");
+                    return;
+                }
+                List<Byte> fileIdList = new ArrayList<>();
+                for (int i = 0; i < fileIds.length; i++) {
+                    fileIdList.add(fileIds[i]);
+                }
+                //byte[] responseData = new byte[2];
+                //List<Byte> fileIdList = fileIds.t getFileIdsList(output, responseData);
+                //writeToUiAppend(errorCode, "getFileIdsList: " + Ev3.getErrorCode(responseData));
+
+                for (int i = 0; i < fileIdList.size(); i++) {
+                    writeToUiAppend(output, "entry " + i + " file id : " + Utils.byteToHex(fileIdList.get(i)));
+                }
+
+                String[] fileList = new String[fileIdList.size()];
+                for (int i = 0; i < fileIdList.size(); i++) {
+                    fileList[i] = Utils.byteToHex(fileIdList.get(i));
+                }
+
+                // setup the alert builder
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle("Choose a file");
+
+                builder.setItems(fileList, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        writeToUiAppend(output, "you  selected nr " + which + " = " + fileList[which]);
+                        selectedFileId = fileList[which];
+                        // now we run the command to select the application
+                        byte[] responseData = new byte[2];
+                        //boolean result = selectDes(output, selectedApplicationId, responseData);
+                        //writeToUiAppend(output, "result of selectApplicationDes: " + result);
+                        //writeToUiAppend(errorCode, "selectApplicationDes: " + Ev3.getErrorCode(responseData));
+
+                        // here we are reading the fileSettings
+                        /*
+                        String outputString = fileList[which] + " ";
+                        byte fileIdByte = Byte.parseByte(selectedFileId);
+                        byte[] fileSettingsBytes = getFileSettings(output, fileIdByte, responseData);
+                        if ((fileSettingsBytes != null) & (fileSettingsBytes.length >= 7)) {
+                            selectedFileSettings = new FileSettings(fileIdByte, fileSettingsBytes);
+                            outputString += "(" + selectedFileSettings.getFileTypeName();
+                            selectedFileSize = selectedFileSettings.getFileSizeInt();
+                            outputString += " size: " + selectedFileSize + ")";
+                            writeToUiAppend(output, outputString);
+                        }
+                        */
+                        fileSelected.setText(fileList[which]);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "file selected", COLOR_GREEN);
+                    }
+                });
+                // create and show the alert dialog
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+
         fileStandardCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -879,6 +961,63 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     e.printStackTrace();
                     return;
                 }
+            }
+        });
+
+        fileStandardWrite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // write to a selected standard file in a selected application
+                clearOutputFields();
+                // this uses the pre selected file
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    //writeToUiAppend(errorCode, "you need to select a file first");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                String dataToWriteString = fileData.getText().toString();
+                if (TextUtils.isEmpty(dataToWriteString)) {
+                    //writeToUiAppend(errorCode, "please enter some data to write");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "please enter some data to write", COLOR_RED);
+                    return;
+                }
+                int fileIdInt = Integer.parseInt(selectedFileId);
+                byte fileIdByte = Byte.parseByte(selectedFileId);
+
+                // get a random payload with 32 bytes
+                UUID uuid = UUID.randomUUID(); // this is 36 characters long
+                //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
+                byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
+
+                PayloadBuilder pb = new PayloadBuilder();
+                byte[] payload = pb.writeToStandardFile(fileIdInt, dataToWrite);
+/*
+                byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning
+                byte lengthOfData = (byte) (dataToWrite.length & 0xFF);
+                byte[] payloadWriteData = new byte[7 + dataToWrite.length]; // 7 + length of data
+                payloadWriteData[0] = STANDARD_FILE_NUMBER; // fileNumber
+                System.arraycopy(offset, 0, payloadWriteData, 1, 3);
+                payloadWriteData[4] = lengthOfData; // lsb
+                //payloadStandardFile[5] = 0; // is 0x00 // lsb
+                //payloadStandardFile[6] = 0; // is 0x00 // lsb
+                System.arraycopy(dataToWrite, 0, payloadWriteData, 7, dataToWrite.length);
+
+ */
+                writeToUiAppend(output, printData("payloadWriteData", payload));
+                boolean dfWriteStandard = false;
+                try {
+                    dfWriteStandard = desfire.writeData(payload);
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                    e.printStackTrace();
+                    return;
+                }
+
+                writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
+                writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
             }
         });
 
@@ -1424,13 +1563,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             //int color = Color.rgb(0,255,0); // green
             //Color from hex string
             //int color2 = Color.parseColor("#FF11AA"); light blue
-            int[][] states = new int[][] {
-                    new int[] { android.R.attr.state_focused}, // focused
-                    new int[] { android.R.attr.state_hovered}, // hovered
-                    new int[] { android.R.attr.state_enabled}, // enabled
-                    new int[] { }  //
+            int[][] states = new int[][]{
+                    new int[]{android.R.attr.state_focused}, // focused
+                    new int[]{android.R.attr.state_hovered}, // hovered
+                    new int[]{android.R.attr.state_enabled}, // enabled
+                    new int[]{}  //
             };
-            int[] colors = new int[] {
+            int[] colors = new int[]{
                     color,
                     color,
                     color,
@@ -1476,13 +1615,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         errorCode.setText("");
         // reset the border color to primary for errorCode
         int color = R.color.colorPrimary;
-        int[][] states = new int[][] {
-                new int[] { android.R.attr.state_focused}, // focused
-                new int[] { android.R.attr.state_hovered}, // hovered
-                new int[] { android.R.attr.state_enabled}, // enabled
-                new int[] { }  //
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_focused}, // focused
+                new int[]{android.R.attr.state_hovered}, // hovered
+                new int[]{android.R.attr.state_enabled}, // enabled
+                new int[]{}  //
         };
-        int[] colors = new int[] {
+        int[] colors = new int[]{
                 color,
                 color,
                 color,
