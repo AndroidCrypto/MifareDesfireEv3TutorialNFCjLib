@@ -1806,40 +1806,187 @@ public class DESFireEV1 {
 
 		DesfireFile fileSett = updateFileSett(fileNo, false);
 
+		// todo this is a manual workaround
+		boolean deb = true; // debug mode, if true output
+		if (deb) {
+			DesfireFile desfireFile = updateFileSett(fileNo, false);
+			if (desfireFile == null) {
+				System.out.println("The file " + fileNo + " is NULL");
+				//writeToUiAppend(output, "The file " + i + " is NULL");
+				// do nothing to keep the output short
+			} else {
+				String fileTypeName = desfireFile.getFileTypeName();
+				System.out.println("The file " + fileNo + " is of type " + fileTypeName);
+				int fileSize = 0;
+				if (!fileTypeName.equals("Standard")) {
+					System.out.println("The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
+				} else {
+					StandardDesfireFile standardDesfireFile = (StandardDesfireFile) desfireFile;
+					fileSize = standardDesfireFile.getFileSize();
+				}
+				System.out.println("file " + fileNo + " size: " + fileSize);
+				System.out.println("communication: " + desfireFile.getCommunicationSettings().getDescription());
+				Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
+				System.out.println("----- permission map ------");
+				for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
+					System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+				}
+				System.out.println("file " + fileNo + " is carAccess: " + desfireFile.isChangeAccess(fileNo));
+				System.out.println("file " + fileNo + " is rwAccess: " + desfireFile.isReadWriteAccess(fileNo));
+				System.out.println("file " + fileNo + " is wAccess: " + desfireFile.isWriteAccess(fileNo));
+				System.out.println("file " + fileNo + " is rAccess: " + desfireFile.isReadAccess(fileNo));
+
+				System.out.println("-----------");
+			}
+		}
+
 		if (rw) {
+			if(deb) Log.d(TAG, "IS rw");
+			if(deb) Log.d(TAG, "communication: " + fileSett.getCommunicationSettings().getDescription());
 			if(fileSett.isReadWriteAccess(fileNo)) {
+				if(deb) Log.d(TAG, "if rw");
 				return fileSett.getCommunicationSettings();
-			} else if (fileSett.isFreeReadWriteAccess()) {
+			} else if (fileSett.isFreeReadWriteAccess()) { // todo ERROR ? corrected to else
+			//} else if (fileSett.isFreeReadWriteAccess()) { // todo ERROR ? corrected to else
+				if(deb) Log.d(TAG, "if rw free");
 				return DesfireFileCommunicationSettings.PLAIN;
 			}
 		}
 
 		if (car) {
 			if(fileSett.isChangeAccess(fileNo)) {
+				if(deb) Log.d(TAG, "if car");
 				return fileSett.getCommunicationSettings();
 			} else if (fileSett.isFreeChangeAccess()) {
+				if(deb) Log.d(TAG, "if car free");
 				return DesfireFileCommunicationSettings.PLAIN;
 			}
 		}
 
 		if (r) {
 			if(fileSett.isReadAccess(fileNo)) {
+				if(deb) Log.d(TAG, "if r");
 				return fileSett.getCommunicationSettings();
 			} else if (fileSett.isFreeReadAccess()) {
+				if(deb) Log.d(TAG, "if r free");
 				return DesfireFileCommunicationSettings.PLAIN;
 			}
 		}
 
 		if (w) {
 			if(fileSett.isWriteAccess(fileNo)) {
+				if(deb) Log.d(TAG, "if w");
 				return fileSett.getCommunicationSettings();
 			} else if (fileSett.isFreeWriteAccess()) {
+				if(deb) Log.d(TAG, "if w free");
+				return DesfireFileCommunicationSettings.PLAIN;
+			}
+		}
+		if (deb) Log.d(TAG,"fnr: " + fileNo + " rw: " + rw + " car: " + car + " r: " + r + " w: " + w);
+		return null;
+	}
+
+	/**
+	 * Find which communication mode to use when operating on a file.
+	 * The arguments depend on the operation being performed.
+	 *
+	 * @param fileNo	the file number
+	 * @param authKeyNo	the authorization key number used on auth
+	 * @param rw		read-write access
+	 * @param car		change access rights
+	 * @param r			read access
+	 * @param w			write access
+	 * @return			the communication mode on success, {@code null} on error
+	 * @throws Exception
+	 */
+	private DesfireFileCommunicationSettings getFileCommSett(byte fileNo, byte authKeyNo, boolean rw, boolean car, boolean r, boolean w) throws Exception {
+
+		DesfireFile fileSett = updateFileSett(fileNo, false);
+
+		// todo this is a manual workaround
+		boolean deb = true; // debug mode, if true output
+		if (deb) {
+			DesfireFile desfireFile = updateFileSett(fileNo, false);
+			if (desfireFile == null) {
+				System.out.println("The file " + fileNo + " is NULL");
+				//writeToUiAppend(output, "The file " + i + " is NULL");
+				// do nothing to keep the output short
+			} else {
+				String fileTypeName = desfireFile.getFileTypeName();
+				System.out.println("The file " + fileNo + " is of type " + fileTypeName);
+				int fileSize = 0;
+				if (!fileTypeName.equals("Standard")) {
+					System.out.println("The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
+				} else {
+					StandardDesfireFile standardDesfireFile = (StandardDesfireFile) desfireFile;
+					fileSize = standardDesfireFile.getFileSize();
+				}
+				System.out.println("file " + fileNo + " size: " + fileSize);
+				System.out.println("communication: " + desfireFile.getCommunicationSettings().getDescription());
+				Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
+				System.out.println("----- permission map ------");
+				for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
+					System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+				}
+				System.out.println("file " + fileNo + " is carAccess: " + desfireFile.isChangeAccess(fileNo));
+				System.out.println("file " + fileNo + " is rwAccess: " + desfireFile.isReadWriteAccess(fileNo));
+				System.out.println("file " + fileNo + " is wAccess: " + desfireFile.isWriteAccess(fileNo));
+				System.out.println("file " + fileNo + " is rAccess: " + desfireFile.isReadAccess(fileNo));
+
+				System.out.println("-----------");
+			}
+		}
+
+		if (rw) {
+			if(deb) Log.d(TAG, "IS rw");
+			if(deb) Log.d(TAG, "communication: " + fileSett.getCommunicationSettings().getDescription());
+			//if(fileSett.isReadWriteAccess(fileNo)) { // todo ERROR changed
+			if(fileSett.isReadWriteAccess(authKeyNo)) {
+				if(deb) Log.d(TAG, "if rw");
+				return fileSett.getCommunicationSettings();
+			} else if (fileSett.isFreeReadWriteAccess()) { // todo ERROR ? corrected to else
+				//} else if (fileSett.isFreeReadWriteAccess()) { // todo ERROR ? corrected to else
+				if(deb) Log.d(TAG, "if rw free");
 				return DesfireFileCommunicationSettings.PLAIN;
 			}
 		}
 
+		if (car) {
+			// if(fileSett.isChangeAccess(fileNo)) { // todo ERROR changed
+			if(fileSett.isChangeAccess(authKeyNo)) {
+				if(deb) Log.d(TAG, "if car");
+				return fileSett.getCommunicationSettings();
+			} else if (fileSett.isFreeChangeAccess()) {
+				if(deb) Log.d(TAG, "if car free");
+				return DesfireFileCommunicationSettings.PLAIN;
+			}
+		}
+
+		if (r) {
+			//if(fileSett.isReadAccess(fileNo)) { // todo ERROR changed
+			if(fileSett.isReadAccess(authKeyNo)) {
+				if(deb) Log.d(TAG, "if r");
+				return fileSett.getCommunicationSettings();
+			} else if (fileSett.isFreeReadAccess()) {
+				if(deb) Log.d(TAG, "if r free");
+				return DesfireFileCommunicationSettings.PLAIN;
+			}
+		}
+
+		if (w) {
+			//if(fileSett.isWriteAccess(fileNo)) { // todo ERROR changed
+			if(fileSett.isWriteAccess(authKeyNo)) {
+				if(deb) Log.d(TAG, "if w");
+				return fileSett.getCommunicationSettings();
+			} else if (fileSett.isFreeWriteAccess()) {
+				if(deb) Log.d(TAG, "if w free");
+				return DesfireFileCommunicationSettings.PLAIN;
+			}
+		}
+		if (deb) Log.d(TAG,"fnr: " + fileNo + " rw: " + rw + " car: " + car + " r: " + r + " w: " + w);
 		return null;
 	}
+
 
 	/* Support method for getFileCommSett(rw, car, r, w). */
 	private DesfireFileCommunicationSettings getFileCommSett(byte cs) {
@@ -1974,11 +2121,16 @@ public class DESFireEV1 {
 		System.out.println("-----------");
 */
 
-		DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], true, false, false, true);
+		//DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], true, false, false, true); // todo ERROR changed
+		// this method is using the  authKey used for a successful authentication
+		DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], kno, true, false, false, true);
+
 		if (cs == null) {
 			Log.e(TAG, "write - cs are NULL");
-			return false;
+			//Log.e(TAG, "trying to write anyway");
+			return false; // todo ERROR ? removed as cs settings seems to be gone
 		}
+
 		//byte[] apdu;
 		byte[] fullApdu = new byte[6 + payload.length];
 		fullApdu[0] = (byte) 0x90;
@@ -2636,5 +2788,13 @@ public class DESFireEV1 {
 		byte[] data = new byte[responseAPDU.length - 2];
 		System.arraycopy(responseAPDU, 0, data, 0, data.length);
 		return data;
+	}
+
+	/**
+	 * section for new implemented methods by AndroidCrypto
+	 */
+
+	public DesfireFile[] getFileSettings() {
+		return fileSettings;
 	}
 }

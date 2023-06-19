@@ -29,6 +29,7 @@ import com.github.skjolber.desfire.ev1.model.VersionInfo;
 import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.file.DesfireFile;
+import com.github.skjolber.desfire.ev1.model.file.DesfireFileCommunicationSettings;
 import com.github.skjolber.desfire.ev1.model.file.DesfireFileType;
 import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
 import com.google.android.material.textfield.TextInputLayout;
@@ -39,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import nfcjlib.core.DESFireAdapter;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private Button setupCompleteApplication, standardWriteRead, standardWriteReadDefaultKeys;
+    private Button getFileSettingsDesfire;
 
     /**
      * section for general workflow
@@ -155,6 +158,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         setupCompleteApplication = findViewById(R.id.btnSetupCompleteApplication);
         standardWriteRead = findViewById(R.id.btnStandardFileWriteRead);
         //standardWriteReadDefaultKeys = findViewById(R.id.btnStandardFileWriteReadDefaultKeys);
+        getFileSettingsDesfire = findViewById(R.id.btnGetFileSettings);
+
+
 
         // general workflow
         tagVersion = findViewById(R.id.btnGetTagVersion);
@@ -1150,7 +1156,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
                 // check that it is a standard file !
                 String fileTypeName = fileSettings.getFileTypeName();
-                writeToUiAppend(output, "file is of type "+ fileTypeName);
+                writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
                 if (!fileTypeName.equals("Standard")) {
                     writeToUiAppend(output, "The selected file is not of type Standard but of type " + fileTypeName + ", aborted");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
@@ -1162,8 +1168,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
                 byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
 
+                // create an empty array and copy the dataToWrite to clear the complete standard file
+                StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
+                int fileSize = standardDesfireFile.getFileSize();
+                byte[] fullDataToWrite = new byte[fileSize];
+                System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
+
                 PayloadBuilder pb = new PayloadBuilder();
-                byte[] payload = pb.writeToStandardFile(fileIdInt, dataToWrite);
+                byte[] payload = pb.writeToStandardFile(fileIdInt, fullDataToWrite);
+                //byte[] payload = pb.writeToStandardFile(STANDARD_FILE_NUMBER, dataToWrite);
 /*
                 byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning
                 byte lengthOfData = (byte) (dataToWrite.length & 0xFF);
@@ -1208,10 +1221,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 try {
                     // get the maximal length from getFileSettings
                     DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
+                    //DesfireFile fileSettings = desfire.getFileSettings(STANDARD_FILE_NUMBER);
                     //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
                     // check that it is a standard file !
                     String fileTypeName = fileSettings.getFileTypeName();
-                    writeToUiAppend(output, "file is of type "+ fileTypeName);
+                    writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
                     if (!fileTypeName.equals("Standard")) {
                         writeToUiAppend(output, "The selected file is not of type Standard but of type " + fileTypeName + ", aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
@@ -1222,15 +1236,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, "fileSize: " + fileSize);
 
                     readStandard = desfire.readData((byte) (fileIdInt & 0xff), 0, fileSize);
+                    //readStandard = desfire.readData(STANDARD_FILE_NUMBER, 0, fileSize);
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
                     return;
                 }
@@ -1244,6 +1259,54 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        /**
+         * section for service methods
+         */
+
+        getFileSettingsDesfire.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // reads the stored file settings from DESFireEV1 class
+                clearOutputFields();
+                writeToUiAppend(output, "get the fileSettings from DESFireEV1 class");
+                DesfireFile[] desfireFiles = desfire.getFileSettings();
+                if (desfireFiles == null) {
+                    writeToUiAppend(output, "the fileSettings from DESFireEV1 class are NULL");
+                    return;
+                }
+                int desfireFileSize = desfireFiles.length;
+                int fileSize = 0;
+                writeToUiAppend(output, "the fileSettings are stored for " + desfireFileSize + " files:");
+                for (int i = 0; i < desfireFileSize; i++) {
+                    DesfireFile desfireFile = desfireFiles[i];
+
+                    if (desfireFile == null) {
+                        //writeToUiAppend(output, "The file " + i + " is NULL");
+                        // do nothing to keep the output short
+                    } else {
+                        String fileTypeName = desfireFile.getFileTypeName();
+                        writeToUiAppend(output, "The file " + i + " is of type " + fileTypeName);
+                        if (!fileTypeName.equals("Standard")) {
+                            writeToUiAppend(output, "The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        } else {
+                            StandardDesfireFile standardDesfireFile = (StandardDesfireFile) desfireFile;
+                            fileSize = standardDesfireFile.getFileSize();
+                        }
+                        writeToUiAppend(output, "file " + i + " size: " + fileSize);
+                        Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
+                        writeToUiAppend(output, "----- permission map ------");
+                        for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
+                            writeToUiAppend(output,entry.getKey() + ":" + entry.getValue().toString());
+                        }
+                        writeToUiAppend(output,"-----------");
+                    }
+                }
+
+            }
+        });
+
+        // DesfireFile[] getFileSettings()
 
     }
 
