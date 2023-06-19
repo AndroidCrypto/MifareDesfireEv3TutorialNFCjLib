@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private LinearLayout llGeneralWorkflow;
-    private Button tagVersion;
+    private Button tagVersion, freeMemory, formatPicc;
 
     /**
      * section for application handling
@@ -165,6 +165,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
         // general workflow
         tagVersion = findViewById(R.id.btnGetTagVersion);
+        freeMemory = findViewById(R.id.btnGetFreeMemory);
+        formatPicc = findViewById(R.id.btnFormatPicc);
 
 
         // application handling
@@ -510,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // get the tag version data
+                clearOutputFields();
                 VersionInfo versionInfo;
                 try {
                     versionInfo = desfire.getVersion();
@@ -536,6 +539,90 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, "getVersionInfo: " + versionInfo.dump());
                 writeToUiAppendBorderColor(errorCode, errorCodeLayout, "success in getting tagVersion", COLOR_GREEN);
                 writeToUiAppend(errorCode, "getVersion: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+            }
+        });
+
+        freeMemory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // get the free memory on the PICC
+                clearOutputFields();
+                writeToUiAppend(output, "get the free memory on the PICC");
+                byte[] freeMemoryOnPicc;
+                try {
+                    freeMemoryOnPicc = desfire.freeMemory();
+                    Utils.reverseByteArrayInPlace(freeMemoryOnPicc); // LSB
+                    writeToUiAppend(output, "The free memory is " + Utils.intFrom3ByteArray(freeMemoryOnPicc) + " bytes");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "success in getting the free memory", COLOR_GREEN);
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        formatPicc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // format the PICC
+                clearOutputFields();
+                writeToUiAppend(output, "format the PICC");
+
+                // open a confirmation dialog
+                // open a confirmation dialog
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Yes button clicked
+                                boolean success;
+                                try {
+                                    success = desfire.formatPICC();
+                                    writeToUiAppend(output, "formatPiccSuccess: " + success);
+                                    if (!success) {
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "formatPicc NOT Success, aborted", COLOR_RED);
+                                        writeToUiAppend(errorCode, "formatPicc NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                                        writeToUiAppend(errorCode, "Did you forget to authenticate with the Master Key first ?");
+                                        return;
+                                    } else {
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "formatPicc success", COLOR_GREEN);
+                                        selectedFileId = "";
+                                        fileSelected.setText("");
+                                        selectedApplicationId = null;
+                                        applicationSelected.setText("");
+                                    }
+                                } catch (IOException e) {
+                                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                                    e.printStackTrace();
+                                    return;
+                                }
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                // nothing to do
+                                writeToUiAppend(output, "format of the PICC aborted");
+                                break;
+                        }
+                    }
+                };
+                final String selectedFolderString = "You are going to format the PICC " + "\n\n" +
+                        "Do you want to proceed ?";
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage(selectedFolderString).setPositiveButton(android.R.string.yes, dialogClickListener)
+                        .setNegativeButton(android.R.string.no, dialogClickListener)
+                        .setTitle("FORMAT the PICC")
+                        .show();
+        /*
+        If you want to use the "yes" "no" literals of the user's language you can use this
+        .setPositiveButton(android.R.string.yes, dialogClickListener)
+        .setNegativeButton(android.R.string.no, dialogClickListener)
+         */
             }
         });
 
@@ -591,6 +678,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "createApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication success", COLOR_GREEN);
                     }
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
@@ -669,6 +758,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         if (dfSelectApplication) {
                             selectedApplicationId = Utils.hexStringToByteArray(applicationList[which]);
                             applicationSelected.setText(applicationList[which]);
+                            selectedFileId = "";
+                            fileSelected.setText("");
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplicationResult: " + dfSelectApplication, COLOR_GREEN);
                         } else {
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
@@ -711,6 +802,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteApplication success", COLOR_GREEN);
                                         applicationSelected.setText("");
                                         selectedApplicationId = null;
+                                        selectedFileId = "";
+                                        fileSelected.setText("");
                                     }
                                 } catch (IOException e) {
                                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);

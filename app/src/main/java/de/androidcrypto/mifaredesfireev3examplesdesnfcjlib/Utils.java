@@ -177,6 +177,10 @@ public class Utils {
         return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
     }
 
+    public static int intFrom3ByteArray(byte[] bytes) {
+        return (bytes[0] & 0xFF) << 16 | (bytes[1] & 0xFF) << 8 | (bytes[2] & 0xFF);
+    }
+
     /// packing an array of 4 bytes to an int, big endian, clean code
     public static int intFromByteArrayV3(byte[] bytes) {
         return ((bytes[0] & 0xFF) << 24) |
