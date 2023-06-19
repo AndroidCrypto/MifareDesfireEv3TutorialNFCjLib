@@ -12,12 +12,14 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -70,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      * section for application handling
      */
     private LinearLayout llApplicationHandling;
-    private Button applicationList, applicationCreate, applicationSelect;
+    private Button applicationList, applicationCreate, applicationSelect, applicationDelete;
     private com.google.android.material.textfield.TextInputEditText numberOfKeys, applicationId, applicationSelected;
     private byte[] selectedApplicationId = null;
 
@@ -91,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private LinearLayout llStandardFile;
-    private Button fileList, fileSelect, fileStandardCreate, fileStandardWrite, fileStandardRead, authenticate;
+    private Button fileList, fileSelect, fileStandardCreate, fileDelete, fileStandardWrite, fileStandardRead;
     private com.google.android.material.textfield.TextInputEditText fileSize, fileSelected, fileData;
     private com.shawnlin.numberpicker.NumberPicker npFileId;
 
@@ -161,36 +163,26 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         getFileSettingsDesfire = findViewById(R.id.btnGetFileSettings);
 
 
-
         // general workflow
         tagVersion = findViewById(R.id.btnGetTagVersion);
 
-        // authentication handling
-        authKeyD0 = findViewById(R.id.btnAuthD0);
-        authKeyD1 = findViewById(R.id.btnAuthD1);
-        authKeyD3 = findViewById(R.id.btnAuthD3);
-        authKeyD4 = findViewById(R.id.btnAuthD4);
 
         // application handling
         llApplicationHandling = findViewById(R.id.llApplications);
         applicationList = findViewById(R.id.btnListApplications);
         applicationCreate = findViewById(R.id.btnCreateApplication);
         applicationSelect = findViewById(R.id.btnSelectApplication);
+        applicationDelete = findViewById(R.id.btnDeleteApplication);
         applicationSelected = findViewById(R.id.etSelectedApplicationId);
         numberOfKeys = findViewById(R.id.etNumberOfKeys);
         applicationId = findViewById(R.id.etApplicationId);
-
-        // key handling
-        changeKeyD0 = findViewById(R.id.btnChangeKeyD0);
-        changeKeyD3 = findViewById(R.id.btnChangeKeyD3);
-        changeKeyD4 = findViewById(R.id.btnChangeKeyD4);
-
 
         // standard file handling
         llStandardFile = findViewById(R.id.llStandardFile);
         fileList = findViewById(R.id.btnListFiles);
         fileSelect = findViewById(R.id.btnSelectFile);
-        authenticate = findViewById(R.id.btnAuthenticate);
+        fileDelete = findViewById(R.id.btnDeleteFile);
+        //authenticate = findViewById(R.id.btnAuthenticate);
         fileStandardCreate = findViewById(R.id.btnCreateStandardFile);
         fileStandardWrite = findViewById(R.id.btnWriteStandardFile);
         fileStandardRead = findViewById(R.id.btnReadStandardFile);
@@ -198,6 +190,20 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileSize = findViewById(R.id.etFileSize);
         fileData = findViewById(R.id.etFileData);
         fileSelected = findViewById(R.id.etSelectedFileId);
+
+        // authentication handling
+        authKeyD0 = findViewById(R.id.btnAuthD0);
+        authKeyD1 = findViewById(R.id.btnAuthD1);
+        authKeyD3 = findViewById(R.id.btnAuthD3);
+        authKeyD4 = findViewById(R.id.btnAuthD4);
+
+        // key handling
+        changeKeyD0 = findViewById(R.id.btnChangeKeyD0);
+        changeKeyD3 = findViewById(R.id.btnChangeKeyD3);
+        changeKeyD4 = findViewById(R.id.btnChangeKeyD4);
+
+
+        // todo clear TextView (e.g. selectedApplication/file) on some actions
 
         //allLayoutsInvisible(); // default
 
@@ -566,6 +572,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // create a new application
                 // get the input and sanity checks
                 clearOutputFields();
+                writeToUiAppend(output, "create an application");
                 byte numberOfKeysByte = Byte.parseByte(numberOfKeys.getText().toString());
                 byte[] applicationIdentifier = Utils.hexStringToByteArray(applicationId.getText().toString());
                 if (applicationIdentifier == null) {
@@ -605,7 +612,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public void onClick(View view) {
                 // get all applications and show them in a listview for selection
                 clearOutputFields();
-
+                writeToUiAppend(output, "select an application");
                 String[] applicationList;
                 try {
                     // select PICC (is selected by default but...)
@@ -674,6 +681,67 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        applicationDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearOutputFields();
+                writeToUiAppend(output, "delete a selected application");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                // open a confirmation dialog
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Yes button clicked
+                                try {
+                                    byte[] aid = selectedApplicationId.clone();
+                                    Utils.reverseByteArrayInPlace(aid);
+                                    boolean success = desfire.deleteApplication(aid);
+                                    writeToUiAppend(output, "deleteApplicationSuccess: " + success + " for applicationID: " + Utils.bytesToHexNpe(selectedApplicationId));
+                                    if (!success) {
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteApplication NOT Success, aborted", COLOR_RED);
+                                        writeToUiAppend(errorCode, "Did you forget to authenticate with the Application Master Key first ?");
+                                        writeToUiAppend(errorCode, "deleteApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                                        return;
+                                    } else {
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteApplication success", COLOR_GREEN);
+                                        applicationSelected.setText("");
+                                        selectedApplicationId = null;
+                                    }
+                                } catch (IOException e) {
+                                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                                    e.printStackTrace();
+                                    return;
+                                }
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                // nothing to do
+                                writeToUiAppend(output, "delete a selected application aborted");
+                                break;
+                        }
+                    }
+                };
+                final String selectedFolderString = "You are going to delete the application " +
+                        Utils.bytesToHexNpe(selectedApplicationId) + "\n\n" +
+                        "Do you want to proceed ?";
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage(selectedFolderString).setPositiveButton(android.R.string.yes, dialogClickListener)
+                        .setNegativeButton(android.R.string.no, dialogClickListener)
+                        .setTitle("DELETE an application")
+                        .show();
+        /*
+        If you want to use the "yes" "no" literals of the user's language you can use this
+        .setPositiveButton(android.R.string.yes, dialogClickListener)
+        .setNegativeButton(android.R.string.no, dialogClickListener)
+         */
+            }
+        });
+
         /**
          * section for authentication
          */
@@ -700,14 +768,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     //writeToUiAppend(output, "IOException: " + e.getMessage());
                     e.printStackTrace();
                     return;
-            } catch (Exception e) {
+                } catch (Exception e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     //writeToUiAppend(output, "IOException: " + e.getMessage());
                     e.printStackTrace();
                     return;
-            }
-
+                }
             }
         });
 
@@ -806,7 +873,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     e.printStackTrace();
                     return;
                 }
-
             }
         });
 
@@ -943,6 +1009,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
          * section  for standard files
          */
 
+        /*
         authenticate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -969,17 +1036,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     e.printStackTrace();
                     return;
                 }
-
-                /*
-                byte[] responseData = new byte[2];
-                byte keyId = (byte) 0x00; // we authenticate with keyId 1
-                boolean result = authenticateApplicationDes(output, keyId, DES_DEFAULT_KEY, true, responseData);
-                writeToUiAppend(output, "result of authenticateApplicationDes: " + result);
-                writeToUiAppend(errorCode, "authenticateApplicationDes: " + Ev3.getErrorCode(responseData));
-
-                 */
             }
         });
+        */
 
         fileSelect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1120,6 +1179,66 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     e.printStackTrace();
                     return;
                 }
+            }
+        });
+
+        fileDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearOutputFields();
+                writeToUiAppend(output, "delete a selected file");
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                // open a confirmation dialog
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Yes button clicked
+                                try {
+                                    byte fileNo = Byte.parseByte(selectedFileId);
+                                    boolean success = desfire.deleteFile(fileNo);
+                                    writeToUiAppend(output, "deleteFileSuccess: " + success + " for fileID: " + selectedFileId);
+                                    if (!success) {
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteFile NOT Success, aborted", COLOR_RED);
+                                        writeToUiAppend(errorCode, "Did you forget to authenticate with the Application Master Key first ?");
+                                        writeToUiAppend(errorCode, "deleteFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                                        return;
+                                    } else {
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteFile success", COLOR_GREEN);
+                                        fileSelected.setText("");
+                                        selectedFileId = null;
+                                    }
+                                } catch (IOException e) {
+                                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                                    e.printStackTrace();
+                                    return;
+                                }
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                // nothing to do
+                                writeToUiAppend(output, "delete a selected file aborted");
+                                break;
+                        }
+                    }
+                };
+                final String selectedFolderString = "You are going to delete the file " +
+                        selectedFileId + "\n\n" +
+                        "Do you want to proceed ?";
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage(selectedFolderString).setPositiveButton(android.R.string.yes, dialogClickListener)
+                        .setNegativeButton(android.R.string.no, dialogClickListener)
+                        .setTitle("DELETE a file")
+                        .show();
+        /*
+        If you want to use the "yes" "no" literals of the user's language you can use this
+        .setPositiveButton(android.R.string.yes, dialogClickListener)
+        .setNegativeButton(android.R.string.no, dialogClickListener)
+         */
             }
         });
 
@@ -1297,9 +1416,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
                         writeToUiAppend(output, "----- permission map ------");
                         for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
-                            writeToUiAppend(output,entry.getKey() + ":" + entry.getValue().toString());
+                            writeToUiAppend(output, entry.getKey() + ":" + entry.getValue().toString());
                         }
-                        writeToUiAppend(output,"-----------");
+                        writeToUiAppend(output, "-----------");
                     }
                 }
 
