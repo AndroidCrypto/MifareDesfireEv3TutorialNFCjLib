@@ -204,6 +204,22 @@ public class PayloadBuilder {
         return payload;
     }
 
+    public byte[] writeToStandardFile(int fileNumber, byte[] data, int offset) {
+        // sanity checks
+        if ((fileNumber < 0) || (fileNumber > MAXIMUM_FILE_NUMBER)) return null;
+        if (data == null) return null;
+        // build
+        //byte[] offset = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}; // write at the beginning, fixed
+        byte[] offsetData = intTo3ByteArrayLsb(offset);
+        byte[] lengthOfData = intTo3ByteArrayLsb(data.length);
+        byte[] payload = new byte[7 + data.length]; // 7 + length of data
+        payload[0] = (byte) (fileNumber & 0xff); // fileNumber
+        System.arraycopy(offsetData, 0, payload, 1, 3);
+        System.arraycopy(lengthOfData, 0, payload, 4, 3);
+        System.arraycopy(data, 0, payload, 7, data.length);
+        return payload;
+    }
+
     public byte[] writeToStandardFileLimitedFileSize(int fileNumber, String data) {
         return writeToStandardFileLimitedFileSize(fileNumber, data.getBytes(StandardCharsets.UTF_8));
     }

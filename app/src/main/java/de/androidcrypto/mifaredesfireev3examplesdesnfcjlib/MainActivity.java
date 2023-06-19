@@ -12,14 +12,12 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -31,8 +29,6 @@ import com.github.skjolber.desfire.ev1.model.VersionInfo;
 import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.file.DesfireFile;
-import com.github.skjolber.desfire.ev1.model.file.DesfireFileCommunicationSettings;
-import com.github.skjolber.desfire.ev1.model.file.DesfireFileType;
 import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -1244,10 +1240,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
                     return;
                 }
+                /*
                 if (fileSizeInt != 32) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file size, 32 bytes allowed only", COLOR_RED);
                     return;
                 }
+                 */
                 try {
                     PayloadBuilder pb = new PayloadBuilder();
                     byte[] payloadStandardFile = pb.createStandardFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
@@ -1386,21 +1384,109 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 byte[] fullDataToWrite = new byte[fileSize];
                 System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
 
+                // todo testdata remove
+                fullDataToWrite = Utils.generateTestData(fileSize);
+
+
+                // this is new to accept standard file data > 32/42 bytes size
+                // this is due to maximum APDU size limit of 55 bytes for a DESFire D40 card
+                // I'm splitting the complete data and send them in chunks
+                final int MAXIMUM_STANDARD_DATA_CHUNK = 40; // if any data are longer we create chunks
+                List<byte[]> chunkedFullData = divideArray(fullDataToWrite, MAXIMUM_STANDARD_DATA_CHUNK);
+                int chunkedFullDataSize = chunkedFullData.size();
+                int dataSizeLoop = 0;
+                System.out.println("chunkedFullDataSize: " + chunkedFullDataSize + " full length: " + fullDataToWrite.length);
+                for (int i = 0; i < chunkedFullDataSize; i++) {
+                    System.out.println("chunk " + i + " length: " + chunkedFullData.get(i).length);
+
+                    PayloadBuilder pb = new PayloadBuilder();
+                    byte[] payload = pb.writeToStandardFile(fileIdInt, chunkedFullData.get(i), dataSizeLoop);
+
+                    writeToUiAppend(output, printData("payloadWriteData", payload));
+                    boolean dfWriteStandard = false;
+                    try {
+                        dfWriteStandard = desfire.writeData(payload);
+                    } catch (Exception e) {
+                        //throw new RuntimeException(e);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                        writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                        e.printStackTrace();
+                        return;
+                    }
+                    writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
+                    writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    dataSizeLoop += chunkedFullData.get(i).length;
+                }
+            }
+        });
+
+        /*
+        fileStandardWrite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // write to a selected standard file in a selected application
+                clearOutputFields();
+                // this uses the pre selected file
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    //writeToUiAppend(errorCode, "you need to select a file first");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                String dataToWriteString = fileData.getText().toString();
+                if (TextUtils.isEmpty(dataToWriteString)) {
+                    //writeToUiAppend(errorCode, "please enter some data to write");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "please enter some data to write", COLOR_RED);
+                    return;
+                }
+                int fileIdInt = Integer.parseInt(selectedFileId);
+                byte fileIdByte = Byte.parseByte(selectedFileId);
+
+                // check that it is a standard file !
+                DesfireFile fileSettings = null;
+                try {
+                    fileSettings = desfire.getFileSettings(fileIdInt);
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                }
+                //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
+                // check that it is a standard file !
+                String fileTypeName = fileSettings.getFileTypeName();
+                writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
+                if (!fileTypeName.equals("Standard")) {
+                    writeToUiAppend(output, "The selected file is not of type Standard but of type " + fileTypeName + ", aborted");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                    return;
+                }
+
+                // get a random payload with 32 bytes
+                UUID uuid = UUID.randomUUID(); // this is 36 characters long
+                //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
+                byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
+
+                // create an empty array and copy the dataToWrite to clear the complete standard file
+                StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
+                int fileSize = standardDesfireFile.getFileSize();
+                byte[] fullDataToWrite = new byte[fileSize];
+                System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
+
+                // this is new to accept standard file data > 32/42 bytes size
+                // this is due to maximum APDU size limit of 55 bytes for a DESFire D40 card
+                // I'm splitting the complete data and send them in chunks
+                final int MAXIMUM_STANDARD_DATA_CHUNK = 40; // if any data are longer we create chunks
+                List<byte[]> chunkedFullData = divideArray(fullDataToWrite, MAXIMUM_STANDARD_DATA_CHUNK);
+                int chunkedFullDataSize = chunkedFullData.size();
+                System.out.println("chunkedFullDataSize: " + chunkedFullDataSize + " full length: " + fullDataToWrite.length);
+                for (int i = 0; i < chunkedFullDataSize; i++) {
+                    System.out.println("chunk " + i + " length: " + chunkedFullData.get(i).length);
+                }
+
                 PayloadBuilder pb = new PayloadBuilder();
                 byte[] payload = pb.writeToStandardFile(fileIdInt, fullDataToWrite);
-                //byte[] payload = pb.writeToStandardFile(STANDARD_FILE_NUMBER, dataToWrite);
-/*
-                byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning
-                byte lengthOfData = (byte) (dataToWrite.length & 0xFF);
-                byte[] payloadWriteData = new byte[7 + dataToWrite.length]; // 7 + length of data
-                payloadWriteData[0] = STANDARD_FILE_NUMBER; // fileNumber
-                System.arraycopy(offset, 0, payloadWriteData, 1, 3);
-                payloadWriteData[4] = lengthOfData; // lsb
-                //payloadStandardFile[5] = 0; // is 0x00 // lsb
-                //payloadStandardFile[6] = 0; // is 0x00 // lsb
-                System.arraycopy(dataToWrite, 0, payloadWriteData, 7, dataToWrite.length);
 
- */
                 writeToUiAppend(output, printData("payloadWriteData", payload));
                 boolean dfWriteStandard = false;
                 try {
@@ -1416,6 +1502,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
             }
         });
+         */
 
         fileStandardRead.setOnClickListener(new View.OnClickListener() {
             @Override
