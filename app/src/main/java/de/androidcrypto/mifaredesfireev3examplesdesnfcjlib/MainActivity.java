@@ -1759,6 +1759,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // credit the selected value file
                 clearOutputFields();
                 writeToUiAppend(output, "credit the value of a value file");
+                // The Credit command requires a preceding authentication with the key specified for “Read&Write” access
                 // this uses the pre selected file
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
@@ -1830,6 +1831,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // debit the selected value file
                 clearOutputFields();
                 writeToUiAppend(output, "debit the value of a value file");
+                // The Debit command requires a preceding authentication with one of the keys specified for Read, Write or Read&Write access
                 // this uses the pre selected file
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
