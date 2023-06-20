@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private Button fileList, fileSelect, fileStandardCreate, fileDelete, fileStandardWrite, fileStandardRead;
     private com.google.android.material.textfield.TextInputEditText fileSize, fileSelected, fileData;
     private com.shawnlin.numberpicker.NumberPicker npFileId;
-
+    private final int MAXIMUM_STANDARD_DATA_CHUNK = 40; // if any data are longer we create chunks when writing
     private String selectedFileId = "";
     private int selectedFileSize;
     //private FileSettings selectedFileSettings;
@@ -1384,28 +1384,28 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 byte[] fullDataToWrite = new byte[fileSize];
                 System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
 
-                // todo testdata remove
+                // todo remove testdata
                 fullDataToWrite = Utils.generateTestData(fileSize);
-
 
                 // this is new to accept standard file data > 32/42 bytes size
                 // this is due to maximum APDU size limit of 55 bytes for a DESFire D40 card
                 // I'm splitting the complete data and send them in chunks
-                final int MAXIMUM_STANDARD_DATA_CHUNK = 40; // if any data are longer we create chunks
+
                 List<byte[]> chunkedFullData = divideArray(fullDataToWrite, MAXIMUM_STANDARD_DATA_CHUNK);
                 int chunkedFullDataSize = chunkedFullData.size();
                 int dataSizeLoop = 0;
                 System.out.println("chunkedFullDataSize: " + chunkedFullDataSize + " full length: " + fullDataToWrite.length);
                 for (int i = 0; i < chunkedFullDataSize; i++) {
                     System.out.println("chunk " + i + " length: " + chunkedFullData.get(i).length);
+                    writeToUiAppend(output, "writeStandard chunk number " + (i + 1));
 
                     PayloadBuilder pb = new PayloadBuilder();
                     byte[] payload = pb.writeToStandardFile(fileIdInt, chunkedFullData.get(i), dataSizeLoop);
 
                     writeToUiAppend(output, printData("payloadWriteData", payload));
-                    boolean dfWriteStandard = false;
+                    boolean writeStandardSuccess = false;
                     try {
-                        dfWriteStandard = desfire.writeData(payload);
+                        writeStandardSuccess = desfire.writeData(payload);
                     } catch (Exception e) {
                         //throw new RuntimeException(e);
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
@@ -1413,9 +1413,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         e.printStackTrace();
                         return;
                     }
-                    writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
-                    writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
+                    writeToUiAppend(output, "writeStandardResult: " + writeStandardSuccess);
+                    if (writeStandardSuccess) {
+                        writeToUiAppend(output, "number of bytes written: " + chunkedFullData.get(i).length + " to fileID " + fileIdInt);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeStandard success", COLOR_GREEN);
+                    } else {
+                        writeToUiAppend(output, "writeStandard NO success for fileID" + fileIdInt);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeStandard failed with code " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                    }
                     dataSizeLoop += chunkedFullData.get(i).length;
                 }
             }
