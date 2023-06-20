@@ -1800,14 +1800,92 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!successWrite) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "creditValueFile NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "creditValueFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Write Access Key first ?");
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "creditValueFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+
+                    boolean successCommit = desfire.commitTransaction();
+                    writeToUiAppend(output, "commitSuccess: " + successCommit);
+                    if (!successCommit) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "commit NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        fileValueDebit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // debit the selected value file
+                clearOutputFields();
+                writeToUiAppend(output, "debit the value of a value file");
+                // this uses the pre selected file
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    //writeToUiAppend(errorCode, "you need to select a file first");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                int fileIdInt = Integer.parseInt(selectedFileId);
+                byte fileIdByte = Byte.parseByte(selectedFileId);
+
+                try {
+                    // check that it is a value file !
+                    DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
+                    String fileTypeName = fileSettings.getFileTypeName();
+                    writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
+                    if (!fileTypeName.equals("Value")) {
+                        writeToUiAppend(output, "The selected file is not of type Value but of type " + fileTypeName + ", aborted");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        return;
+                    }
+                    ValueDesfireFile valueDesfireFile = (ValueDesfireFile) fileSettings;
+                    try {
+                        int valueFromFileSettings = valueDesfireFile.getValue();
+                        writeToUiAppend(output, "the actual value of fileID " + fileIdInt + " is: " + valueFromFileSettings + " (retrieved from fileSettings)");
+                    } catch (NullPointerException e) {
+                        // do nothing
+                    }
+
+                    PayloadBuilder pb = new PayloadBuilder();
+
+                    int changeValueInt = Integer.parseInt(creditDebitValue.getText().toString());
+                    if ((changeValueInt < 1) || (changeValueInt > pb.getMAXIMUM_VALUE_UPPER_LIMIT())) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong change value, should be between lower and higher limit", COLOR_RED);
                         return;
                     }
 
-                    // todo COMMIT !
+                    boolean successWrite = desfire.debit(fileIdByte, changeValueInt);
+                    writeToUiAppend(output, "debitValueFileSuccess: " + successWrite + " with FileID: " + Utils.byteToHex(fileIdByte)
+                            + " credit value: " + changeValueInt);
+                    if (!successWrite) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "debitValueFile NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "debitValueFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "debitValueFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
 
+                    boolean successCommit = desfire.commitTransaction();
+                    writeToUiAppend(output, "commitSuccess: " + successCommit);
+                    if (!successCommit) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "commit NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
 
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "creditValueFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
                 } catch (Exception e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
