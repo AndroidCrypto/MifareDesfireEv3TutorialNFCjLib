@@ -192,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         // authentication handling
         authKeyD0 = findViewById(R.id.btnAuthD0);
         authKeyD1 = findViewById(R.id.btnAuthD1);
+        authKeyD2 = findViewById(R.id.btnAuthD2);
         authKeyD3 = findViewById(R.id.btnAuthD3);
         authKeyD4 = findViewById(R.id.btnAuthD4);
 
@@ -874,7 +875,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 clearOutputFields();
                 writeToUiAppend(output, "authenticate with key number 0x01 = read&write access key");
                 try {
-                    boolean dfAuthApp = desfire.authenticate(DES_DEFAULT_KEY, KEY_NUMBER_RW, KeyType.DES);
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_RW_DEFAULT, KEY_NUMBER_RW, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
                     if (!dfAuthApp) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
@@ -897,6 +898,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     return;
                 }
 
+            }
+        });
+
+        authKeyD2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the change access access key = 02...
+                clearOutputFields();
+                boolean success = authenticateWithKeyDes(APPLICATION_KEY_CAR_DEFAULT, APPLICATION_KEY_CAR_NUMBER);
             }
         });
 
@@ -1648,6 +1658,36 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     /**
      * section for authentication with DES
      */
+
+    private boolean authenticateWithKeyDes(byte[] keyData, byte keyNumber) {
+        writeToUiAppend(output, "authenticate with key number " + keyNumber + " " + Utils.printData("keyData", keyData));
+        try {
+            boolean dfAuthApp = desfire.authenticate(keyData, keyNumber, KeyType.DES);
+            writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+            if (!dfAuthApp) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                return false;
+            } else {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                return true;
+            }
+        } catch (IOException e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+            //writeToUiAppend(output, "IOException: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+            //writeToUiAppend(output, "IOException: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 
     // if verbose = true all steps are printed out
     private boolean authenticateApplicationDes(TextView logTextView, byte keyId, byte[] key, boolean verbose, byte[] response) {
