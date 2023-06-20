@@ -1289,7 +1289,8 @@ public class DESFireEV1 {
 	 * @throws Exception
 	 */
 	public boolean limitedCredit(byte fileNo, int value) throws Exception {
-		DesfireFileCommunicationSettings cs = getFileCommSett(fileNo, true, false, true, true);
+		//DesfireFileCommunicationSettings cs = getFileCommSett(fileNo, true, false, true, true); // todo Error
+		DesfireFileCommunicationSettings cs = getFileCommSett(fileNo, kno, true, false, true, true);
 		if (cs == null)
 			return false;
 
