@@ -29,13 +29,12 @@ public class PayloadBuilder {
     private final int MAXIMUM_KEY_NUMBER = 15;
     private final int MAXIMUM_RECORD_NUMBER = 15;
     private final int MAXIMUM_FILE_SIZE = 32; // avoid framing
-    private final int MAXIMUM_VALUE_CREDIT = 50;
-    private final int MAXIMUM_VALUE_DEBIT = 50;
+    private final int MAXIMUM_VALUE_CREDIT = 500;
+    private final int MAXIMUM_VALUE_DEBIT = 500;
     private final int MINIMUM_VALUE_LOWER_LIMIT = 0;
-    private final int MAXIMUM_VALUE_LOWER_LIMIT = 100;
+    private final int MAXIMUM_VALUE_LOWER_LIMIT = 500;
     private final int MINIMUM_VALUE_UPPER_LIMIT = 0;
-    private final int MAXIMUM_VALUE_UPPER_LIMIT = 100;
-    private final int MAXIMUM_VALUE = 1000;
+    private final int MAXIMUM_VALUE_UPPER_LIMIT = 500;
 
     public byte[] createApplicationIso(byte[] aid, byte keySettings, byte numberOfKeys, byte[] isoFileId, byte[] isoDfName) {
         // sanity checks
@@ -296,7 +295,7 @@ public class PayloadBuilder {
      */
 
     // note: a lot of limits are applied to parameters
-    public byte[] createValueFile(int fileNumber, CommunicationSetting communicationSetting, int keyRW, int keyCar, int keyR, int keyW, int lowerLimit, int upperLimit, int value) {
+    public byte[] createValueFile(int fileNumber, CommunicationSetting communicationSetting, int keyRW, int keyCar, int keyR, int keyW, int lowerLimit, int upperLimit, int initialValue, boolean limitedCreditOperationEnabled) {
         // sanity checks
         if ((fileNumber < 0) || (fileNumber > MAXIMUM_FILE_NUMBER)) return null;
         if ((keyRW < 0) || (keyRW > MAXIMUM_KEY_NUMBER)) return null;
@@ -304,9 +303,9 @@ public class PayloadBuilder {
         if ((keyR < 0) || (keyR > MAXIMUM_KEY_NUMBER)) return null;
         if ((keyW < 0) || (keyW > MAXIMUM_KEY_NUMBER)) return null;
         if ((lowerLimit < MINIMUM_VALUE_LOWER_LIMIT) || (lowerLimit > MAXIMUM_VALUE_LOWER_LIMIT)) return null;
-        if ((upperLimit < MINIMUM_VALUE_LOWER_LIMIT) || (upperLimit > MAXIMUM_VALUE_UPPER_LIMIT)) return null;
+        if ((upperLimit < MINIMUM_VALUE_UPPER_LIMIT) || (upperLimit > MAXIMUM_VALUE_UPPER_LIMIT)) return null;
         if (upperLimit <= lowerLimit) return null;
-        if ((value < 0) || (value > 100)) return null;
+        if ((initialValue < MINIMUM_VALUE_LOWER_LIMIT) || (initialValue > MAXIMUM_VALUE_UPPER_LIMIT)) return null;
 
         // build
         byte communicationSettings = 0;
@@ -314,13 +313,18 @@ public class PayloadBuilder {
         if (communicationSetting == CommunicationSetting.MACed) communicationSettings = (byte) 0x01;
         if (communicationSetting == CommunicationSetting.Encrypted) communicationSettings = (byte) 0x03;
         byte accessRightsRwCar = (byte) ((keyRW << 4) | (keyCar & 0x0F)); // Read&Write Access & ChangeAccessRights
-        byte accessRightsRW = (byte) ((keyR << 4) | (keyW & 0x0F)) ;// Read Access & Write Access // read with key 0, write with key 0
+        byte accessRightsRW = (byte) ((keyR << 4) | (keyW & 0x0F)) ;// Read Access & Write Access
 
         byte[] payload = new byte[17]; // just to show the length
         byte[] lowerLimitByte = intTo4Byte_le(lowerLimit);
         byte[] upperLimitByte = intTo4Byte_le(upperLimit);
-        byte[] valueByte = intTo4Byte_le(value);
-        byte limitedCreditOperationEnabled = (byte) 0x00; // 00 means not enabled, 1 means enabled feature
+        byte[] valueByte = intTo4Byte_le(initialValue);
+        byte limitedCreditOperationEnabledByte;
+        if (limitedCreditOperationEnabled) {
+            limitedCreditOperationEnabledByte = (byte) 0x01; // 01 means enabled feature
+        } else {
+            limitedCreditOperationEnabledByte = (byte) 0x00; // 00 means not enabled feature
+        }
         payload[0] = (byte) (fileNumber & 0xff); // fileNumber
         payload[1] = communicationSettings;
         payload[2] = accessRightsRwCar;
@@ -328,7 +332,7 @@ public class PayloadBuilder {
         System.arraycopy(lowerLimitByte, 0, payload, 4, 4);
         System.arraycopy(upperLimitByte, 0, payload, 8, 4);
         System.arraycopy(valueByte, 0, payload, 12, 4);
-        payload[16] = limitedCreditOperationEnabled;
+        payload[16] = limitedCreditOperationEnabledByte;
         return payload;
     }
 
@@ -503,4 +507,43 @@ public class PayloadBuilder {
         return ByteBuffer.wrap(byteArray).order(ByteOrder.BIG_ENDIAN).getInt();
     }
 
+    public int getMAXIMUM_FILE_NUMBER() {
+        return MAXIMUM_FILE_NUMBER;
+    }
+
+    public int getMAXIMUM_KEY_NUMBER() {
+        return MAXIMUM_KEY_NUMBER;
+    }
+
+    public int getMAXIMUM_RECORD_NUMBER() {
+        return MAXIMUM_RECORD_NUMBER;
+    }
+
+    public int getMAXIMUM_FILE_SIZE() {
+        return MAXIMUM_FILE_SIZE;
+    }
+
+    public int getMAXIMUM_VALUE_CREDIT() {
+        return MAXIMUM_VALUE_CREDIT;
+    }
+
+    public int getMAXIMUM_VALUE_DEBIT() {
+        return MAXIMUM_VALUE_DEBIT;
+    }
+
+    public int getMINIMUM_VALUE_LOWER_LIMIT() {
+        return MINIMUM_VALUE_LOWER_LIMIT;
+    }
+
+    public int getMAXIMUM_VALUE_LOWER_LIMIT() {
+        return MAXIMUM_VALUE_LOWER_LIMIT;
+    }
+
+    public int getMINIMUM_VALUE_UPPER_LIMIT() {
+        return MINIMUM_VALUE_UPPER_LIMIT;
+    }
+
+    public int getMAXIMUM_VALUE_UPPER_LIMIT() {
+        return MAXIMUM_VALUE_UPPER_LIMIT;
+    }
 }

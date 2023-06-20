@@ -73,6 +73,38 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private byte[] selectedApplicationId = null;
 
     /**
+     * section for files handling
+     */
+
+    private LinearLayout llFiles;
+
+    private Button fileList, fileSelect, fileDelete;
+    private String selectedFileId = "";
+    private int selectedFileSize;
+
+    /**
+     * section for standard file handling
+     */
+
+    private LinearLayout llStandardFile;
+    private Button fileStandardCreate, fileStandardWrite, fileStandardRead;
+    private com.google.android.material.textfield.TextInputEditText fileSize, fileSelected, fileData;
+    private com.shawnlin.numberpicker.NumberPicker npStandardFileId;
+    private final int MAXIMUM_STANDARD_DATA_CHUNK = 40; // if any data are longer we create chunks when writing
+
+    //private FileSettings selectedFileSettings;
+
+
+    /**
+     * section for value file handling
+     */
+
+    private LinearLayout llValueFile;
+    private Button fileValueCreate, fileValueCredit, fileValueDebit, fileValueRead;
+    private com.shawnlin.numberpicker.NumberPicker npValueFileId;
+    private com.google.android.material.textfield.TextInputEditText lowerLimitValue, upperLimitValue, initialValueValue;
+
+    /**
      * section for authentication
      */
 
@@ -84,18 +116,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     private Button changeKeyD0, changeKeyD1, changeKeyD2, changeKeyD3, changeKeyD4;
 
-    /**
-     * section for standard file handling
-     */
 
-    private LinearLayout llStandardFile;
-    private Button fileList, fileSelect, fileStandardCreate, fileDelete, fileStandardWrite, fileStandardRead;
-    private com.google.android.material.textfield.TextInputEditText fileSize, fileSelected, fileData;
-    private com.shawnlin.numberpicker.NumberPicker npFileId;
-    private final int MAXIMUM_STANDARD_DATA_CHUNK = 40; // if any data are longer we create chunks when writing
-    private String selectedFileId = "";
-    private int selectedFileSize;
-    //private FileSettings selectedFileSettings;
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3];
@@ -175,19 +196,29 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         numberOfKeys = findViewById(R.id.etNumberOfKeys);
         applicationId = findViewById(R.id.etApplicationId);
 
-        // standard file handling
-        llStandardFile = findViewById(R.id.llStandardFile);
+        // files handling
         fileList = findViewById(R.id.btnListFiles);
         fileSelect = findViewById(R.id.btnSelectFile);
         fileDelete = findViewById(R.id.btnDeleteFile);
-        //authenticate = findViewById(R.id.btnAuthenticate);
+
+        // standard file handling
+        llStandardFile = findViewById(R.id.llStandardFile);
         fileStandardCreate = findViewById(R.id.btnCreateStandardFile);
         fileStandardWrite = findViewById(R.id.btnWriteStandardFile);
         fileStandardRead = findViewById(R.id.btnReadStandardFile);
-        npFileId = findViewById(R.id.npFileId);
+        npStandardFileId = findViewById(R.id.npStandardFileId);
         fileSize = findViewById(R.id.etFileSize);
         fileData = findViewById(R.id.etFileData);
         fileSelected = findViewById(R.id.etSelectedFileId);
+
+        // value file handling
+        llValueFile = findViewById(R.id.llValueFile);
+        fileValueCreate = findViewById(R.id.btnCreateValueFile);
+        fileValueRead = findViewById(R.id.btnReadValueFile);
+        npValueFileId = findViewById(R.id.npValueFileId);
+        lowerLimitValue = findViewById(R.id.etValueLowerLimit);
+        upperLimitValue = findViewById(R.id.etValueUpperLimit);
+        initialValueValue = findViewById(R.id.etValueInitialValue);
 
         // authentication handling
         authKeyD0 = findViewById(R.id.btnAuthD0);
@@ -751,15 +782,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             e.printStackTrace();
                             return;
                         }
-                        writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+                        writeToUiAppend(output, "selectApplicationResult: " + dfSelectApplication);
                         if (dfSelectApplication) {
                             selectedApplicationId = Utils.hexStringToByteArray(applicationList[which]);
                             applicationSelected.setText(applicationList[which]);
                             selectedFileId = "";
                             fileSelected.setText("");
-                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplicationResult: " + dfSelectApplication, COLOR_GREEN);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectApplicationResult: " + dfSelectApplication, COLOR_GREEN);
                         } else {
-                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "dfSelectApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
                         }
                     }
                 });
@@ -831,6 +862,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
          */
             }
         });
+
+
+
+
+
 
         /**
          * section for authentication
@@ -1105,39 +1141,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
 
         /**
-         * section  for standard files
+         * section for files
          */
-
-        /*
-        authenticate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the default DES key
-                clearOutputFields();
-                try {
-                    boolean success = desfire.authenticate(DES_DEFAULT_KEY, KEY_NUMBER_RW, KeyType.DES);
-                    writeToUiAppend(output, "authenticateDesSuccess: " + success);
-                    if (!success) {
-                        writeToUiAppend(output, "authenticateDes NOT Success, aborted");
-                        writeToUiAppend(output, "authenticateDes NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                        return;
-                    }
-
-                } catch (IOException e) {
-                    //throw new RuntimeException(e);
-                    writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                } catch (Exception e) {
-                    //throw new RuntimeException(e);
-                    writeToUiAppend(output, "Exception: " + e.getMessage());
-                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    e.printStackTrace();
-                    return;
-                }
-            }
-        });
-        */
 
         fileSelect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1232,57 +1237,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
-        fileStandardCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // create a new standard file
-                // get the input and sanity checks
-                clearOutputFields();
-                byte fileIdByte = (byte) (npFileId.getValue() & 0xFF);
-
-                // the number of files on an EV1 tag is limited to 32 (00..31), but we are using the limit for the old D40 tag with a maximum of 15 files (00..14)
-                // this limit is hardcoded in the XML file for the fileId numberPicker
-
-                //byte fileIdByte = Byte.parseByte(fileId.getText().toString());
-                int fileSizeInt = Integer.parseInt(fileSize.getText().toString());
-                if (fileIdByte > (byte) 0x0f) {
-                    // this should not happen as the limit is hardcoded in npFileId
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
-                    return;
-                }
-                /*
-                if (fileSizeInt != 32) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file size, 32 bytes allowed only", COLOR_RED);
-                    return;
-                }
-                 */
-                try {
-                    PayloadBuilder pb = new PayloadBuilder();
-                    byte[] payloadStandardFile = pb.createStandardFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
-                            1, 2, 3, 4, fileSizeInt);
-                    boolean success = desfire.createStdDataFile(payloadStandardFile);
-                    writeToUiAppend(output, "createStdDataFileSuccess: " + success + " with FileID: " + Utils.byteToHex(fileIdByte) + " and size: " + fileSizeInt);
-                    if (!success) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "createStdDataFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                        return;
-                    }
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
-                } catch (IOException e) {
-                    //throw new RuntimeException(e);
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-                    e.printStackTrace();
-                    return;
-                } catch (Exception e) {
-                    //throw new RuntimeException(e);
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    e.printStackTrace();
-                    return;
-                }
-            }
-        });
-
         fileDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1340,6 +1294,93 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         .setPositiveButton(android.R.string.yes, dialogClickListener)
         .setNegativeButton(android.R.string.no, dialogClickListener)
          */
+            }
+        });
+
+        /**
+         * section  for standard files
+         */
+
+        /*
+        authenticate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the default DES key
+                clearOutputFields();
+                try {
+                    boolean success = desfire.authenticate(DES_DEFAULT_KEY, KEY_NUMBER_RW, KeyType.DES);
+                    writeToUiAppend(output, "authenticateDesSuccess: " + success);
+                    if (!success) {
+                        writeToUiAppend(output, "authenticateDes NOT Success, aborted");
+                        writeToUiAppend(output, "authenticateDes NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    }
+
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppend(output, "Exception: " + e.getMessage());
+                    writeToUiAppend(output, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+        */
+
+
+        fileStandardCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // create a new standard file
+                // get the input and sanity checks
+                clearOutputFields();
+                byte fileIdByte = (byte) (npStandardFileId.getValue() & 0xFF);
+
+                // the number of files on an EV1 tag is limited to 32 (00..31), but we are using the limit for the old D40 tag with a maximum of 15 files (00..14)
+                // this limit is hardcoded in the XML file for the fileId numberPicker
+
+                //byte fileIdByte = Byte.parseByte(fileId.getText().toString());
+                int fileSizeInt = Integer.parseInt(fileSize.getText().toString());
+                if (fileIdByte > (byte) 0x0f) {
+                    // this should not happen as the limit is hardcoded in npFileId
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
+                    return;
+                }
+                /*
+                if (fileSizeInt != 32) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file size, 32 bytes allowed only", COLOR_RED);
+                    return;
+                }
+                 */
+                try {
+                    PayloadBuilder pb = new PayloadBuilder();
+                    byte[] payloadStandardFile = pb.createStandardFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
+                            1, 2, 3, 4, fileSizeInt);
+                    boolean success = desfire.createStdDataFile(payloadStandardFile);
+                    writeToUiAppend(output, "createStdDataFileSuccess: " + success + " with FileID: " + Utils.byteToHex(fileIdByte) + " and size: " + fileSizeInt);
+                    if (!success) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "createStdDataFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
             }
         });
 
@@ -1535,8 +1576,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 try {
                     // get the maximal length from getFileSettings
                     DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
-                    //DesfireFile fileSettings = desfire.getFileSettings(STANDARD_FILE_NUMBER);
-                    //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
                     // check that it is a standard file !
                     String fileTypeName = fileSettings.getFileTypeName();
                     writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
@@ -1570,6 +1609,79 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 writeToUiAppend(output, "finished");
                 writeToUiAppend(output, "");
+            }
+        });
+
+        /**
+         * section for value files
+         */
+
+        fileValueCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // create a value file
+                // get the input and sanity checks
+                clearOutputFields();
+                byte fileIdByte = (byte) (npValueFileId.getValue() & 0xFF);
+
+                // the number of files on an EV1 tag is limited to 32 (00..31), but we are using the limit for the old D40 tag with a maximum of 15 files (00..14)
+                // this limit is hardcoded in the XML file for the fileId numberPicker
+
+                //byte fileIdByte = Byte.parseByte(fileId.getText().toString());
+                int lowerLimitInt = Integer.parseInt(lowerLimitValue.getText().toString());
+                int upperLimitInt = Integer.parseInt(upperLimitValue.getText().toString());
+                int initialValueInt = Integer.parseInt(initialValueValue.getText().toString());
+
+                if (fileIdByte > (byte) 0x0f) {
+                    // this should not happen as the limit is hardcoded in npStandardFileId
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
+                    return;
+                }
+
+                PayloadBuilder pb = new PayloadBuilder();
+
+                if ((lowerLimitInt < pb.getMINIMUM_VALUE_LOWER_LIMIT()) || (lowerLimitInt> pb.getMAXIMUM_VALUE_LOWER_LIMIT())) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong lower limit, maximum 1000 allowed only", COLOR_RED);
+                    return;
+                }
+                if ((upperLimitInt < pb.getMINIMUM_VALUE_UPPER_LIMIT()) || (upperLimitInt > pb.getMAXIMUM_VALUE_UPPER_LIMIT())) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong upper limit, maximum 1000 allowed only", COLOR_RED);
+                    return;
+                }
+                if (upperLimitInt <= lowerLimitInt) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong upper limit, should be higher than lower limit", COLOR_RED);
+                    return;
+                }
+                if ((initialValueInt < pb.getMINIMUM_VALUE_LOWER_LIMIT()) || (initialValueInt > pb.getMAXIMUM_VALUE_UPPER_LIMIT())) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong initial value, should be between lower and higher limit", COLOR_RED);
+                    return;
+                }
+
+                try {
+                    byte[] payloadValueFile = pb.createValueFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
+                            1, 2, 3, 4, lowerLimitInt, upperLimitInt, initialValueInt, false);
+
+                    boolean success = desfire.createValueFile(payloadValueFile);
+                    writeToUiAppend(output, "createValueFileSuccess: " + success + " with FileID: " + Utils.byteToHex(fileIdByte)
+                            + " lower limit: " + lowerLimitInt + " upper limit: " + upperLimitInt + " initial limit: " + initialValueInt);
+                    if (!success) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createValueFile NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "createValueFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createValueFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
             }
         });
 
