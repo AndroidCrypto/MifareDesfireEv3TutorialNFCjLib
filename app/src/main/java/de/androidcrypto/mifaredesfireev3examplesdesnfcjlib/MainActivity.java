@@ -30,6 +30,7 @@ import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.file.DesfireFile;
 import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
+import com.github.skjolber.desfire.ev1.model.file.ValueDesfireFile;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.ByteArrayOutputStream;
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private LinearLayout llValueFile;
     private Button fileValueCreate, fileValueCredit, fileValueDebit, fileValueRead;
     private com.shawnlin.numberpicker.NumberPicker npValueFileId;
-    private com.google.android.material.textfield.TextInputEditText lowerLimitValue, upperLimitValue, initialValueValue;
+    private com.google.android.material.textfield.TextInputEditText lowerLimitValue, upperLimitValue, initialValueValue, creditDebitValue;
 
     /**
      * section for authentication
@@ -215,10 +216,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         llValueFile = findViewById(R.id.llValueFile);
         fileValueCreate = findViewById(R.id.btnCreateValueFile);
         fileValueRead = findViewById(R.id.btnReadValueFile);
+        fileValueCredit = findViewById(R.id.btnCreditValueFile);
+        fileValueDebit = findViewById(R.id.btnDebitValueFile);
         npValueFileId = findViewById(R.id.npValueFileId);
         lowerLimitValue = findViewById(R.id.etValueLowerLimit);
         upperLimitValue = findViewById(R.id.etValueUpperLimit);
         initialValueValue = findViewById(R.id.etValueInitialValue);
+        creditDebitValue = findViewById(R.id.etValueCreditDebitValue);
 
         // authentication handling
         authKeyD0 = findViewById(R.id.btnAuthD0);
@@ -1106,24 +1110,24 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
                     // select master application
                     boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+                    writeToUiAppend(output, "selectMasterApplicationResult: " + dfSelectM);
 
                     // authenticate with MasterApplicationKey
                     boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+                    writeToUiAppend(output, "authMasterApplicationResult: " + dfAuthM);
 
                     boolean dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+                    writeToUiAppend(output, "selectApplicationResult: " + dfSelectApplication);
 
                     // we do need an authentication to change a key with the application master key = 0x00
                     boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    writeToUiAppend(output, "authApplicationResult: " + dfAuthApp);
 
                     // change the key
                     // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
                     boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_W_NUMBER, KeyType.DES, APPLICATION_KEY_W, APPLICATION_KEY_W_DEFAULT);
-                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
-                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                    writeToUiAppend(output, "changeKeyResult: " + dfChangeKey);
+                    writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
 
                     writeToUiAppend(output, "finished");
                     writeToUiAppend(output, "");
@@ -1389,6 +1393,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public void onClick(View view) {
                 // write to a selected standard file in a selected application
                 clearOutputFields();
+                writeToUiAppend(output, "write to a standard file");
                 // this uses the pre selected file
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
@@ -1566,6 +1571,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // read from a selected standard file in a selected application
                 clearOutputFields();
                 // this uses the pre selected file
+                writeToUiAppend(output, "read from a standard file");
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
@@ -1677,6 +1683,132 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        fileValueRead.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // read the values of a value file
+                clearOutputFields();
+                writeToUiAppend(output, "read the value of a value file");
+                // this uses the pre selected file
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    //writeToUiAppend(errorCode, "you need to select a file first");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                int fileIdInt = Integer.parseInt(selectedFileId);
+                byte fileIdByte = Byte.parseByte(selectedFileId);
+
+                try {
+                    // check that it is a value file !
+                    DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
+                     String fileTypeName = fileSettings.getFileTypeName();
+                    writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
+                    if (!fileTypeName.equals("Value")) {
+                        writeToUiAppend(output, "The selected file is not of type Value but of type " + fileTypeName + ", aborted");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        return;
+                    }
+                    ValueDesfireFile valueDesfireFile = (ValueDesfireFile) fileSettings;
+                    try {
+                        int valueFromFileSettings = valueDesfireFile.getValue();
+                        writeToUiAppend(output, "the actual value of fileID " + fileIdInt + " is: " + valueFromFileSettings + " (retrieved from fileSettings)");
+                    } catch (NullPointerException e) {
+                        // do nothing
+                    }
+                    int value = 0;
+                    try {
+                        value = desfire.getValue(fileIdByte);
+                    } catch (NullPointerException e) {
+                        writeToUiAppend(output, "cannot read the value of the file");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "readValue NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "readValue NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Read Access Key first ?");
+                        return;
+                    }
+                    int transactionCode = desfire.getCode();
+                    if (transactionCode == 0) {
+                        writeToUiAppend(output, "the actual value of fileID " + fileIdInt + " is: " + value);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "readValue success", COLOR_GREEN);
+                    } else {
+                        writeToUiAppend(output, "cannot read the value of the file");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "readValue NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "readValue NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Read Access Key first ?");
+                        return;
+                    }
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        fileValueCredit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // credit the selected value file
+                clearOutputFields();
+                writeToUiAppend(output, "credit the value of a value file");
+                // this uses the pre selected file
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    //writeToUiAppend(errorCode, "you need to select a file first");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                int fileIdInt = Integer.parseInt(selectedFileId);
+                byte fileIdByte = Byte.parseByte(selectedFileId);
+
+                try {
+                    // check that it is a value file !
+                    DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
+                    String fileTypeName = fileSettings.getFileTypeName();
+                    writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
+                    if (!fileTypeName.equals("Value")) {
+                        writeToUiAppend(output, "The selected file is not of type Value but of type " + fileTypeName + ", aborted");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        return;
+                    }
+                    ValueDesfireFile valueDesfireFile = (ValueDesfireFile) fileSettings;
+                    try {
+                        int valueFromFileSettings = valueDesfireFile.getValue();
+                        writeToUiAppend(output, "the actual value of fileID " + fileIdInt + " is: " + valueFromFileSettings + " (retrieved from fileSettings)");
+                    } catch (NullPointerException e) {
+                        // do nothing
+                    }
+
+                    PayloadBuilder pb = new PayloadBuilder();
+
+                    int changeValueInt = Integer.parseInt(creditDebitValue.getText().toString());
+                    if ((changeValueInt < 1) || (changeValueInt > pb.getMAXIMUM_VALUE_UPPER_LIMIT())) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong change value, should be between lower and higher limit", COLOR_RED);
+                        return;
+                    }
+
+                    boolean successWrite = desfire.credit(fileIdByte, changeValueInt);
+                    writeToUiAppend(output, "creditValueFileSuccess: " + successWrite + " with FileID: " + Utils.byteToHex(fileIdByte)
+                            + " credit value: " + changeValueInt);
+                    if (!successWrite) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "creditValueFile NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "creditValueFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Write Access Key first ?");
+                        return;
+                    }
+
+                    // todo COMMIT !
+
+
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "creditValueFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                } catch (Exception e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
