@@ -2,6 +2,7 @@ package nfcjlib.core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import android.util.Log;
 
@@ -23,6 +24,7 @@ public class DESFireAdapter {
 
     private IsoDepWrapper isoDep;
     private boolean print;
+    private boolean debug = true; // if true some steps are given out
 
     public DESFireAdapter(IsoDepWrapper isoDep, boolean print) {
         this.isoDep = isoDep;
@@ -46,7 +48,7 @@ public class DESFireAdapter {
     }
 
     public byte[] receieveResponseChain(byte[] response) throws IOException, Exception {
-		System.out.println(Utils.printData("response", response));
+		if (debug) Log.d(TAG, Utils.printData("response", response));
         if (response[response.length - 2] == STATUS_OK && response[response.length - 1] == OPERATION_OK) {
             return response;
         }
@@ -79,21 +81,42 @@ public class DESFireAdapter {
         if (apdu.length <= MAX_CAPDU_SIZE) {
             return transmit(apdu);
         }
-        int offset = 5; // data area of apdu
+        int offset = 5; // data area of apdu // todo ERROR ?? changed
+        //int offset = 12; // data area of apdu
 
         byte nextCommand = apdu[1];
+        if (debug) Log.d(TAG, "sendRequestChain with apdu.length >= MAX_CAPDU_SIZE");
+        if (debug) Log.d(TAG, "sendRequestChain " + Utils.printData("apdu", apdu));
+        if (debug) Log.d(TAG, "sendRequestChain apdu.length: " + apdu.length);
+
+        // todo ERROR ! strip the last byte from apdu as it is added through the new wrapCommand
+        if (debug) Log.d(TAG, "strip off the last byte of APDU");
+        apdu = Arrays.copyOf(apdu, (apdu.length - 1));
+        if (debug) Log.d(TAG, "sendRequestChain " + Utils.printData("apdu", apdu));
+        if (debug) Log.d(TAG, "sendRequestChain apdu.length: " + apdu.length);
+
+        if (debug) Log.d(TAG, "sendRequestChain MAX_CAPDU_SIZE: " + MAX_CAPDU_SIZE);
+        if (debug) Log.d(TAG, "sendRequestChain offset: " + offset);
         while (true) {
+            if (debug) Log.d(TAG, "sendRequestChain nextCommand: " + Utils.byteToHex(nextCommand));
             int nextLength = Math.min(MAX_CAPDU_SIZE - 1, apdu.length - offset);
-
+            if (debug) Log.d(TAG, "sendRequestChain nextLength: " + nextLength);
+            if (debug) Log.d(TAG, "sendRequestChain offset: " + offset);
+            byte[] newDataToSend = Arrays.copyOfRange(apdu, offset, (offset + nextLength));
+            if (debug) Log.d(TAG, "sendRequestChain: " + Utils.printData("newDataToSend", newDataToSend));
             byte[] request = wrapMessage(nextCommand, apdu, offset, nextLength);
-
+            if (debug) Log.d(TAG, "sendRequestChain " + Utils.printData("request", request));
             byte[] response = transmit(request);
+            if (debug) Log.d(TAG, "sendRequestChain " + Utils.printData("response", response));
             if (response[response.length - 2] != STATUS_OK) {
                 throw new Exception("Invalid response " + String.format("%02x", response[response.length - 2] & 0xff));
             }
 
             offset += nextLength;
+
+            if (debug) Log.d(TAG, "sendRequestChain offset: " + offset);
             if (offset == apdu.length) {
+                if (debug) Log.d(TAG, "sendRequestChain offset == apdu.length, return");
                 return response;
             }
 
@@ -105,6 +128,8 @@ public class DESFireAdapter {
                 throw new Exception("PICC error code: " + Integer.toHexString(status & 0xFF));
             }
             nextCommand = ADDITIONAL_FRAME;
+
+            if (debug) Log.d(TAG, "sendRequestChain nextCommand: " + Utils.byteToHex(nextCommand));
         }
 
     }

@@ -372,6 +372,35 @@ public class PayloadBuilder {
         if ((keyCar < 0) || (keyCar > MAXIMUM_KEY_NUMBER)) return null;
         if ((keyR < 0) || (keyR > MAXIMUM_KEY_NUMBER)) return null;
         if ((keyW < 0) || (keyW > MAXIMUM_KEY_NUMBER)) return null;
+        if ((fileSize < 0)) return null;
+        if ((maximumRecords < 1) || (maximumRecords > MAXIMUM_RECORD_NUMBER)) return null;
+
+        // build
+        byte[] payload = new byte[10]; // just to show the length
+        byte communicationSettings = 0;
+        if (communicationSetting == CommunicationSetting.Plain) communicationSettings = (byte) 0x00;
+        if (communicationSetting == CommunicationSetting.MACed) communicationSettings = (byte) 0x01;
+        if (communicationSetting == CommunicationSetting.Encrypted) communicationSettings = (byte) 0x03;
+        byte accessRightsRwCar = (byte) ((keyRW << 4) | (keyCar & 0x0F)); // Read&Write Access & ChangeAccessRights
+        byte accessRightsRW = (byte) ((keyR << 4) | (keyW & 0x0F)) ;// Read Access & Write Access // read with key 0, write with key 0
+        byte[] fileSizeByte = intTo3ByteArrayLsb(fileSize);
+        byte[] maximumRecordsByte = intTo3ByteArrayLsb(maximumRecords);
+        payload[0] = (byte) (fileNumber & 0xff); // fileNumber
+        payload[1] = communicationSettings;
+        payload[2] = accessRightsRwCar;
+        payload[3] = accessRightsRW;
+        System.arraycopy(fileSizeByte, 0, payload, 4, 3);
+        System.arraycopy(maximumRecordsByte, 0, payload, 7, 3);
+        return payload;
+    }
+
+    public byte[] createLinearRecordsFileSizeLimited(int fileNumber, CommunicationSetting communicationSetting, int keyRW, int keyCar, int keyR, int keyW, int fileSize, int maximumRecords) {
+        // sanity checks
+        if ((fileNumber < 0) || (fileNumber > MAXIMUM_FILE_NUMBER)) return null;
+        if ((keyRW < 0) || (keyRW > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyCar < 0) || (keyCar > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyR < 0) || (keyR > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyW < 0) || (keyW > MAXIMUM_KEY_NUMBER)) return null;
         if ((fileSize < 0) || (fileSize > MAXIMUM_FILE_SIZE)) return null;
         if ((maximumRecords < 1) || (maximumRecords > MAXIMUM_RECORD_NUMBER)) return null;
 
@@ -418,6 +447,35 @@ public class PayloadBuilder {
         if ((keyCar < 0) || (keyCar > MAXIMUM_KEY_NUMBER)) return null;
         if ((keyR < 0) || (keyR > MAXIMUM_KEY_NUMBER)) return null;
         if ((keyW < 0) || (keyW > MAXIMUM_KEY_NUMBER)) return null;
+        if ((fileSize < 0)) return null;
+        if ((maximumRecords < 2) || (maximumRecords > MAXIMUM_RECORD_NUMBER)) return null;
+
+        // build
+        byte[] payload = new byte[10]; // just to show the length
+        byte communicationSettings = 0;
+        if (communicationSetting == CommunicationSetting.Plain) communicationSettings = (byte) 0x00;
+        if (communicationSetting == CommunicationSetting.MACed) communicationSettings = (byte) 0x01;
+        if (communicationSetting == CommunicationSetting.Encrypted) communicationSettings = (byte) 0x03;
+        byte accessRightsRwCar = (byte) ((keyRW << 4) | (keyCar & 0x0F)); // Read&Write Access & ChangeAccessRights
+        byte accessRightsRW = (byte) ((keyR << 4) | (keyW & 0x0F)) ;// Read Access & Write Access // read with key 0, write with key 0
+        byte[] fileSizeByte = intTo3ByteArrayLsb(fileSize);
+        byte[] maximumRecordsByte = intTo3ByteArrayLsb(maximumRecords);
+        payload[0] = (byte) (fileNumber & 0xff); // fileNumber
+        payload[1] = communicationSettings;
+        payload[2] = accessRightsRwCar;
+        payload[3] = accessRightsRW;
+        System.arraycopy(fileSizeByte, 0, payload, 4, 3);
+        System.arraycopy(maximumRecordsByte, 0, payload, 7, 3);
+        return payload;
+    }
+
+    public byte[] createCyclicRecordsFileSizeLimited(int fileNumber, CommunicationSetting communicationSetting, int keyRW, int keyCar, int keyR, int keyW, int fileSize, int maximumRecords) {
+        // sanity checks
+        if ((fileNumber < 0) || (fileNumber > MAXIMUM_FILE_NUMBER)) return null;
+        if ((keyRW < 0) || (keyRW > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyCar < 0) || (keyCar > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyR < 0) || (keyR > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyW < 0) || (keyW > MAXIMUM_KEY_NUMBER)) return null;
         if ((fileSize < 0) || (fileSize > MAXIMUM_FILE_SIZE)) return null;
         if ((maximumRecords < 2) || (maximumRecords > MAXIMUM_RECORD_NUMBER)) return null;
 
@@ -445,6 +503,23 @@ public class PayloadBuilder {
     }
 
     public byte[] writeToCyclicRecordsFile(int fileNumber, byte[] data) {
+        // sanity checks
+        if ((fileNumber < 0) || (fileNumber > MAXIMUM_FILE_NUMBER)) return null;
+        if (data == null) return null;
+        //if (data.length > MAXIMUM_FILE_SIZE) return null;
+
+        // build
+        byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning, fixed
+        byte[] lengthOfData = intTo3ByteArrayLsb(data.length);
+        byte[] payload = new byte[7 + data.length]; // 7 + length of data
+        payload[0] = (byte) (fileNumber & 0xff); // fileNumber
+        System.arraycopy(offset, 0, payload, 1, 3);
+        System.arraycopy(lengthOfData, 0, payload, 4, 3);
+        System.arraycopy(data, 0, payload, 7, data.length);
+        return payload;
+    }
+
+    public byte[] writeToCyclicRecordsFileSizeLimited(int fileNumber, byte[] data) {
         // sanity checks
         if ((fileNumber < 0) || (fileNumber > MAXIMUM_FILE_NUMBER)) return null;
         if (data == null) return null;

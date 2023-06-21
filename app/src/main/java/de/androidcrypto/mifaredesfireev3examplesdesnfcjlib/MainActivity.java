@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private Button fileList, fileSelect, fileDelete;
     private com.google.android.material.textfield.TextInputEditText fileSelected;
     private String selectedFileId = "";
+    private int selectedFileIdInt = -1;
     private int selectedFileSize;
 
     /**
@@ -1217,6 +1218,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     public void onClick(DialogInterface dialog, int which) {
                         writeToUiAppend(output, "you  selected nr " + which + " = " + fileList[which]);
                         selectedFileId = fileList[which];
+                        selectedFileIdInt = Byte.parseByte(selectedFileId, 16);
                         // now we run the command to select the application
                         byte[] responseData = new byte[2];
                         //boolean result = selectDes(output, selectedApplicationId, responseData);
@@ -1226,7 +1228,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         // here we are reading the fileSettings
                         DesfireFile desfireFile;
                         try {
-                            desfireFile = desfire.forceFileSettingsUpdate(Integer.parseInt(selectedFileId));
+                            desfireFile = desfire.forceFileSettingsUpdate(selectedFileIdInt);
                         } catch (Exception e) {
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                             return;
@@ -1978,10 +1980,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (isLinearRecordFile) {
                         payloadRecordFile = pb.createLinearRecordsFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
                                 1, 2, 3, 4, fileSizeInt, fileNumberOfRecordsInt);
+                        writeToUiAppend(output, printData("payloadCreateRecordFile", payloadRecordFile));
                         success = desfire.createLinearRecordFile(payloadRecordFile);
                     } else {
                         payloadRecordFile = pb.createCyclicRecordsFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
                                 1, 2, 3, 4, fileSizeInt, fileNumberOfRecordsInt);
+                        writeToUiAppend(output, printData("payloadCreateRecordFile", payloadRecordFile));
                         success = desfire.createCyclicRecordFile(payloadRecordFile);
                     }
                     writeToUiAppend(output, "create" + fileTypeString + "FileSuccess: " + success
@@ -2019,7 +2023,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
                     return;
                 }
-                int fileIdInt = Integer.parseInt(selectedFileId);
+                int fileIdInt = selectedFileIdInt;
                 try {
                     // get the maximal length from getFileSettings
                     DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
@@ -2099,8 +2103,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "please enter some data to write", COLOR_RED);
                     return;
                 }
-                int fileIdInt = Integer.parseInt(selectedFileId);
-                byte fileIdByte = Byte.parseByte(selectedFileId);
+                int fileIdInt = selectedFileIdInt;
                 try {
                     // check that it is a record file !
                     // get the maximal length from getFileSettings
@@ -2133,16 +2136,20 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     int maxRecords = recordDesfireFile.getMaxRecords();
                     writeToUiAppend(output, "recordSize: " + recordSize + " currentRecords: " + currentRecords + " maxRecords: " + maxRecords);
 
+                    // todo check maximum records for linear records file - if maximum is reached stop any further writing
+
                     // get a random payload with 32 bytes
                     UUID uuid = UUID.randomUUID(); // this is 36 characters long
-                    //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
-                    byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
+                    byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
+                    //byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
 
                     // create an empty array and copy the dataToWrite to clear the complete standard file
                     byte[] fullDataToWrite = new byte[recordSize];
-                    System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
+                    fullDataToWrite = Utils.generateTestData(recordSize);
+                    //System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
 
                     // this the regular way but will probably fail when record size extends 40 bytes
+                    writeToUiAppend(output, printData("fullDataToWrite", fullDataToWrite));
                     boolean writeRecordSuccess = false;
                     PayloadBuilder pbRecord = new PayloadBuilder();
                     if (isLinearRecordFile) {
