@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -125,6 +126,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private Button authKeyD0, authKeyD1, authKeyD2, authKeyD3, authKeyD4;
+
+    // changed keys
+    private Button authKeyD0C, authKeyD1C, authKeyD2C, authKeyD3C, authKeyD4C;
+
 
     /**
      * section for key handling
@@ -256,6 +261,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         authKeyD2 = findViewById(R.id.btnAuthD2);
         authKeyD3 = findViewById(R.id.btnAuthD3);
         authKeyD4 = findViewById(R.id.btnAuthD4);
+        // now with changed keys
+        authKeyD0C = findViewById(R.id.btnAuthD0C);
+        authKeyD1C = findViewById(R.id.btnAuthD1C);
+        authKeyD2C = findViewById(R.id.btnAuthD2C);
+        authKeyD3C = findViewById(R.id.btnAuthD3C);
+        authKeyD4C = findViewById(R.id.btnAuthD4C);
 
         // key handling
         changeKeyD0 = findViewById(R.id.btnChangeKeyD0);
@@ -266,6 +277,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         // todo clear TextView (e.g. selectedApplication/file) on some actions
 
         //allLayoutsInvisible(); // default
+
+        // hide soft keyboard from showing up on startup
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
@@ -894,277 +908,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
 
 
-        /**
-         * section for authentication
-         */
-
-        authKeyD0.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the application master key = 00...
-                clearOutputFields();
-                writeToUiAppend(output, "authenticate with key number 0x00 = master application key");
-                try {
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-                    if (!dfAuthApp) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                        return;
-                    } else {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
-                    }
-                } catch (IOException e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                } catch (Exception e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                }
-            }
-        });
-
-        authKeyD1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                writeToUiAppend(output, "authenticate with key number 0x01 = read&write access key");
-                try {
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_RW_DEFAULT, KEY_NUMBER_RW, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-                    if (!dfAuthApp) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                        return;
-                    } else {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
-                    }
-                } catch (IOException e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                } catch (Exception e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                }
-
-            }
-        });
-
-        authKeyD2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the change access access key = 02...
-                clearOutputFields();
-                boolean success = authenticateWithKeyDes(APPLICATION_KEY_CAR_DEFAULT, APPLICATION_KEY_CAR_NUMBER);
-            }
-        });
-
-        authKeyD3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the read access key = 03...
-                clearOutputFields();
-                writeToUiAppend(output, "authenticate with key number 0x03 = read access key");
-                try {
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-                    if (!dfAuthApp) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                        return;
-                    } else {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
-                    }
-                } catch (IOException e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                } catch (Exception e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                }
-
-            }
-        });
-
-        authKeyD4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the write access key = 04...
-                clearOutputFields();
-                writeToUiAppend(output, "authenticate with key number 0x04 = write access key");
-                try {
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W_DEFAULT, APPLICATION_KEY_W_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-                    if (!dfAuthApp) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                        return;
-                    } else {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
-                    }
-                } catch (IOException e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                } catch (Exception e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                }
-            }
-        });
-
-        /**
-         * section for key handling
-         */
-
-        changeKeyD0.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = master application key
-                writeToUiAppend(output, "change the key number 0x00 = master application key");
-                try {
-
-                    // select master application
-                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
-
-                    // authenticate with MasterApplicationKey
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
-
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
-
-                    // we do need an authentication to change a key with the application master key = 0x00
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-
-                    // change the key
-                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_MASTER_NUMBER, KeyType.DES, APPLICATION_KEY_MASTER, APPLICATION_KEY_MASTER_DEFAULT);
-                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
-                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
-                    writeToUiAppend(output, "finished");
-                    writeToUiAppend(output, "");
-
-                } catch (IOException e) {
-                    writeToUiAppend(output, "IOException Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    writeToUiAppend(output, "Exception Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        changeKeyD3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x03 = read access key
-                writeToUiAppend(output, "change the key number 0x03 = read access key");
-                try {
-
-                    // select master application
-                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
-
-                    // authenticate with MasterApplicationKey
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
-
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
-
-                    // we do need an authentication to change a key with the application master key = 0x00
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-
-                    // change the key
-                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_R_NUMBER, KeyType.DES, APPLICATION_KEY_R, APPLICATION_KEY_R_DEFAULT);
-                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
-                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
-                    writeToUiAppend(output, "finished");
-                    writeToUiAppend(output, "");
-
-                } catch (IOException e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        changeKeyD4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x04 = write access key
-                writeToUiAppend(output, "change the key number 0x04 = write access key");
-                try {
-
-                    // select master application
-                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "selectMasterApplicationResult: " + dfSelectM);
-
-                    // authenticate with MasterApplicationKey
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "authMasterApplicationResult: " + dfAuthM);
-
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "selectApplicationResult: " + dfSelectApplication);
-
-                    // we do need an authentication to change a key with the application master key = 0x00
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "authApplicationResult: " + dfAuthApp);
-
-                    // change the key
-                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_W_NUMBER, KeyType.DES, APPLICATION_KEY_W, APPLICATION_KEY_W_DEFAULT);
-                    writeToUiAppend(output, "changeKeyResult: " + dfChangeKey);
-                    writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
-                    writeToUiAppend(output, "finished");
-                    writeToUiAppend(output, "");
-
-                } catch (IOException e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                }
 
 
-            }
-        });
+
 
         /**
          * section for files
@@ -2063,7 +1809,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     int listSize = readRecordList.size();
                     for (int i = 0; i < listSize; i++) {
                         byte[] record = readRecordList.get(i);
-                        writeToUiAppend(output, "record " + i + printData(" data",  record));
+                        writeToUiAppend(output, "record " + i + printData(" data", record));
                         if (record != null) {
                             writeToUiAppend(output, new String(record, StandardCharsets.UTF_8));
                         }
@@ -2240,6 +1986,415 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
 
         /**
+         * section for authentication with default keys
+         */
+
+        authKeyD0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the application master key = 00...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x00 = master application key");
+                try {
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        authKeyD1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x01 = read&write access key");
+                try {
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_RW_DEFAULT, KEY_NUMBER_RW, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+
+            }
+        });
+
+        authKeyD2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the change access access key = 02...
+                clearOutputFields();
+                boolean success = authenticateWithKeyDes(APPLICATION_KEY_CAR_DEFAULT, APPLICATION_KEY_CAR_NUMBER);
+            }
+        });
+
+        authKeyD3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read access key = 03...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x03 = read access key");
+                try {
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+
+            }
+        });
+
+        authKeyD4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the write access key = 04...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with DEFAULT key number 0x04 = write access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DEFAULT, "write");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+
+                /*
+                try {
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W_DEFAULT, APPLICATION_KEY_W_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+
+                 */
+            }
+        });
+
+        /**
+         * section for authentication with changed keys
+         */
+
+        authKeyD0C.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the master access key = 04...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with CHANGED key number 0x00 = master access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, "master");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+            }
+        });
+
+        authKeyD1C.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with CHANGED key number 0x01 = read & write access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW, "read & write");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+            }
+        });
+
+        authKeyD2C.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the change access access key = 02...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with CHANGED key number 0x02 = change access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR, "change");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+            }
+        });
+
+        authKeyD3C.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read access key = 03...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with CHANGED key number 0x03 = read access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R, "read");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+            }
+        });
+
+        authKeyD4C.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the write access key = 04...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with CHANGED key number 0x04 = write access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W, "write");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+            }
+        });
+
+        /**
+         * section for key handling
+         */
+
+        changeKeyD0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = master application key
+                writeToUiAppend(output, "change the key number 0x00 = master application key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = changeApplicationKeyDes(selectedAid, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, APPLICATION_KEY_MASTER, "master");
+                writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
+
+
+                /*
+                try {
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to change a key with the application master key = 0x00
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+
+                    // change the key
+                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_MASTER_NUMBER, KeyType.DES, APPLICATION_KEY_MASTER, APPLICATION_KEY_MASTER_DEFAULT);
+                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
+                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "IOException Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Exception Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+                 */
+            }
+        });
+
+        changeKeyD3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x03 = read access key
+                writeToUiAppend(output, "change the key number 0x03 = read access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = changeApplicationKeyDes(selectedAid, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R, APPLICATION_KEY_R_DEFAULT, "read");
+                writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
+
+
+                /*
+                try {
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to change a key with the application master key = 0x00
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+
+                    // change the key
+                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_R_NUMBER, KeyType.DES, APPLICATION_KEY_R, APPLICATION_KEY_R_DEFAULT);
+                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
+                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+                 */
+            }
+        });
+
+        changeKeyD4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x04 = write access key
+                writeToUiAppend(output, "change the key number 0x04 = write access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = changeApplicationKeyDes(selectedAid, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W, APPLICATION_KEY_W_DEFAULT, "write");
+                writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
+
+                /*
+
+                try {
+
+                    // select master application
+                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+                    writeToUiAppend(output, "selectMasterApplicationResult: " + dfSelectM);
+
+                    // authenticate with MasterApplicationKey
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "authMasterApplicationResult: " + dfAuthM);
+
+                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
+                    writeToUiAppend(output, "selectApplicationResult: " + dfSelectApplication);
+
+                    // we do need an authentication to change a key with the application master key = 0x00
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "authApplicationResult: " + dfAuthApp);
+
+                    // change the key
+                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_W_NUMBER, KeyType.DES, APPLICATION_KEY_W, APPLICATION_KEY_W_DEFAULT);
+                    writeToUiAppend(output, "changeKeyResult: " + dfChangeKey);
+                    writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+
+                    writeToUiAppend(output, "finished");
+                    writeToUiAppend(output, "");
+
+                } catch (IOException e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+                    e.printStackTrace();
+                } */
+            }
+        });
+
+
+        /**
          * section for service methods
          */
 
@@ -2289,6 +2444,103 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         // DesfireFile[] getFileSettings()
 
     }
+
+    /**
+     * section for authentication
+     *
+     */
+
+    private boolean authenticateApplicationDes(byte keyNumber, byte[] key, String keyName) {
+        writeToUiAppend(output, "authenticate the selected application with the key number " + String.format("0x%02X", keyNumber) + "(= " + keyName + "access key)");
+        try {
+            boolean authApp = desfire.authenticate(key, keyNumber, KeyType.DES);
+            writeToUiAppend(output, "authApplicationResult: " + authApp);
+            if (!authApp) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                return false;
+            } else {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                return true;
+            }
+        } catch (IOException e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+            //writeToUiAppend(output, "IOException: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+            //writeToUiAppend(output, "IOException: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * section for change key handling
+     */
+
+    private boolean changeApplicationKeyDes(byte[] applicationId, byte applicationMasterKeyNumber,
+                                            byte[] applicationMasterKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName) {
+        // change key name e.g. master, read&write, car, read, write
+        boolean result = false;
+        try {
+            /*
+            // select master application
+            boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+            writeToUiAppend(output, "selectMasterApplicationResult: " + dfSelectM);
+
+            // authenticate with MasterApplicationKey
+            boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+            writeToUiAppend(output, "authMasterApplicationResult: " + dfAuthM);
+            */
+            writeToUiAppend(output, "changing the key number " + String.format("0x%02X", changeKeyNumber) + "(= " + changeKeyName + "access key)");
+            // step 1 select the target application
+            boolean selectApplication = desfire.selectApplication(applicationId);
+            writeToUiAppend(output, "selectApplicationResult: " + selectApplication);
+            if (!selectApplication) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on select application, aborted", COLOR_RED);
+                return false;
+            }
+            // step 2 authenticate with the application master key
+            // we do need an authentication to change a key with the application master key = 0x00
+            boolean authApp = desfire.authenticate(applicationMasterKey, applicationMasterKeyNumber, KeyType.DES);
+            writeToUiAppend(output, "authApplicationResult: " + authApp);
+            if (!authApp) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on authenticate application, aborted", COLOR_RED);
+                return false;
+            }
+            // step 3 change the key
+            // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+            boolean changeKey = desfire.changeKey(changeKeyNumber, KeyType.DES, changeKeyNew, changeKeyOld);
+            writeToUiAppend(output, "changeKeyResult: " + changeKey);
+            writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+            writeToUiAppend(output, "finished");
+            writeToUiAppend(output, "");
+            if (changeKey) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey SUCCESS", COLOR_GREEN);
+                return true;
+            } else {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey NOT SUCCESS", COLOR_RED);
+                writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+                return false;
+            }
+        } catch (IOException e) {
+            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+            e.printStackTrace();
+        } catch (Exception e) {
+            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     /**
      * section for general workflow
@@ -2468,62 +2720,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     }
 
     /**
-     * section for standard file handling
-     */
-
-    private boolean createStandardFile(TextView logTextView, byte fileNumber, int fileSize, byte[] response) {
-        // we create a standard file within the selected application
-        byte createStandardFileCommand = (byte) 0xcd;
-        // CD | File No | Comms setting byte | Access rights (2 bytes) | File size (3 bytes)
-        byte commSettingsByte = 0; // plain communication without any encryption
-                /*
-                M0775031 DESFIRE
-                Plain Communication = 0;
-                Plain communication secured by DES/3DES MACing = 1;
-                Fully DES/3DES enciphered communication = 3;
-                 */
-        //byte[] accessRights = new byte[]{(byte) 0xee, (byte) 0xee}; // should mean plain/free access without any keys
-                /*
-                There are four different Access Rights (2 bytes for each file) stored for each file within
-                each application:
-                - Read Access
-                - Write Access
-                - Read&Write Access
-                - ChangeAccessRights
-                 */
-        // here we are using key 2 for read and key3 for write access access, key0 has read&write access and key1 has change rights !
-        byte accessRightsRwCar = (byte) 0x01; // Read&Write Access & ChangeAccessRights
-        byte accessRightsRW = (byte) 0x23; // Read Access & Write Access // read with key 1, write with key 2
-        byte[] fileSizeArray = Utils.intTo3ByteArrayInversed(fileSize); // lsb
-        byte[] createStandardFileParameters = new byte[7];
-        createStandardFileParameters[0] = fileNumber;
-        createStandardFileParameters[1] = commSettingsByte;
-        createStandardFileParameters[2] = accessRightsRwCar;
-        createStandardFileParameters[3] = accessRightsRW;
-        System.arraycopy(fileSizeArray, 0, createStandardFileParameters, 4, 3);
-        writeToUiAppend(logTextView, printData("createStandardFileParameters", createStandardFileParameters));
-        byte[] createStandardFileResponse = new byte[0];
-        try {
-            createStandardFileResponse = isoDep.transceive(wrapMessage(createStandardFileCommand, createStandardFileParameters));
-        } catch (Exception e) {
-            //throw new RuntimeException(e);
-            writeToUiAppend(logTextView, "transceive failed: " + e.getMessage());
-            return false;
-        }
-        System.arraycopy(returnStatusBytes(createStandardFileResponse), 0, response, 0, 2);
-        writeToUiAppend(logTextView, printData("createStandardFileResponse", createStandardFileResponse));
-        if (checkDuplicateError(createStandardFileResponse)) {
-            writeToUiAppend(logTextView, "the file was not created as it already exists, proceed");
-            return true;
-        }
-        if (checkResponse(createStandardFileResponse)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * section for application handling
      */
 
@@ -2599,38 +2795,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             } // try
         }
         return null;
-    }
-
-    private boolean createApplicationPlainDes(TextView logTextView, byte[] applicationIdentifier, byte numberOfKeys, byte[] response) {
-        if (logTextView == null) return false;
-        if (applicationIdentifier == null) return false;
-        if (applicationIdentifier.length != 3) return false;
-
-        // create an application
-        writeToUiAppend(logTextView, "create the application " + Utils.bytesToHex(applicationIdentifier));
-        byte createApplicationCommand = (byte) 0xca;
-        byte applicationMasterKeySettings = (byte) 0x0f;
-        byte[] createApplicationParameters = new byte[5];
-        System.arraycopy(applicationIdentifier, 0, createApplicationParameters, 0, applicationIdentifier.length);
-        createApplicationParameters[3] = applicationMasterKeySettings;
-        createApplicationParameters[4] = numberOfKeys;
-        writeToUiAppend(logTextView, printData("createApplicationParameters", createApplicationParameters));
-        byte[] createApplicationResponse = new byte[0];
-        try {
-            createApplicationResponse = isoDep.transceive(wrapMessage(createApplicationCommand, createApplicationParameters));
-            writeToUiAppend(logTextView, printData("createApplicationResponse", createApplicationResponse));
-            System.arraycopy(returnStatusBytes(createApplicationResponse), 0, response, 0, 2);
-            //System.arraycopy(createApplicationResponse, 0, response, 0, createApplicationResponse.length);
-            if (checkResponse(createApplicationResponse)) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            //throw new RuntimeException(e);
-            writeToUiAppend(logTextView, "createApplicationAes transceive failed: " + e.getMessage());
-            return false;
-        }
     }
 
     /**
