@@ -1413,7 +1413,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
             }
         });
-
+/*
+        // this version is doeing hardcoded chunking in chunks of 40 bytes of data to write before I corrected the Error in DESFireAdapter.java
         fileStandardWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1508,7 +1509,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
-        /*
+ */
+
+
         fileStandardWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1589,7 +1592,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
             }
         });
-         */
 
         fileStandardRead.setOnClickListener(new View.OnClickListener() {
             @Override
