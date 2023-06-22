@@ -1189,6 +1189,91 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llKeysC"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tvKeysC"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="key management (change to default)"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnChangeKeyDM0C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="MAS D0 M" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD0C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="D0 M" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD1C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="D1 RW" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD2C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="D2 CAR" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD3C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="D3 R" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD4C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="D4 W" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/llGeneral"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

@@ -125,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      * section for authentication
      */
 
-    private Button authKeyD0, authKeyD1, authKeyD2, authKeyD3, authKeyD4;
+    private Button authKeyDM0, authKeyD0, authKeyD1, authKeyD2, authKeyD3, authKeyD4; // M0 is the Master Application Key
 
     // changed keys
-    private Button authKeyD0C, authKeyD1C, authKeyD2C, authKeyD3C, authKeyD4C;
+    private Button authKeyDM0C, authKeyD0C, authKeyD1C, authKeyD2C, authKeyD3C, authKeyD4C; // M0 is the Master Application Key
 
 
     /**
@@ -140,7 +140,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3];
-    private final byte[] MASTER_APPLICATION_KEY = new byte[8];
+    private final byte[] MASTER_APPLICATION_KEY_DEFAULT = new byte[8];
+    //private final byte[] MASTER_APPLICATION_KEY = new byte[8];
     private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
     //private final byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
     //private final byte[] AID_DES = Utils.hexStringToByteArray("A3A2A1"); // wrong, LSB
@@ -256,12 +257,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         rbCyclicRecordFile = findViewById(R.id.rbCyclicRecordFile);
 
         // authentication handling
+        authKeyDM0 = findViewById(R.id.btnAuthDM0);
         authKeyD0 = findViewById(R.id.btnAuthD0);
         authKeyD1 = findViewById(R.id.btnAuthD1);
         authKeyD2 = findViewById(R.id.btnAuthD2);
         authKeyD3 = findViewById(R.id.btnAuthD3);
         authKeyD4 = findViewById(R.id.btnAuthD4);
         // now with changed keys
+        authKeyDM0C = findViewById(R.id.btnAuthDM0C);
         authKeyD0C = findViewById(R.id.btnAuthD0C);
         authKeyD1C = findViewById(R.id.btnAuthD1C);
         authKeyD2C = findViewById(R.id.btnAuthD2C);
@@ -301,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
                     // authenticate with MasterApplicationKey
                     byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
 
                     byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
@@ -413,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     // authenticate with MasterApplicationKey
                     //byte[] MASTER_APPLICATION_KEY = new byte[8];
                     //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-                    boolean dfAuthMR = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    boolean dfAuthMR = desfire.authenticate(MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthMR);
 
                     //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
@@ -1989,12 +1992,43 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
          * section for authentication with default keys
          */
 
+        authKeyDM0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the master application key = 00...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x00 = master application key");
+                try {
+                    boolean dfAuthApp = desfire.authenticate(MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
+                    if (!dfAuthApp) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
         authKeyD0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // authenticate with the application master key = 00...
                 clearOutputFields();
-                writeToUiAppend(output, "authenticate with key number 0x00 = master application key");
+                writeToUiAppend(output, "authenticate with key number 0x00 = application master key");
                 try {
                     boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
@@ -2144,6 +2178,23 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
          * section for authentication with changed keys
          */
 
+        authKeyDM0C.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the master access key = 04...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with CHANGED key number 0x00 = master application key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, APPLICATION_KEY_MASTER, "master");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+            }
+        });
+
         authKeyD0C.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -2284,6 +2335,38 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
 
                  */
+            }
+        });
+
+        changeKeyD1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x01 = read&write access key
+                writeToUiAppend(output, "change the key number 0x01 = read & write access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = changeApplicationKeyDes(selectedAid, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW, APPLICATION_KEY_RW_DEFAULT, "read & write");
+                writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
+            }
+        });
+
+        changeKeyD2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x02 = change access key
+                writeToUiAppend(output, "change the key number 0x02 = change access key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = changeApplicationKeyDes(selectedAid, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR, APPLICATION_KEY_CAR_DEFAULT, "change");
+                writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
             }
         });
 
