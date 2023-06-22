@@ -30,7 +30,8 @@ The main purpose of the app is to run all major functions of a DESFire tag in on
 
 This should be the perfect beginner app as it uses a brand new DESFire tag with it's factory settings.
 
-Some notes on typical sessions with the card 
+Some notes on typical sessions with the card. I recommend that you lay your phone on the tag and after the connection don't move the phone to hold the 
+connection:
 
 ### 01 tap the DESFire tag to the NFC reader of an Android phone 
 The app connects to the tag and read the **tag id** (7 bytes long)
@@ -42,7 +43,8 @@ on the tag.
 
 Note: see position xx (key settings) for a more detailed explanation on this.
 
-If there is additional applications they are shown in an Alert Dialog and by clicking on the entry this application is selected for further work with.
+If there are additional applications they are shown in an Alert Dialog and by clicking on the entry this application is selected for further work with. 
+The 'Master Application' is not shown in the Alert Dialog. If no application is shown we need to create an application (see step 03).
 
 ### 03 create an application
 There are two edit fields above the button:
@@ -66,5 +68,40 @@ for the specific right (e.g. we can change the read & write key from key 1 to ke
 
 Note: see position xx (authentication) for a more detailed explanation on this.
 
+The new application is created immediately after pressing the 'create' button. There are 2 important information fields on the top:
+- **operation output**: a short summary of the commands and outputs is given
+- **error code**: if the border is 'green' the operation was successful and if the border is 'red' the operation failed. The reason for the failure 
+is given (e.g. when creating the same application id 2 times the second creation fails with a 'Duplicate Error').
+
+The new application is NOT selected so if you want to (e.g.) create a file you need to select the application (see step 02).
+
+### 04 select a file
+All data operations are done with **files** in an application, so to read from or write to a file we need to select this file in the preselected 
+application.
+
+If there are any files in this applications the **file id's** are shown in the Alert Dialog and we select the file by clicking on it.
+If no file is shown we need to create a file (see steps 05 ff).
+
+### 05 create a file
+The main parameter for a file is it's **file id** that has to be in the range of 00 to 14 so in total 15 files are available for each application. 
+This limit is longer given in EV2 and EV3 but to hold compatibility to even the oldest tag types I'm using this limit. Select the file id with 
+the number picker.
+
+There is NO method available to 'create a file' because the DESFire tag supports 5 different types of files that have their own parameter sets and 
+this app has different buttons to create a file for the specific file type:
+- **A standard file**: this file type should be used for 'read only' operations, meaning that the data in this field is set on tag personalization 
+but is later no longer changed. Each standard file has a file size that is setup on creation that is not changeable later. As a default I'm setting the 
+file size to 32 in the next edit text field. Please keep in mind that internally a file is setup in multiples of 32 bytes, so a 1 byte long standard file 
+consumes 32 bytes on the tag.
+- **B backup file**: not implemented so far
+- **C value file**: think of a prepaid application like a cafeteria card: you buy the card with a credit value, when later buying a coffee the amout 
+is debited from the card and if you want to recharge your card the card is credit by the cashier. A value file is created by 4 additional parameters:
+- **lower limit of the value**: usually the lower limit is set to 0 because otherwise the tag would be a "credit card". If you want to debit an amount that 
+the balance would be lower than the lower limit the operation is declined by the card.
+- **upper limit of the value**: this is the maximum value the card card can get credited (or "recharged"). If you want to credit an amount that increases 
+the upper limit the transaction is declined. The default upper limit is set to 500. 
+- **initial value**: during creation this value is setup as value on the card. The default value is 100.
+- **limited credit available**: this feature is hardcoded set to "disabled". If enabled the card supports one crediting after a successful authentication on 
+a previous credit action.  
 
 
