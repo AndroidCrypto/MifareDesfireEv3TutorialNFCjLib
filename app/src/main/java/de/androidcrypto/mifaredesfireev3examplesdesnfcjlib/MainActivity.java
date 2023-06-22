@@ -141,8 +141,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3]; // '00 00 00'
-    private final byte[] MASTER_APPLICATION_KEY_DEFAULT = Utils.hexStringToByteArray("DD00000000000000");
-    private final byte[] MASTER_APPLICATION_KEY = new byte[8];
+    private final byte[] MASTER_APPLICATION_KEY_DEFAULT = Utils.hexStringToByteArray("0000000000000000");
+    private final byte[] MASTER_APPLICATION_KEY = Utils.hexStringToByteArray("DD00000000000000");
     private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
     private final byte[] APPLICATION_ID_DES = Utils.hexStringToByteArray("A1A2A3");
     private final byte[] DES_DEFAULT_KEY = new byte[8];
@@ -2044,29 +2044,18 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // authenticate with the master application key = 00...
                 clearOutputFields();
                 writeToUiAppend(output, "authenticate with key number 0x00 = master application key");
-                try {
-                    boolean dfAuthApp = desfire.authenticate(MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-                    if (!dfAuthApp) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                        return;
-                    } else {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
-                    }
-                } catch (IOException e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                } catch (Exception e) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                    e.printStackTrace();
+                // run this auth when selectedApplicationId == MASTER APPLICATION ID
+                // this method should run with selected Master Application (master AID) only
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
+                if (!Arrays.equals(selectedApplicationId, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
+                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, "write");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
         authKeyD0.setOnClickListener(new View.OnClickListener() {
@@ -2234,9 +2223,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
+                // run this auth when selectedApplicationId == MASTER APPLICATION ID
+                // this method should run with selected Master Application (master AID) only
+                if (!Arrays.equals(selectedApplicationId, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, APPLICATION_KEY_MASTER, "master");
+                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, "master");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2341,13 +2336,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 // this method should run with selected Master Application (master AID) only
-                if (!selectedAid.equals(new byte[3])) {
+                if (!Arrays.equals(selectedAid, new byte[3])) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
                     return;
                 }
                 Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = changeApplicationKeyDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_DEFAULT, "master");
-                writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
+                writeToUiAppend(output, "changeMasterApplicationKey run successfully: " + success);
             }
         });
 
@@ -2557,13 +2552,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     return;
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
-                if (!selectedAid.equals(new byte[3])) {
+                if (!Arrays.equals(selectedAid, new byte[3])) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
                     return;
                 }
                 Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = changeApplicationKeyDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY, "master");
-                writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
+                writeToUiAppend(output, "changeMasterApplicationKey run successfully: " + success);
             }
         });
 
