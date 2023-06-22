@@ -1298,18 +1298,10 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/btnGetTagVersion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="tag version" />
-
-                    <Button
                         android:id="@+id/btnSetupCompleteApplication"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
                         android:text="complete setup" />
 
@@ -1320,6 +1312,29 @@
                         android:layout_marginLeft="8dp"
                         android:layout_weight="1"
                         android:text="standard write/read" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnGetTagVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="tag version" />
+
+                    <Button
+                        android:id="@+id/btnGetKeySettings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="key settings" />
 
                 </LinearLayout>
 

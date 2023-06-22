@@ -1,5 +1,6 @@
 package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
@@ -27,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.github.skjolber.desfire.ev1.model.DesfireApplicationId;
+import com.github.skjolber.desfire.ev1.model.DesfireApplicationKeySettings;
 import com.github.skjolber.desfire.ev1.model.VersionInfo;
 import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private LinearLayout llGeneralWorkflow;
-    private Button tagVersion, freeMemory, formatPicc, selectMasterApplication;
+    private Button tagVersion, keySettings, freeMemory, formatPicc, selectMasterApplication;
 
     /**
      * section for application handling
@@ -202,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
         // general workflow
         tagVersion = findViewById(R.id.btnGetTagVersion);
+        keySettings = findViewById(R.id.btnGetKeySettings);
         freeMemory = findViewById(R.id.btnGetFreeMemory);
         formatPicc = findViewById(R.id.btnFormatPicc);
         selectMasterApplication = findViewById(R.id.btnSelectMasterApplication);
@@ -625,6 +628,124 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        keySettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // get the key settings for the selected application
+                clearOutputFields();
+                writeToUiAppend(output, "get key settings for selected application: " + Utils.printData("AID", selectedApplicationId));
+                writeToUiAppend(output, "if AID == NULL it is for the Master Application 00 00 00");
+                DesfireApplicationKeySettings keySettings;
+                try {
+                    keySettings = desfire.getKeySettings();
+
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+                if (keySettings == null) {
+                    writeToUiAppend(output, "could not get the key settings (missing authentication ?)");
+                    return;
+                }
+
+/*
+I fixed my own issue. The trick was to cast the dialoginterface that gets passed to the onClick function and cast it as AlertDialog:
+
+.setPositiveButton("Add", new DialogInterface.OnClickListener()
+{
+   @Override
+   public void onClick(DialogInterface dialogInterface, int i)
+   {
+      // Get our inputs
+      EditText editName = (EditText) ((AlertDialog) dialogInterface).findViewById(R.id.editTaskName);
+      EditText editDesc = (EditText) ((AlertDialog) dialogInterface).findViewById(R.id.editTaskDesc);
+Share
+ */
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Yes button clicked
+                                boolean success;
+
+                                /*
+                                try {
+
+                                    success = desfire.formatPICC();
+                                    writeToUiAppend(output, "formatPiccSuccess: " + success);
+                                    if (!success) {
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "formatPicc NOT Success, aborted", COLOR_RED);
+                                        writeToUiAppend(errorCode, "formatPicc NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                                        writeToUiAppend(errorCode, "Did you forget to authenticate with the Master Key first ?");
+                                        return;
+                                    } else {
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "formatPicc success", COLOR_GREEN);
+                                        selectedFileId = "";
+                                        fileSelected.setText("");
+                                        selectedApplicationId = null;
+                                        applicationSelected.setText("");
+                                    }
+                                } catch (IOException e) {
+                                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                                    //writeToUiAppend(output, "IOException: " + e.getMessage());
+                                    e.printStackTrace();
+                                    return;
+                                }
+
+                                 */
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                // nothing to do
+                                writeToUiAppend(output, "format of the PICC aborted");
+                                break;
+                        }
+                    }
+                };
+                final String selectedFolderString = "You are going to format the PICC " + "\n\n" +
+                        "Do you want to proceed ?";
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                builder.setMessage(selectedFolderString).setPositiveButton(android.R.string.yes, dialogClickListener)
+                        .setNegativeButton(android.R.string.no, dialogClickListener)
+                        .setTitle("Application key settings")
+                        .setView(R.layout.application_key_settings)
+                        .show();
+
+                /*
+                // showing a dialog box with the application key settings
+                // custom dialog
+                final Dialog dialog = new Dialog(view.getContext());
+                dialog.setContentView(R.layout.application_key_settings);
+                dialog.setTitle("Title...");
+
+                // set the custom dialog components - text, image and button
+                //TextView text = (TextView) dialog.findViewById(R.id.text);
+                //text.setText("Android custom dialog example!");
+                //ImageView image = (ImageView) dialog.findViewById(R.id.image);
+                //image.setImageResource(R.drawable.ic_launcher);
+
+                Button dialogButton = (Button) dialog.findViewById(R.id.btnGetApplicationKeySettingsDone);
+                // if button is clicked, close the custom dialog
+                dialogButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
+*/
+
+            }
+        });
+
         freeMemory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -697,6 +818,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 final String selectedFolderString = "You are going to format the PICC " + "\n\n" +
                         "Do you want to proceed ?";
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
                 builder.setMessage(selectedFolderString).setPositiveButton(android.R.string.yes, dialogClickListener)
                         .setNegativeButton(android.R.string.no, dialogClickListener)
                         .setTitle("FORMAT the PICC")
