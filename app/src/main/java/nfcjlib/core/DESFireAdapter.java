@@ -49,6 +49,7 @@ public class DESFireAdapter {
 
     public byte[] receieveResponseChain(byte[] response) throws IOException, Exception {
 		if (debug) Log.d(TAG, Utils.printData("response", response));
+
         if (response[response.length - 2] == STATUS_OK && response[response.length - 1] == OPERATION_OK) {
             return response;
         }
