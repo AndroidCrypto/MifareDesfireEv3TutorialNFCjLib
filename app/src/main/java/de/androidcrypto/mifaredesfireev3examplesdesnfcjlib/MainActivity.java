@@ -13,11 +13,14 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -36,6 +39,7 @@ import com.github.skjolber.desfire.ev1.model.file.DesfireFile;
 import com.github.skjolber.desfire.ev1.model.file.RecordDesfireFile;
 import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
 import com.github.skjolber.desfire.ev1.model.file.ValueDesfireFile;
+import com.github.skjolber.desfire.ev1.model.key.DesfireKeyType;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.ByteArrayOutputStream;
@@ -665,10 +669,28 @@ I fixed my own issue. The trick was to cast the dialoginterface that gets passed
 Share
  */
 
+                /*
+                CheckBox cbBit0MasterKeyIsChangeable = ((AlertDialog) dialogInterface).findViewById(R.id.cbAksBit0MasterKeyIsChangeable);
+                CheckBox cbBit1MasterKeyAuthenticationNeededDirListing = findViewById(R.id.cbAksBit1MasterKeyAuthenticationNeededDirListing);
+                CheckBox cbBit2MasterKeyAuthenticationNeededCreateDelete = findViewById(R.id.cbAksBit2MasterKeyAuthenticationNeededCreateDelete);
+                CheckBox cbBit3MasterKeySettingsChangeAllowed = findViewById(R.id.cbBit3MasterKeySettingsChangeAllowed);
+                EditText maximumNumberOfKeys = findViewById(R.id.etAksMaximumNumberOfKeys);
+                EditText keySettingsCarKey = findViewById(R.id.etAksKeySettingsCarKey);
+                // set data from key settings
+                cbBit0MasterKeyIsChangeable.setChecked(keySettings.isCanChangeMasterKey());
+                cbBit1MasterKeyAuthenticationNeededDirListing.setChecked(!keySettings.isFreeDirectoryAccess());
+                cbBit2MasterKeyAuthenticationNeededCreateDelete.setChecked(!keySettings.isFreeCreateAndDelete());
+                cbBit3MasterKeySettingsChangeAllowed.setChecked(keySettings.isConfigurationChangable());
+                DesfireKeyType keyType = keySettings.getType();
+                maximumNumberOfKeys.setText(keySettings.getMaxKeys() + " of type " + keyType.toString());
+                keySettingsCarKey.setText(keySettings.getChangeKeyAccessRights());
+*/
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         switch (which) {
+
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
                                 boolean success;
@@ -708,14 +730,54 @@ Share
                         }
                     }
                 };
-                final String selectedFolderString = "You are going to format the PICC " + "\n\n" +
-                        "Do you want to proceed ?";
+                //final String selectedFolderString = "You are going to format the PICC " + "\n\n" + "Do you want to proceed ?";
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                builder.setMessage(selectedFolderString).setPositiveButton(android.R.string.yes, dialogClickListener)
-                        .setNegativeButton(android.R.string.no, dialogClickListener)
+                LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                View dialogView = inflater.inflate(R.layout.application_key_settings, null);
+                builder.setView(dialogView);
+
+                CheckBox cbBit0MasterKeyIsChangeable = dialogView.findViewById(R.id.cbAksBit0MasterKeyIsChangeable);
+                CheckBox cbBit1MasterKeyAuthenticationNeededDirListing = dialogView.findViewById(R.id.cbAksBit1MasterKeyAuthenticationNeededDirListing);
+                CheckBox cbBit2MasterKeyAuthenticationNeededCreateDelete = dialogView.findViewById(R.id.cbAksBit2MasterKeyAuthenticationNeededCreateDelete);
+                CheckBox cbBit3MasterKeySettingsChangeAllowed = dialogView.findViewById(R.id.cbAksBit3MasterKeySettingsChangeAllowed);
+                EditText maximumNumberOfKeys = dialogView.findViewById(R.id.etAksMaximumNumberOfKeys);
+                EditText keySettingsCarKey = dialogView.findViewById(R.id.etAksKeySettingsCarKey);
+                // set data from key settings
+                cbBit0MasterKeyIsChangeable.setChecked(keySettings.isCanChangeMasterKey());
+                cbBit1MasterKeyAuthenticationNeededDirListing.setChecked(!keySettings.isFreeDirectoryAccess());
+                cbBit2MasterKeyAuthenticationNeededCreateDelete.setChecked(!keySettings.isFreeCreateAndDelete());
+                cbBit3MasterKeySettingsChangeAllowed.setChecked(keySettings.isConfigurationChangable());
+                DesfireKeyType keyType = keySettings.getType();
+                maximumNumberOfKeys.setText(keySettings.getMaxKeys() + " of type " + keyType.toString());
+                // get the following data only if it is not the Master Application
+                String accessTypeDescription = "";
+                if (!Arrays.equals(selectedApplicationId, MASTER_APPLICATION_IDENTIFIER)) {
+                    int carKeySettings = keySettings.getChangeKeyAccessRights();
+                    // see DESFire D40 datasheet M075031_desfire.pdf, page 35
+                    if (carKeySettings == 0) {
+                        accessTypeDescription = "Application master key authentication is necessary to change any key (default)";
+                    } else if ((carKeySettings > 0) && (carKeySettings < 14)) {
+                        accessTypeDescription = "Authentication with the specified key is necessary to change any key: " + carKeySettings;
+                    } else if (carKeySettings == 14) {
+                        accessTypeDescription = "Authentication with the key to be changed (same KeyNo) is necessary to change a key";
+                    } else if (carKeySettings == 15) {
+                        accessTypeDescription = "All Keys (except application master key, see Bit0) within this application are frozen";
+                    } else {
+                        accessTypeDescription = "undefined car key settings";
+                    }
+                } else {
+                    accessTypeDescription = "data not available in Master Application";
+                }
+                keySettingsCarKey.setText(accessTypeDescription);
+                //keySettingsCarKey.setText(keySettings.getChangeKeyAccessRights());
+
+                builder
+                        //.setMessage(selectedFolderString)
+                        .setPositiveButton(android.R.string.yes, dialogClickListener)
+                        //.setNegativeButton(android.R.string.no, dialogClickListener)
                         .setTitle("Application key settings")
-                        .setView(R.layout.application_key_settings)
+                        //.setView(R.layout.application_key_settings)
                         .show();
 
                 /*

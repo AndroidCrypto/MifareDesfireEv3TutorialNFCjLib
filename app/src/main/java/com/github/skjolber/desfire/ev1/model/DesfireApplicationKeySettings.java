@@ -4,20 +4,23 @@ import java.util.Arrays;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.github.skjolber.desfire.ev1.model.key.DesfireKeyType;
+
+import de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils;
 
 public class DesfireApplicationKeySettings implements Parcelable {
 
 	private static final String TAG = DesfireApplicationKeySettings.class.getName();
 
 	/**
-	 * 0x0: Authentication with the key to be changed (same keyNo) is necessary to  change a key.
+	 * 0x0: Authentication with the key to be changed (same keyNo) is necessary to change a key.
 	 * 0x1..0xD: Authentication with the specified key is necessary to change any 
 	 * key. A change Key or a PICC master key can only be changed after authentication with the master key. 
 	 * For keys other than the master or the change key, an authentication with the same key is needed. 
 	 * 0xE : Authentication with the key to be changed (same keyNo) is necessary to change a key.
-	 * 0xF : All keys (except application master key, see Bit0) within this application  are frozen. 
+	 * 0xF : All keys (except application master key, see Bit0) within this application are frozen.
 	 */
 	
 	private int changeKeyAccessRights;
@@ -78,6 +81,9 @@ public class DesfireApplicationKeySettings implements Parcelable {
 	private byte[] settings;
 	
 	public DesfireApplicationKeySettings(byte[] settings) {
+		// byte 0 = key settings, byte 1 = maximum number of keys
+		Log.d(TAG, Utils.printData("settings", settings));
+		Log.d(TAG, Utils.printByteArrayBinary(settings));
 		this.settings = new byte[]{settings[0], settings[1]};
 		
 		configurationChangable = isConfigurationChangable(settings[0] & 0xFF);
