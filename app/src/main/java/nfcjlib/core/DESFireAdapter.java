@@ -172,7 +172,7 @@ public class DESFireAdapter {
         byte[] response = isoDep.transceive(command);
 
         if (print) {
-            Log.d(TAG, "<=== " + getHexString(response, true) + " (" + command.length + ")");
+            Log.d(TAG, "<=== " + getHexString(response, true) + " (" + response.length + ")");
         }
 
         return response;

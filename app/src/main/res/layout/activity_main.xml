@@ -990,6 +990,38 @@
                     android:orientation="horizontal">
 
                     <Button
+                        android:id="@+id/btnAuthAM0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="MAS A0 M" />
+
+                    <Button
+                        android:id="@+id/btnAuthx1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="x" />
+
+                    <Button
+                        android:id="@+id/btnAuthx2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="x" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
                         android:id="@+id/btnAuthD2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -1183,6 +1215,38 @@
                         android:layout_marginLeft="8dp"
                         android:layout_weight="1"
                         android:text="D4 W" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnChangeKeyA20"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="A20 VC C" />
+
+                    <Button
+                        android:id="@+id/btnAuthA20"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="Auth A20" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyA21"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="A21 VC P" />
 
                 </LinearLayout>
 

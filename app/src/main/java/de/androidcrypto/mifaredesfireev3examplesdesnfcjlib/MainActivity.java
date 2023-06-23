@@ -142,12 +142,18 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private Button changeKeyDM0, changeKeyD0, changeKeyD1, changeKeyD2, changeKeyD3, changeKeyD4;
+
+    // virtual card key handling
+    private Button authKeyAM0; // M0 is the Master Application Key AES
+    private Button changeKeyVc20, authKeyVc20, changeKeyVc21;
+
     // changed keys
     private Button changeKeyDM0C, changeKeyD0C, changeKeyD1C, changeKeyD2C, changeKeyD3C, changeKeyD4C;
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3]; // '00 00 00'
     private final byte[] MASTER_APPLICATION_KEY_DEFAULT = Utils.hexStringToByteArray("0000000000000000");
+    private final byte[] MASTER_APPLICATION_KEY_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
     private final byte[] MASTER_APPLICATION_KEY = Utils.hexStringToByteArray("DD00000000000000");
     private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
     private final byte[] APPLICATION_ID_DES = Utils.hexStringToByteArray("A1A2A3");
@@ -172,6 +178,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     //private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("B400000000000000");
     private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("D400000000000000");
     private final byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
+
+    private final byte[] VIRTUAL_CARD_KEY_CONFIG_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
+    private final byte[] VIRTUAL_CARD_KEY_CONFIG = Utils.hexStringToByteArray("20200000000000000000000000000000");
+    private final byte VIRTUAL_CARD_KEY_CONFIG_NUMBER = (byte) 0x20;
+    private final byte[] VIRTUAL_CARD_KEY_PROXIMITY_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
+    private final byte[] VIRTUAL_CARD_KEY_PROXIMITY = Utils.hexStringToByteArray("20200000000000000000000000000000");
+    private final byte VIRTUAL_CARD_KEY_PROXIMITY_NUMBER = (byte) 0x21;
 
     private final byte STANDARD_FILE_NUMBER = (byte) 0x01;
 
@@ -284,6 +297,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         changeKeyD2 = findViewById(R.id.btnChangeKeyD2);
         changeKeyD3 = findViewById(R.id.btnChangeKeyD3);
         changeKeyD4 = findViewById(R.id.btnChangeKeyD4);
+
+        // virtual card key handling
+        changeKeyVc20 = findViewById(R.id.btnChangeKeyA20);
+        authKeyAM0 = findViewById(R.id.btnAuthAM0);
+        authKeyVc20 = findViewById(R.id.btnAuthA20);
+        changeKeyVc21 = findViewById(R.id.btnChangeKeyA21);
+
         // now with changed keys
         changeKeyDM0C = findViewById(R.id.btnChangeKeyDM0C);
         changeKeyD0C = findViewById(R.id.btnChangeKeyD0C);
@@ -2238,7 +2258,7 @@ Share
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
                     return;
                 }
-                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, "write");
+                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, "master");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2415,7 +2435,8 @@ Share
                 }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, "master");
+                //boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, "master");
+                boolean success = authenticateApplicationAes(MASTER_APPLICATION_KEY_NUMBER, VIRTUAL_CARD_KEY_CONFIG, "master"); // todo CHANGE because misconfiguration
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2501,6 +2522,52 @@ Share
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplicationDes(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W, "write");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+            }
+        });
+
+
+
+        // virtual card configuration key
+
+        authKeyAM0.setOnClickListener(new View.OnClickListener() {
+            // this is the auth for the Master Application Key using AES key
+            @Override
+            public void onClick(View view) {
+                // authenticate with the master application key = 00...
+                clearOutputFields();
+                writeToUiAppend(output, "AES authenticate with key number 0x00 = master application key");
+                // run this auth when selectedApplicationId == MASTER APPLICATION ID
+                // this method should run with selected Master Application (master AID) only
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                if (!Arrays.equals(selectedApplicationId, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
+                boolean success = authenticateApplicationAes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, "master");
+                writeToUiAppend(output, "authenticateApplication run successfully: " + success);
+            }
+        });
+        authKeyVc20.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the virtual card configuration key = 20...
+                clearOutputFields();
+                writeToUiAppend(output, "authenticate with key number 0x20 = virtual card configuration key");
+                // run this auth when selectedApplicationId == MASTER APPLICATION ID
+                // this method should run with selected Master Application (master AID) only
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                if (!Arrays.equals(selectedApplicationId, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
+                boolean success = authenticateApplicationAes(VIRTUAL_CARD_KEY_CONFIG_NUMBER, VIRTUAL_CARD_KEY_CONFIG, "VC20 CONFIG");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2722,6 +2789,28 @@ Share
             }
         });
 
+        changeKeyVc20.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x20 = virtual card configuration key
+                writeToUiAppend(output, "change the key number 0x20 = virtual card configuration key");
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId.clone();
+                // this method should run with selected Master Application (master AID) only
+                if (!Arrays.equals(selectedAid, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = changeApplicationKeyAes(VIRTUAL_CARD_KEY_CONFIG_NUMBER, APPLICATION_KEY_MASTER, VIRTUAL_CARD_KEY_CONFIG_NUMBER, VIRTUAL_CARD_KEY_CONFIG, VIRTUAL_CARD_KEY_CONFIG_DEFAULT, "vc20");
+                writeToUiAppend(output, "changeMasterApplicationKey run successfully: " + success);
+            }
+        });
+
+
         /**
          * section for changed key handling
          */
@@ -2742,6 +2831,8 @@ Share
                 }
                 Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = changeApplicationKeyDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY, "master");
+                // todo CHANGE because misconfiguration
+                //boolean success = changeApplicationKeyAes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_AES_DEFAULT, "master");
                 writeToUiAppend(output, "changeMasterApplicationKey run successfully: " + success);
             }
         });
@@ -2910,6 +3001,36 @@ Share
         }
     }
 
+    private boolean authenticateApplicationAes(byte keyNumber, byte[] key, String keyName) {
+        writeToUiAppend(output, "AES authenticate the selected application with the key number " + String.format("0x%02X", keyNumber) + "(= " + keyName + "access key)");
+        try {
+            boolean authApp = desfire.authenticate(key, keyNumber, KeyType.AES);
+            writeToUiAppend(output, "authApplicationResult: " + authApp);
+            if (!authApp) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                return false;
+            } else {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                return true;
+            }
+        } catch (IOException e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+            //writeToUiAppend(output, "IOException: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+            //writeToUiAppend(output, "IOException: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+
     /**
      * section for change key handling
      */
@@ -2980,6 +3101,73 @@ Share
         return false;
     }
 
+    private boolean changeApplicationKeyAes(byte applicationMasterKeyNumber,
+                                            byte[] applicationMasterKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName) {
+        writeToUiAppend(output, "changeApplicationKeyAes: " + "for key number " + changeKeyNumber);
+        // change key name e.g. master, read&write, car, read, write
+        boolean result = false;
+        try {
+            /*
+            // select master application
+            boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
+            writeToUiAppend(output, "selectMasterApplicationResult: " + dfSelectM);
+
+            // authenticate with MasterApplicationKey
+            boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+            writeToUiAppend(output, "authMasterApplicationResult: " + dfAuthM);
+            */
+            writeToUiAppend(output, "changing the key number " + String.format("0x%02X", changeKeyNumber) + " (= " + changeKeyName + "access key)");
+            // step 1 select the target application
+            /*
+            boolean selectApplication = desfire.selectApplication(applicationId);
+            writeToUiAppend(output, "selectApplicationResult: " + selectApplication);
+            if (!selectApplication) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on select application, aborted", COLOR_RED);
+                return false;
+            }
+             */
+            // step 2 authenticate with the application master key
+            // we do need an authentication to change a key with the application master key = 0x00
+            // todo change back because misconfiguration
+            /*
+            boolean authApp = desfire.authenticate(MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+            writeToUiAppend(output, "authApplicationResult: " + authApp);
+            if (!authApp) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on authenticate application, aborted", COLOR_RED);
+                return false;
+            } else {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticate application SUCCESS", COLOR_GREEN);
+            }
+
+             */
+            // step 3 change the key
+            // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+            boolean changeKey = desfire.changeKeyNoCheck(changeKeyNumber, KeyType.AES, changeKeyNew, changeKeyOld);
+            writeToUiAppend(output, "changeKeyResult: " + changeKey);
+            writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+            writeToUiAppend(output, "finished");
+            writeToUiAppend(output, "");
+            if (changeKey) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey SUCCESS", COLOR_GREEN);
+                return true;
+            } else {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey NOT SUCCESS", COLOR_RED);
+                writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+                return false;
+            }
+        } catch (IOException e) {
+            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+            e.printStackTrace();
+        } catch (Exception e) {
+            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     /**
      * section for general workflow
