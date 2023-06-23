@@ -93,8 +93,9 @@ this app has different buttons to create a file for the specific file type:
 but is later no longer changed. Each standard file has a file size that is setup on creation that is not changeable later. As a default I'm setting the 
 file size to 32 in the next edit text field. Please keep in mind that internally a file is setup in multiples of 32 bytes, so a 1 byte long standard file 
 consumes 32 bytes on the tag.
-- **B backup file**: not implemented so far
-- **C value file**: think of a prepaid application like a cafeteria card: you buy the card with a credit value, when later buying a coffee the amout 
+- **B backup file**: not implemented so far. A backup file is written like a standard file but only after a successful 'commit' command the new content 
+is set and visible for later readings. 
+- **C value file**: think of a prepaid application like a cafeteria card: you buy the card with a credit value, when later buying a coffee the amount 
 is debited from the card and if you want to recharge your card the card is credit by the cashier. A value file is created by 4 additional parameters:
 - **lower limit of the value**: usually the lower limit is set to 0 because otherwise the tag would be a "credit card". If you want to debit an amount that 
 the balance would be lower than the lower limit the operation is declined by the card.
@@ -102,6 +103,22 @@ the balance would be lower than the lower limit the operation is declined by the
 the upper limit the transaction is declined. The default upper limit is set to 500. 
 - **initial value**: during creation this value is setup as value on the card. The default value is 100.
 - **limited credit available**: this feature is hardcoded set to "disabled". If enabled the card supports one crediting after a successful authentication on 
-a previous credit action.  
+a previous credit action.
+- **D Linear Record file**: 
+- **E Cyclic Record file**: 
+
+After a file creation this file is not preselected but need to get selected (see step 04). 
+
+### 06 read from a file
+After file selection the selected file is read after a successful authentication with the **read & write access key**  or **read access key** is done. 
+The method reads out the file type from the card and print outs these data:
+- standard file: the complete data in the file is shown in a hex encoded string and additionally the (UTF-8) string data is given  
+- backup file: same to standard file
+- value file: the value = balance is printed out
+- Linear Record file: the complete data in the file **from all records** is printed out in hex string encoded data and as (UTF-8) string.
+- Cyclic Record file: same to Linear Record file 
+
+### 07 write to a file
+Same to file creation there is no single method but 3 methods to write to a file of different file types (see see step 03, create a file):
 
 
