@@ -2040,10 +2040,12 @@ public class DESFireEV1 {
 
 		//DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, true, false, true, false); // todo ERROR changed
 		DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, kno, true, false, true, false);
-		if (cs == null)
+		if (cs == null) {
+			Log.e(TAG, "readData cs is null, aborted"); // todo added
 			return null;
+		}
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(); // todo ERROR unused
+		//ByteArrayOutputStream baos = new ByteArrayOutputStream(); // todo ERROR unused
 		int responseLength = findResponseLength(settings, offset, length, cmd);
 
 		byte[] apdu = new byte[13];
@@ -2806,9 +2808,19 @@ public class DESFireEV1 {
 		return data;
 	}
 
+	public byte[] getIv() {
+		return iv;
+	}
+
+	public byte[] getSkey() {
+		return skey;
+	}
+
 	/**
 	 * section for new implemented methods by AndroidCrypto
 	 */
+
+
 
 	public DesfireFile[] getFileSettings() {
 		return fileSettings;
@@ -2958,5 +2970,54 @@ public class DESFireEV1 {
 		}
 
 		return true;
+	}
+
+	public boolean changeKeyVc20(){
+		//
+		final byte VC_CONFIGURATION_KEY_NUMBER = (byte) 0x20;
+		final byte VC_CONFIGURATION_KEY_VERSION = (byte) 0x00;
+		final byte[] NEW_AES_KEY = new byte[16];
+
+		byte[] plaintext = new byte[24]; // this is the final array
+		System.arraycopy(NEW_AES_KEY, 0, plaintext,0, 16);
+		plaintext[16] = VC_CONFIGURATION_KEY_VERSION; // key number
+		byte[] keyKeyVersion = new byte[17]; // this array is for calculating the first crc from this data, holds the 16 bytes of the AES key and 1 byte for the key version
+		System.arraycopy(NEW_AES_KEY, 0, keyKeyVersion,0, 16);
+		keyKeyVersion[16] = VC_CONFIGURATION_KEY_VERSION; // key version
+		byte[] crc16First = CRC16.get(keyKeyVersion);
+		//if (verbose) writeToUiAppend(logTextView, printData("crc16First ", crc16First));
+		byte[] crc16Second = CRC16.get(NEW_AES_KEY);
+		//if (verbose) writeToUiAppend(logTextView, printData("crc16Second", crc16Second));
+		System.arraycopy(crc16First, 0, plaintext,17, 2);
+		System.arraycopy(crc16Second, 0, plaintext,19, 2);
+		System.arraycopy(new byte[3], 0, plaintext,21, 3); // padding
+
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("plaintext", plaintext));
+		byte[] ciphertext = new byte[24];
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("skey", skey));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("iv", iv));
+		KeyType kt = KeyType.DES;
+		Log.d(TAG, "ktype: " + kt.toString());
+		ciphertext = send(skey, plaintext, kt, iv);
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("ciphertext", ciphertext));
+
+		// now we are going to send this cryptogram to the card
+		byte[] apdu = new byte[5 + 1 + ciphertext.length + 1];
+		apdu[0] = (byte) 0x90;
+		apdu[1] = (byte) Command.CHANGE_KEY.getCode();
+		apdu[4] = (byte) (1 + plaintext.length);
+		apdu[5] = VC_CONFIGURATION_KEY_NUMBER;
+		System.arraycopy(ciphertext, 0, apdu, 6, ciphertext.length);
+		byte[] responseAPDU = new byte[0];
+		try {
+			responseAPDU = transmit(apdu);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		this.code = getSW2(responseAPDU);
+		feedback(apdu, responseAPDU);
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
+
+		return false;
 	}
 }

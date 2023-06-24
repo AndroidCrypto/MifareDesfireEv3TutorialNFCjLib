@@ -1604,7 +1604,7 @@ Share
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
                     return;
                 }
-                int fileIdInt = Integer.parseInt(selectedFileId);
+                int fileIdInt = selectedFileIdInt;
                 byte[] readStandard;
                 try {
                     // get the maximal length from getFileSettings
@@ -1622,6 +1622,7 @@ Share
                     writeToUiAppend(output, "fileSize: " + fileSize);
 
                     readStandard = desfire.readData((byte) (fileIdInt & 0xff), 0, fileSize);
+
                     //readStandard = desfire.readData(STANDARD_FILE_NUMBER, 0, fileSize);
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
@@ -1635,11 +1636,13 @@ Share
                     e.printStackTrace();
                     return;
                 }
-
-                writeToUiAppend(output, printData("readStandard", readStandard));
-                if (readStandard != null) {
-                    writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
+                if (readStandard == null) {
+                    writeToUiAppend(output, "error on reading from file number " + fileIdInt);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "did you forget to authenticate with a read access key ?", COLOR_RED);
+                    return;
                 }
+                writeToUiAppend(output, printData("readStandard", readStandard));
+                writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
                 writeToUiAppend(output, "finished");
                 writeToUiAppend(output, "");
             }
@@ -2805,8 +2808,10 @@ Share
                     return;
                 }
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyAes(VIRTUAL_CARD_KEY_CONFIG_NUMBER, APPLICATION_KEY_MASTER, VIRTUAL_CARD_KEY_CONFIG_NUMBER, VIRTUAL_CARD_KEY_CONFIG, VIRTUAL_CARD_KEY_CONFIG_DEFAULT, "vc20");
-                writeToUiAppend(output, "changeMasterApplicationKey run successfully: " + success);
+                //boolean success = changeApplicationKeyAes(VIRTUAL_CARD_KEY_CONFIG_NUMBER, APPLICATION_KEY_MASTER, VIRTUAL_CARD_KEY_CONFIG_NUMBER, VIRTUAL_CARD_KEY_CONFIG, VIRTUAL_CARD_KEY_CONFIG_DEFAULT, "vc20");
+                boolean success = desfire.changeKeyVc20();
+
+                writeToUiAppend(output, "changeVcConfigurationKey run successfully: " + success);
             }
         });
 
