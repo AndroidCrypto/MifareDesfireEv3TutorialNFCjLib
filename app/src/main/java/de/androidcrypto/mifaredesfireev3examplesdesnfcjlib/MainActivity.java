@@ -858,7 +858,6 @@ Share
                 writeToUiAppend(output, "format the PICC");
 
                 // open a confirmation dialog
-                // open a confirmation dialog
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
