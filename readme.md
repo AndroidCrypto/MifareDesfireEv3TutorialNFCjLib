@@ -136,7 +136,20 @@ than the upper limit the transaction is canceled. The same behaviour is with deb
 - Linear Record file: A new record is written to the tag up to the maximum number of records. Any further writing will be declined.
 - Cyclic Record file: A new record is written to the tag up to the maximum number of records. Any further writing will overwrite the oldest record in the file.
 
-### 08 authentication
+Important note: while writing to a standard file is done immediately the writing to the other files type does need an additional step 
+that is called **commit** (see step 08 commit).
+
+### 08 commit a write command
+
+For (data) security and integrity reasons the writing of data to the tag isn't done in one step (like writing to a standard file) 
+but in 2 steps - the writing of data and followed by a 'commit' command. Think about writing of some hundreds of bytes to the card and during the process of writing 
+the tag is moved out of the reader ('terminal') device. This would cause that some data may be written but some could not get written - that is a bad situation. 
+The two step writing takes care of that situation. When somethings happens during the first phase all written data get invalidated.  
+
+Only when the write process was successful the data is really confirmed with the commit command. In my app all dedicated write commands are followed by the commit 
+command.
+
+### 09 authentication
 
 Note: for the purpose of an easy access the user interface has a lot of buttons to run the desired action. 
 
