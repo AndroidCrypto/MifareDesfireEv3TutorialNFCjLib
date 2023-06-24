@@ -146,6 +146,9 @@ but in 2 steps - the writing of data and followed by a 'commit' command. Think a
 the tag is moved out of the reader ('terminal') device. This would cause that some data may be written but some could not get written - that is a bad situation. 
 The two step writing takes care of that situation. When somethings happens during the first phase all written data get invalidated.  
 
+The commit command is necessary using these commands: write to a Backup file, credit a Value file, debit a Value file, write to a Linear Record File and to a 
+Cyclic Record file.
+
 Only when the write process was successful the data is really confirmed with the commit command. In my app all dedicated write commands are followed by the commit 
 command.
 
