@@ -140,7 +140,7 @@ than the upper limit the transaction is canceled. The same behaviour is with deb
 
 Note: for the purpose of an easy access the user interface has a lot of buttons to run the desired action. 
 
-
+As mentioned in step 03 (create an application) there are different keys available within a tag). Each key has its own purpose:
 
 
 
