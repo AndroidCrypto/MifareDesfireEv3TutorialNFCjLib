@@ -974,12 +974,12 @@
                         android:text="write" />
 
                     <Button
-                        android:id="@+id/btnReadStandardFileEnc"
+                        android:id="@+id/btnManualEnc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
                         android:layout_weight="1"
-                        android:text="read" />
+                        android:text="man Enc" />
 
                 </LinearLayout>
 

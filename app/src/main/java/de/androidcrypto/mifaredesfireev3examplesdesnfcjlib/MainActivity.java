@@ -54,6 +54,8 @@ import java.util.UUID;
 import nfcjlib.core.DESFireAdapter;
 import nfcjlib.core.DESFireEV1;
 import nfcjlib.core.KeyType;
+import nfcjlib.core.util.CRC16;
+import nfcjlib.core.util.TripleDES;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
 
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private LinearLayout llStandardFileEnc;
-    private Button fileStandardCreateEnc, fileStandardWriteEnc;
+    private Button fileStandardCreateEnc, fileStandardWriteEnc, manualEncryption;
 
     /**
      * section for authentication
@@ -285,6 +287,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         llStandardFileEnc = findViewById(R.id.llStandardFileEnc);
         fileStandardCreateEnc = findViewById(R.id.btnCreateStandardFileEnc);
         fileStandardWriteEnc = findViewById(R.id.btnWriteStandardFileEnc);
+        manualEncryption = findViewById(R.id.btnManualEnc);
 
         // authentication handling
         authKeyDM0 = findViewById(R.id.btnAuthDM0);
@@ -2386,6 +2389,28 @@ Share
             }
         });
 
+        manualEncryption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // runs a manual encryption
+                byte[] preprocessEnciphered = Utils.hexStringToByteArray("903d0000270e000000200000736f6d652064617461000000000000000000000000000000000000000000000000");
+                int preprocessEncipheredOffset = 7; // + 5
+                byte[] skey = Utils.hexStringToByteArray("b1220ed204344aad");
+                byte[] iv = Utils.hexStringToByteArray("0000000000000000");
+                byte[] ciphertextExp = Utils.hexStringToByteArray("cfc254a80ee964f79da93f53018db7e0905540c6d5c08d8fc612c7631c90f12d2e1f04f40f8ec935");
+                byte[] ret = Utils.hexStringToByteArray("903d00002f0e000000200000cfc254a80ee964f79da93f53018db7e0905540c6d5c08d8fc612c7631c90f12d2e1f04f40f8ec93500");
+                byte[] x = Utils.hexStringToByteArray("");
+
+                byte[] preprocessEncipheredShort = Arrays.copyOfRange(preprocessEnciphered, 12, preprocessEnciphered.length);
+                String preprocessEncipheredShortString = Utils.printData("preprocessEncipheredShort", preprocessEncipheredShort);
+                writeToUiAppend(output, printData("preprocessEncipheredShort", preprocessEncipheredShort));
+
+                writeToUiAppend(output, printData("preprocessEnciphered", preprocessEnciphered));
+                writeToUiAppend(output, printData("ciphertext expected ", ciphertextExp));
+                byte[] ciphertext = preprocessEncipheredDes(preprocessEnciphered, preprocessEncipheredOffset, skey);
+                writeToUiAppend(output, printData("ciphertext done     ", ciphertext));
+            }
+        });
 
         /**
          * section for authentication with default keys
@@ -3117,6 +3142,97 @@ Share
 
         // DesfireFile[] getFileSettings()
 
+    }
+
+    /**
+     * experimental DES encryption
+     */
+
+
+    // code taken from NFCjLib DESFireEV1.java but reduced to DES mode only
+    // warning: do not use for TDES or AES keys
+
+    // calculate CRC and append, encrypt, and update global IV
+    private byte[] preprocessEncipheredDes(byte[] apdu, int offset, byte[] skey) {
+        byte[] ciphertext = encryptApduDes(apdu, offset, skey);
+
+        byte[] ret = new byte[5 + offset + ciphertext.length + 1];
+        System.arraycopy(apdu, 0, ret, 0, 5 + offset);
+        System.arraycopy(ciphertext, 0, ret, 5 + offset, ciphertext.length);
+        ret[4] = (byte) (offset + ciphertext.length);
+
+        return ret;
+    }
+
+    /* Only data is encrypted. Headers are left out (e.g. keyNo for credit). */
+    private static byte[] encryptApduDes(byte[] apdu, int offset, byte[] sessionKey) {
+        int blockSize = 8;
+        int payloadLen = apdu.length - 6;
+        byte[] crc = null;
+        crc = calculateApduCRC16C(apdu, offset);
+
+        int padding = 0;  // padding=0 if block length is adequate
+        if ((payloadLen - offset + crc.length) % blockSize != 0)
+            padding = blockSize - (payloadLen - offset + crc.length) % blockSize;
+        int ciphertextLen = payloadLen - offset + crc.length + padding;
+        byte[] plaintext = new byte[ciphertextLen];
+        System.arraycopy(apdu, 5 + offset, plaintext, 0, payloadLen - offset);
+        System.arraycopy(crc, 0, plaintext, payloadLen - offset, crc.length);
+        return sendDes(sessionKey, plaintext);
+    }
+
+    private static byte[] sendDes(byte[] key, byte[] data) {
+        return decryptDes(key, data);
+    }
+
+    // CRC16 calculated only over data
+    private static byte[] calculateApduCRC16C(byte[] apdu, int offset) {
+        if (apdu.length == 5) {
+            return CRC16.get(new byte[0]);
+        } else {
+            return CRC16.get(apdu, 5 + offset, apdu.length - 5 - offset - 1);
+        }
+    }
+
+    // DES/3DES decryption: CBC send mode and CBC receive mode
+    // here fixed to SEND_MODE = decrypt
+    private static byte[] decryptDes(byte[] key, byte[] data) {
+
+        /* this method
+        plaintext before encryption length: 24 data: d400000000000000d4000000000000007f917f9100000000
+        ciphertext after encryption length: 24 data: 3b93de449348de6a16c92664a51d152d5d07194befeaa71d
+         */
+        /* method from DESFireEV1.java
+        plaintext before encryption: d400000000000000d4000000000000007f917f9100000000
+        ciphertext after encryption: 2c1ba72be0074ee529f8b450bfe42a465196116967b8272f
+         */
+
+        byte[] modifiedKey = new byte[24];
+        System.arraycopy(key, 0, modifiedKey, 16, 8);
+        System.arraycopy(key, 0, modifiedKey, 8, 8);
+        System.arraycopy(key, 0, modifiedKey, 0, key.length);
+
+        /* MF3ICD40, which only supports DES/3DES, has two cryptographic
+         * modes of operation (CBC): send mode and receive mode. In send mode,
+         * data is first XORed with the IV and then decrypted. In receive
+         * mode, data is first decrypted and then XORed with the IV. The PCD
+         * always decrypts. The initial IV, reset in all operations, is all zeros
+         * and the subsequent IVs are the last decrypted/plain block according with mode.
+         *
+         * MDF EV1 supports 3K3DES/AES and remains compatible with MF3ICD40.
+         */
+        byte[] ciphertext = new byte[data.length];
+        byte[] cipheredBlock = new byte[8];
+
+        // XOR w/ previous ciphered block --> decrypt
+        for (int i = 0; i < data.length; i += 8) {
+            for (int j = 0; j < 8; j++) {
+                data[i + j] ^= cipheredBlock[j];
+            }
+            cipheredBlock = TripleDES.decrypt(modifiedKey, data, i, 8);
+            System.arraycopy(cipheredBlock, 0, ciphertext, i, 8);
+        }
+        return ciphertext;
     }
 
     /**
