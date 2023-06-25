@@ -202,7 +202,7 @@ public class DESFireEV1 {
 		byte[] skey = generateSessionKey(randA, randB, type);
 		Log.d(TAG, "The random A is " + Dump.hex(randA));
 		Log.d(TAG, "The random B is " + Dump.hex(randB));
-
+		Log.d(TAG, "The skey     is " + Dump.hex(skey));
 		this.ktype = type;
 		this.kno = keyNo;
 		this.iv = iv0;
@@ -1461,7 +1461,9 @@ public class DESFireEV1 {
 			Log.e(TAG, "preprocess: skey is null");
 			return apdu;
 		}
-
+		Log.d(TAG, "preprocess "
+				+ de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("apdu", apdu)
+				+ " offset: " + offset);
 		switch (commSett) {
 			case PLAIN:
 				return preprocessPlain(apdu);
@@ -1514,18 +1516,24 @@ public class DESFireEV1 {
 
 	// calculate CRC and append, encrypt, and update global IV
 	private byte[] preprocessEnciphered(byte[] apdu, int offset) {
+		Log.d(TAG, "preprocessEnciphered "
+				+ de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("apdu", apdu)
+				+ " offset: " + offset);
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("skey", skey));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("iv", iv));
 		byte[] ciphertext = encryptApdu(apdu, offset, skey, iv, ktype);
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("ciphertext", ciphertext));
 
 		byte[] ret = new byte[5 + offset + ciphertext.length + 1];
 		System.arraycopy(apdu, 0, ret, 0, 5 + offset);
 		System.arraycopy(ciphertext, 0, ret, 5 + offset, ciphertext.length);
 		ret[4] = (byte) (offset + ciphertext.length);
-
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("ret", ret));
 		if (ktype == KeyType.TKTDES || ktype == KeyType.AES) {
 			iv = new byte[iv.length];
 			System.arraycopy(ciphertext, ciphertext.length - iv.length, iv, 0, iv.length);
 		}
-
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("iv", iv));
 		return ret;
 	}
 
@@ -2157,7 +2165,7 @@ public class DESFireEV1 {
 
 		System.arraycopy(payload, 0, fullApdu, 5, payload.length);
 
-		fullApdu = preprocess(fullApdu, 7, cs);  // 7 = 1+3+3 (keyNo+off+len)
+		fullApdu = preprocess(fullApdu, 7, cs);  // 7 = 1+3+3 (fileNo+off+len)
 
 		byte[] responseAPDU = adapter.transmitChain(fullApdu);
 		//System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));

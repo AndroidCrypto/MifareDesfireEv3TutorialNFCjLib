@@ -126,6 +126,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private com.shawnlin.numberpicker.NumberPicker npRecordFileId;
     private com.google.android.material.textfield.TextInputEditText fileRecordSize, fileRecordData, fileRecordNumberOfRecords;
 
+    /**
+     * work with encrypted standard files - EXPERIMENTAL
+     */
+
+    private LinearLayout llStandardFileEnc;
+    private Button fileStandardCreateEnc, fileStandardWriteEnc;
 
     /**
      * section for authentication
@@ -274,6 +280,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileRecordData = findViewById(R.id.etRecordFileData);
         rbLinearRecordFile = findViewById(R.id.rbLinearRecordFile);
         rbCyclicRecordFile = findViewById(R.id.rbCyclicRecordFile);
+
+        // encrypted standard file handling
+        llStandardFileEnc = findViewById(R.id.llStandardFileEnc);
+        fileStandardCreateEnc = findViewById(R.id.btnCreateStandardFileEnc);
+        fileStandardWriteEnc = findViewById(R.id.btnWriteStandardFileEnc);
 
         // authentication handling
         authKeyDM0 = findViewById(R.id.btnAuthDM0);
@@ -2241,6 +2252,140 @@ Share
                 }
             }
         });
+
+        /**
+         * section for standard files
+         */
+
+        fileStandardCreateEnc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                /**
+                 * NOT ACTIVE
+                 */
+
+
+                // create a new standard file
+                // get the input and sanity checks
+                clearOutputFields();
+                byte fileIdByte = (byte) (npStandardFileId.getValue() & 0xFF);
+
+                // the number of files on an EV1 tag is limited to 32 (00..31), but we are using the limit for the old D40 tag with a maximum of 15 files (00..14)
+                // this limit is hardcoded in the XML file for the fileId numberPicker
+
+                //byte fileIdByte = Byte.parseByte(fileId.getText().toString());
+                int fileSizeInt = Integer.parseInt(fileSize.getText().toString());
+                if (fileIdByte > (byte) 0x0f) {
+                    // this should not happen as the limit is hardcoded in npFileId
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
+                    return;
+                }
+                /*
+                if (fileSizeInt != 32) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file size, 32 bytes allowed only", COLOR_RED);
+                    return;
+                }
+                 */
+                try {
+                    PayloadBuilder pb = new PayloadBuilder();
+                    byte[] payloadStandardFile = pb.createStandardFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
+                            1, 2, 3, 4, fileSizeInt);
+                    boolean success = desfire.createStdDataFile(payloadStandardFile);
+                    writeToUiAppend(output, "createStdDataFileSuccess: " + success + " with FileID: " + Utils.byteToHex(fileIdByte) + " and size: " + fileSizeInt);
+                    if (!success) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "createStdDataFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        fileStandardWriteEnc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // write to a selected standard file in a selected application
+                clearOutputFields();
+                writeToUiAppend(output, "write to an encrypted standard file");
+                // this uses the pre selected file
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    //writeToUiAppend(errorCode, "you need to select a file first");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                String dataToWriteString = fileData.getText().toString();
+                if (TextUtils.isEmpty(dataToWriteString)) {
+                    //writeToUiAppend(errorCode, "please enter some data to write");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "please enter some data to write", COLOR_RED);
+                    return;
+                }
+                int fileIdInt = selectedFileIdInt;
+                //int fileIdInt = Integer.parseInt(selectedFileId);
+                //byte fileIdByte = Byte.parseByte(selectedFileId);
+
+                // check that it is a standard file !
+                DesfireFile fileSettings = null;
+                try {
+                    fileSettings = desfire.getFileSettings(fileIdInt);
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                }
+                //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
+                // check that it is a standard file !
+                String fileTypeName = fileSettings.getFileTypeName();
+                writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
+                if (!fileTypeName.equals("Standard")) {
+                    writeToUiAppend(output, "The selected file is not of type Standard but of type " + fileTypeName + ", aborted");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                    return;
+                }
+
+                // get a random payload with 32 bytes
+                UUID uuid = UUID.randomUUID(); // this is 36 characters long
+                //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
+                byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
+
+                // create an empty array and copy the dataToWrite to clear the complete standard file
+                StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
+                int fileSize = standardDesfireFile.getFileSize();
+                byte[] fullDataToWrite = new byte[fileSize];
+                System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
+
+                PayloadBuilder pb = new PayloadBuilder();
+                byte[] payload = pb.writeToStandardFile(fileIdInt, fullDataToWrite);
+
+                writeToUiAppend(output, printData("payloadWriteData", payload));
+                boolean dfWriteStandard = false;
+                try {
+                    dfWriteStandard = desfire.writeData(payload);
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                    e.printStackTrace();
+                    return;
+                }
+                writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
+                writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+            }
+        });
+
 
         /**
          * section for authentication with default keys
