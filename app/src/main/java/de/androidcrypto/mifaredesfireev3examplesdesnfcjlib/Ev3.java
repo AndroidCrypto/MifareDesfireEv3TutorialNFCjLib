@@ -31,6 +31,7 @@ public class Ev3 {
             case (byte) 0x0c: return "0C no change";
             case (byte) 0x0e: return "0E out of EPROM memory";
             case (byte) 0x1c: return "1C illegal command";
+            case (byte) 0x1e: return "1E integrity error";
             case (byte) 0x40: return "40 No such key error";
             case (byte) 0x6e: return "6E Error (ISO?) error";
             case (byte) 0x7e: return "7E Length error";
@@ -38,7 +39,9 @@ public class Ev3 {
             case (byte) 0x9D: return "9D Permission denied error";
             case (byte) 0x9e: return "9E Parameter error";
             //case (byte) 0x: return " error";
-
+            case (byte) 0xA0: return "A0 application not found error";
+            case (byte) 0xAE: return "AE authentication error";
+            case (byte) 0xAF: return "AF Additional frame (more data to follow before final status code)";
             case (byte) 0xDE: return "DE duplicate error";
 
         }
