@@ -135,9 +135,11 @@ Same to file creation there is no single method but 3 methods to write to a file
 **debit a value**. On file creation we defined the lower and upper limits and when crediting an amount and the new value ('balance') would be greater 
 than the upper limit the transaction is canceled. The same behaviour is with debiting - trying to get a lower value than the  lower limit will cause a failure. 
 - Linear Record file: A new record is written to the tag up to the maximum number of records. Any further writing will be declined.
-- Cyclic Record file: A new record is written to the tag up to the maximum number of records. Any further writing will overwrite the oldest record in the file.
+- Cyclic Record file: A new record is written to the tag up to the maximum number of records. Any further writing will overwrite the oldest record in the file. 
+Remember that the maximum number of records include a 'spare record' for the cycling behavior - there are (maximum number of records - 1) only available for 
+writing and (later) reading.
 
-Important note: while writing to a standard file is done immediately the writing to the other files type does need an additional step 
+**Important note:** while writing to a standard file is done immediately **the writing to the other files type does need an additional step** 
 that is called **commit** (see step 08 commit).
 
 ### 08 commit a write command
@@ -147,7 +149,7 @@ but in 2 steps - the writing of data and followed by a 'commit' command. Think a
 the tag is moved out of the reader ('terminal') device. This would cause that some data may be written but some could not get written - that is a bad situation. 
 The two step writing takes care of that situation. When somethings happens during the first phase all written data get invalidated.  
 
-The commit command is necessary using these commands: write to a Backup file, credit a Value file, debit a Value file, write to a Linear Record File and to a 
+The commit command is necessary using these commands: write to a Backup file, credit a Value file, debit a Value file, write to a Linear Record File and write to a 
 Cyclic Record file.
 
 Only when the write process was successful the data is really confirmed with the commit command. In my app all dedicated write commands are followed by the commit 
