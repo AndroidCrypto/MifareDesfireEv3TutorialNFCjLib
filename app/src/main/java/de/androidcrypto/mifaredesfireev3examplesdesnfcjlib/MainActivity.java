@@ -1202,6 +1202,8 @@ Share
                     writeToUiAppend(output, "entry " + i + " file id : " + Utils.byteToHex(fileIdList.get(i)));
                 }
 
+                // todo add the fileTypeName, see app without NFCjLib
+
                 String[] fileList = new String[fileIdList.size()];
                 for (int i = 0; i < fileIdList.size(); i++) {
                     fileList[i] = Utils.byteToHex(fileIdList.get(i));

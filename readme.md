@@ -108,8 +108,9 @@ a previous credit action.
 is the total number of entries (records) in this files (default setting: 5 records). If you are writing to the file a new record is stored up the maximum of 
 records; trying to save more records will fail. See xx (delete file) for more information on file handling. 
 - **E Cyclic Record file**: A Cyclic record file uses the same parameters as the Linear Record file (record size and maximum number of records). The different 
-is the behavior when writing additional records than the tag: the card will overwrite the oldest record so there is "space" for the new record. This file type 
-is perfect to log data on the tag. 
+is the behavior when writing additional records than the tag: the card will overwrite the oldest record so there is "space" for the new record. For this cycling 
+operation a 'spare record' is needed so in practise you can write 'total number of entries - 1' only to the Cyclic Record file. This file type is perfect 
+to log data on the tag. 
 
 After a file creation this file is not preselected but need to get selected (see step 04) if you want to work with. 
 
