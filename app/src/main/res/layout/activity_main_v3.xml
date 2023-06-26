@@ -30,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text="Mifare DESFire EV3 Examples DES using NFCJLib (Encrypted)"
+                android:text="Mifare DESFire EV3 Examples DES using NFCJLib"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -324,30 +324,6 @@
                         android:enabled="false"
                         android:text="list" />
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/btnGetFileSettings"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="file settings" />
-
-                    <Button
-                        android:id="@+id/btnxx2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:enabled="false"
-                        android:text="xx" />
-
                     <Button
                         android:id="@+id/btnDeleteFile"
                         android:layout_width="wrap_content"
@@ -374,7 +350,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
-                    android:text="work with Standard &amp; Backup files"
+                    android:text="work with Standard files"
                     android:textAlignment="center"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -410,30 +386,36 @@
 
                 </LinearLayout>
 
-                <RadioGroup
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/rbStandardFile"
-                        android:layout_width="match_parent"
+                    <Button
+                        android:id="@+id/btnGetFileSettings"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:checked="true"
-                        android:text="standard file" />
+                        android:text="fileSettings" />
 
-                    <RadioButton
-                        android:id="@+id/rbBackupFile"
-                        android:layout_width="match_parent"
+                    <Button
+                        android:id="@+id/btnWriteStandardFileOld"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
                         android:layout_weight="1"
-                        android:text="backup file" />
+                        android:text="write O" />
 
-                </RadioGroup>
+                    <Button
+                        android:id="@+id/btnReadStandardFileOld"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="read O" />
 
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -464,49 +446,8 @@
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvFileStandardCommunication"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="communication type"
-                    android:textAlignment="center"
-                    android:textSize="16sp"
-                    android:textStyle="normal" />
-
-                <RadioGroup
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rbFileStandardPlainCommunication"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="plain" />
-
-                    <RadioButton
-                        android:id="@+id/rbFileStandardMacedCommunication"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="MACed" />
-
-                    <RadioButton
-                        android:id="@+id/rbFileStandardEncryptedCommunication"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Encrypted" />
-
-                </RadioGroup>
-
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/etFileStandardSizeLayout"
+                    android:id="@+id/etFileSizeLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -523,7 +464,7 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etFileStandardSize"
+                        android:id="@+id/etFileSize"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
@@ -535,7 +476,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/etFileStandardDataLayout"
+                    android:id="@+id/etFileDataLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -555,7 +496,7 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etFileStandardData"
+                        android:id="@+id/etFileData"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
@@ -884,7 +825,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
-                    android:hint="record size"
+                    android:hint="file size"
                     app:boxCornerRadiusBottomEnd="5dp"
                     app:boxCornerRadiusBottomStart="5dp"
                     app:boxCornerRadiusTopEnd="5dp"

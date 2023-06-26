@@ -1,6 +1,5 @@
 package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
@@ -36,6 +35,7 @@ import com.github.skjolber.desfire.ev1.model.VersionInfo;
 import com.github.skjolber.desfire.ev1.model.command.DefaultIsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.command.IsoDepWrapper;
 import com.github.skjolber.desfire.ev1.model.file.DesfireFile;
+import com.github.skjolber.desfire.ev1.model.file.DesfireFileCommunicationSettings;
 import com.github.skjolber.desfire.ev1.model.file.RecordDesfireFile;
 import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
 import com.github.skjolber.desfire.ev1.model.file.ValueDesfireFile;
@@ -97,13 +97,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private int selectedFileSize;
 
     /**
-     * section for standard file handling
+     * section for standard & backup file handling
      */
 
     private LinearLayout llStandardFile;
     private Button fileStandardCreate, fileStandardWrite, fileStandardRead;
     private com.google.android.material.textfield.TextInputEditText fileSize, fileData;
+    private RadioButton rbStandardFile, rbBackupFile;
     private com.shawnlin.numberpicker.NumberPicker npStandardFileId;
+    RadioButton rbFileStandardPlainCommunication, rbFileStandardMacedCommunication, rbFileStandardEncryptedCommunication;
     private final int MAXIMUM_STANDARD_DATA_CHUNK = 40; // if any data are longer we create chunks when writing
 
     //private FileSettings selectedFileSettings;
@@ -249,14 +251,19 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileSelect = findViewById(R.id.btnSelectFile);
         fileDelete = findViewById(R.id.btnDeleteFile);
 
-        // standard file handling
+        // standard & backup file handling
         llStandardFile = findViewById(R.id.llStandardFile);
         fileStandardCreate = findViewById(R.id.btnCreateStandardFile);
         fileStandardWrite = findViewById(R.id.btnWriteStandardFile);
         fileStandardRead = findViewById(R.id.btnReadStandardFile);
         npStandardFileId = findViewById(R.id.npStandardFileId);
-        fileSize = findViewById(R.id.etFileSize);
-        fileData = findViewById(R.id.etFileData);
+        rbStandardFile = findViewById(R.id.rbStandardFile);
+        rbBackupFile = findViewById(R.id.rbBackupFile);
+        rbFileStandardPlainCommunication = findViewById(R.id.rbFileStandardPlainCommunication);
+        rbFileStandardMacedCommunication = findViewById(R.id.rbFileStandardMacedCommunication);
+        rbFileStandardEncryptedCommunication = findViewById(R.id.rbFileStandardEncryptedCommunication);
+        fileSize = findViewById(R.id.etFileStandardSize);
+        fileData = findViewById(R.id.etFileStandardData);
         fileSelected = findViewById(R.id.etSelectedFileId);
 
         // value file handling
@@ -1174,10 +1181,6 @@ Share
         });
 
 
-
-
-
-
         /**
          * section for files
          */
@@ -1205,22 +1208,25 @@ Share
                     return;
                 }
                 List<Byte> fileIdList = new ArrayList<>();
+                List<String> fileIdInformationList = new ArrayList<>();
                 for (int i = 0; i < fileIds.length; i++) {
                     fileIdList.add(fileIds[i]);
+                    fileIdInformationList.add(getFileInformationType((int) fileIds[i]));
                 }
                 //byte[] responseData = new byte[2];
                 //List<Byte> fileIdList = fileIds.t getFileIdsList(output, responseData);
                 //writeToUiAppend(errorCode, "getFileIdsList: " + Ev3.getErrorCode(responseData));
 
                 for (int i = 0; i < fileIdList.size(); i++) {
-                    writeToUiAppend(output, "entry " + i + " file id : " + Utils.byteToHex(fileIdList.get(i)));
+                    writeToUiAppend(output, "entry " + i + " file id : " + fileIdList.get(i) + (" (") + Utils.byteToHex(fileIdList.get(i)) + ")"
+                            + " " + fileIdInformationList.get(i));
                 }
-
-                // todo add the fileTypeName, see app without NFCjLib
 
                 String[] fileList = new String[fileIdList.size()];
                 for (int i = 0; i < fileIdList.size(); i++) {
-                    fileList[i] = Utils.byteToHex(fileIdList.get(i));
+                    //fileList[i] = Utils.byteToHex(fileIdList.get(i));
+                    fileList[i] = String.valueOf(fileIdList.get(i))
+                            + " (" + fileIdInformationList.get(i) + ")";
                 }
 
                 // setup the alert builder
@@ -1231,8 +1237,8 @@ Share
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         writeToUiAppend(output, "you  selected nr " + which + " = " + fileList[which]);
-                        selectedFileId = fileList[which];
-                        selectedFileIdInt = Byte.parseByte(selectedFileId, 16);
+                        selectedFileId = String.valueOf(fileIdList.get(which));
+                        selectedFileIdInt = Integer.parseInt(selectedFileId);
                         // now we run the command to select the application
                         byte[] responseData = new byte[2];
                         //boolean result = selectDes(output, selectedApplicationId, responseData);
@@ -1374,13 +1380,14 @@ Share
         */
 
         /**
-         * section for standard files
+         * section for standard & backup files
          */
 
         fileStandardCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // create a new standard file
+                writeToUiAppend(output, "create a standard or backup file");
                 // get the input and sanity checks
                 clearOutputFields();
                 byte fileIdByte = (byte) (npStandardFileId.getValue() & 0xFF);
@@ -1401,18 +1408,37 @@ Share
                     return;
                 }
                  */
+                // new for communication setting choice
+                PayloadBuilder.CommunicationSetting communicationSetting;
+                if (rbFileStandardPlainCommunication.isChecked()) {
+                    communicationSetting = PayloadBuilder.CommunicationSetting.Plain;
+                } else if (rbFileStandardMacedCommunication.isChecked()) {
+                    communicationSetting = PayloadBuilder.CommunicationSetting.MACed;
+                } else {
+                    communicationSetting = PayloadBuilder.CommunicationSetting.Encrypted;
+                }
+                boolean isStandardFile = rbStandardFile.isChecked(); // as there are 2 options only we just just check rbStandardFile
                 try {
                     PayloadBuilder pb = new PayloadBuilder();
-                    byte[] payloadStandardFile = pb.createStandardFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
+                    byte[] payloadStandardFile = pb.createStandardFile(fileIdByte, communicationSetting,
                             1, 2, 3, 4, fileSizeInt);
-                    boolean success = desfire.createStdDataFile(payloadStandardFile);
-                    writeToUiAppend(output, "createStdDataFileSuccess: " + success + " with FileID: " + Utils.byteToHex(fileIdByte) + " and size: " + fileSizeInt);
+                    boolean success;
+                    String createString;
+                    if (isStandardFile) {
+                        createString = "createStandardDataFile";
+                        success = desfire.createStdDataFile(payloadStandardFile);
+
+                    } else {
+                        createString = "createBackupDataFile";
+                        success = desfire.createBackupDataFile(payloadStandardFile);
+                    }
+                    writeToUiAppend(output, createString + "Success: " + success + " with FileID: " + Utils.byteToHex(fileIdByte) + " and size: " + fileSizeInt);
                     if (!success) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "createStdDataFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, createString + " NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, createString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         return;
                     }
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createStdDataFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, createString + " Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
@@ -1531,6 +1557,7 @@ Share
             public void onClick(View view) {
                 // write to a selected standard file in a selected application
                 clearOutputFields();
+                writeToUiAppend(output, "write to a standard or backup file");
                 // this uses the pre selected file
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
@@ -1546,7 +1573,7 @@ Share
                 int fileIdInt = Integer.parseInt(selectedFileId);
                 byte fileIdByte = Byte.parseByte(selectedFileId);
 
-                // check that it is a standard file !
+                // check that it is a standard or backup file !
                 DesfireFile fileSettings = null;
                 try {
                     fileSettings = desfire.getFileSettings(fileIdInt);
@@ -1557,15 +1584,16 @@ Share
                     return;
                 }
                 //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
-                // check that it is a standard file !
+                // check that it is a standard or backup file !
                 String fileTypeName = fileSettings.getFileTypeName();
                 writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
-                if (!fileTypeName.equals("Standard")) {
-                    writeToUiAppend(output, "The selected file is not of type Standard but of type " + fileTypeName + ", aborted");
+                if ((!fileTypeName.equals("Standard")) && (!fileTypeName.equals("Backup"))) {
+                    writeToUiAppend(output, "The selected file is not of type Standard or Backup but of type " + fileTypeName + ", aborted");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
                     return;
                 }
-
+                boolean isBackupFile = false; // backup files require a commit after writing
+                if (fileTypeName.equals("Backup")) isBackupFile = true;
                 // get a random payload with 32 bytes
                 UUID uuid = UUID.randomUUID(); // this is 36 characters long
                 //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
@@ -1577,24 +1605,19 @@ Share
                 byte[] fullDataToWrite = new byte[fileSize];
                 System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
 
-                // this is new to accept standard file data > 32/42 bytes size
-                // this is due to maximum APDU size limit of 55 bytes for a DESFire D40 card
-                // I'm splitting the complete data and send them in chunks
-                final int MAXIMUM_STANDARD_DATA_CHUNK = 40; // if any data are longer we create chunks
-                List<byte[]> chunkedFullData = divideArray(fullDataToWrite, MAXIMUM_STANDARD_DATA_CHUNK);
-                int chunkedFullDataSize = chunkedFullData.size();
-                System.out.println("chunkedFullDataSize: " + chunkedFullDataSize + " full length: " + fullDataToWrite.length);
-                for (int i = 0; i < chunkedFullDataSize; i++) {
-                    System.out.println("chunk " + i + " length: " + chunkedFullData.get(i).length);
-                }
-
                 PayloadBuilder pb = new PayloadBuilder();
                 byte[] payload = pb.writeToStandardFile(fileIdInt, fullDataToWrite);
 
                 writeToUiAppend(output, printData("payloadWriteData", payload));
-                boolean dfWriteStandard = false;
+                String writeFileString;
+                if (isBackupFile) {
+                    writeFileString = "writeToBackupFile";
+                } else {
+                    writeFileString = "writeToStandardFile";
+                }
+                boolean writeStandardSuccess = false;
                 try {
-                    dfWriteStandard = desfire.writeData(payload);
+                    writeStandardSuccess = desfire.writeData(payload);
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
@@ -1602,8 +1625,38 @@ Share
                     e.printStackTrace();
                     return;
                 }
-                writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
-                writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                writeToUiAppend(output, writeFileString + "Result: " + writeStandardSuccess);
+                writeToUiAppend(output,  writeFileString + "ResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                if (writeStandardSuccess) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, writeFileString + " Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                } else {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout,  writeFileString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                }
+                if (isBackupFile) {
+                    // a following commit is necessary
+                    writeToUiAppend(output, writeFileString + ": a commit to the card is necessary");
+                    if (writeStandardSuccess) {
+                        try {
+                        boolean successCommit = desfire.commitTransaction();
+                        writeToUiAppend(output, "commitSuccess: " + successCommit);
+                        if (!successCommit) {
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
+                            writeToUiAppend(errorCode, "commit NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                            writeToUiAppend(errorCode, "Did you forget to authenticate with a Write Access Key first ?");
+                            return;
+                        }
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                        } catch (Exception e) {
+                            //throw new RuntimeException(e);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                            writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                            e.printStackTrace();
+                            return;
+                        }
+                    } else {
+                        writeToUiAppend(output, "as the writing to the backup file was not successful I'm not trying to send a commit");
+                    }
+                }
             }
         });
 
@@ -1613,7 +1666,7 @@ Share
                 // read from a selected standard file in a selected application
                 clearOutputFields();
                 // this uses the pre selected file
-                writeToUiAppend(output, "read from a standard file");
+                writeToUiAppend(output, "read from a standard or backup file");
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
@@ -1621,24 +1674,32 @@ Share
                 }
                 int fileIdInt = selectedFileIdInt;
                 byte[] readStandard;
+                boolean isBackupFile = false; // backup files require a commit after writing
+                String readFileString;
                 try {
                     // get the maximal length from getFileSettings
                     DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
                     // check that it is a standard file !
                     String fileTypeName = fileSettings.getFileTypeName();
                     writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
-                    if (!fileTypeName.equals("Standard")) {
-                        writeToUiAppend(output, "The selected file is not of type Standard but of type " + fileTypeName + ", aborted");
+                    if ((!fileTypeName.equals("Standard")) && (!fileTypeName.equals("Backup"))) {
+                        writeToUiAppend(output, "The selected file is not of type Standard or Backup but of type " + fileTypeName + ", aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
                         return;
                     }
+                    if (fileTypeName.equals("Backup")) isBackupFile = true;
+
+                    if (isBackupFile) {
+                        readFileString = "readFromBackupFile";
+                    } else {
+                        readFileString = "readFromStandardFile";
+                    }
+
                     StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
                     int fileSize = standardDesfireFile.getFileSize();
                     writeToUiAppend(output, "fileSize: " + fileSize);
-
                     readStandard = desfire.readData((byte) (fileIdInt & 0xff), 0, fileSize);
-
-                    //readStandard = desfire.readData(STANDARD_FILE_NUMBER, 0, fileSize);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, readFileString + "Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
@@ -1656,7 +1717,7 @@ Share
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "did you forget to authenticate with a read access key ?", COLOR_RED);
                     return;
                 }
-                writeToUiAppend(output, printData("readStandard", readStandard));
+                writeToUiAppend(output, printData(readFileString, readStandard));
                 writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
                 writeToUiAppend(output, "finished");
                 writeToUiAppend(output, "");
@@ -2078,6 +2139,7 @@ Share
                     List<byte[]> readRecordList = divideArray(readRecords, recordSize);
                     //readStandard = desfire.readData(STANDARD_FILE_NUMBER, 0, fileSize);
                     int listSize = readRecordList.size();
+                    writeToUiAppend(output, "--------");
                     for (int i = 0; i < listSize; i++) {
                         byte[] record = readRecordList.get(i);
                         writeToUiAppend(output, "record " + i + printData(" data", record));
@@ -2374,9 +2436,9 @@ Share
                 byte[] payload = pb.writeToStandardFile(fileIdInt, fullDataToWrite);
 
                 writeToUiAppend(output, printData("payloadWriteData", payload));
-                boolean dfWriteStandard = false;
+                boolean writeStandardSuccess = false;
                 try {
-                    dfWriteStandard = desfire.writeData(payload);
+                    writeStandardSuccess = desfire.writeData(payload);
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
@@ -2384,8 +2446,8 @@ Share
                     e.printStackTrace();
                     return;
                 }
-                writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
-                writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                writeToUiAppend(output, "writeStandardSuccessResult: " + writeStandardSuccess);
+                writeToUiAppend(output, "writeStandardSuccessResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
             }
         });
 
@@ -2699,7 +2761,6 @@ Share
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
-
 
 
         // virtual card configuration key
@@ -3103,6 +3164,48 @@ Share
                 // reads the stored file settings from DESFireEV1 class
                 clearOutputFields();
                 writeToUiAppend(output, "get the fileSettings from DESFireEV1 class");
+                DesfireFile desfireFile = null;
+                try {
+                    desfireFile = desfire.getFileSettings(selectedFileIdInt);
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                }
+                if (desfireFile == null) {
+                    writeToUiAppend(output, "the fileSettings from DESFireEV1 class are NULL");
+                    return;
+                }
+                String fileTypeName = desfireFile.getFileTypeName();
+                int fileStandardSize = 0;
+                writeToUiAppend(output, "The file " + selectedFileIdInt + " is of type " + fileTypeName);
+                DesfireFileCommunicationSettings comSetting = desfireFile.getCommunicationSettings();
+                writeToUiAppend(output, "the communicationSettings are " + comSetting.getDescription());
+                if (!fileTypeName.equals("Standard")) {
+                    writeToUiAppend(output, "The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
+                    //writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                } else {
+                    StandardDesfireFile standardDesfireFile = (StandardDesfireFile) desfireFile;
+                    fileStandardSize = standardDesfireFile.getFileSize();
+                    writeToUiAppend(output, "file " + selectedFileIdInt + " size: " + fileStandardSize);
+                }
+
+                Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
+                writeToUiAppend(output, "----- permission map ------");
+                for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
+                    writeToUiAppend(output, entry.getKey() + ":" + entry.getValue().toString());
+                }
+                writeToUiAppend(output, "-----------");
+            }
+        });
+
+        /*
+        getFileSettingsDesfire.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // reads the stored file settings from DESFireEV1 class
+                clearOutputFields();
+                writeToUiAppend(output, "get the fileSettings from DESFireEV1 class");
                 DesfireFile[] desfireFiles = desfire.getFileSettings();
                 if (desfireFiles == null) {
                     writeToUiAppend(output, "the fileSettings from DESFireEV1 class are NULL");
@@ -3122,7 +3225,7 @@ Share
                         writeToUiAppend(output, "The file " + i + " is of type " + fileTypeName);
                         if (!fileTypeName.equals("Standard")) {
                             writeToUiAppend(output, "The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
-                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                            //writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
                         } else {
                             StandardDesfireFile standardDesfireFile = (StandardDesfireFile) desfireFile;
                             fileSize = standardDesfireFile.getFileSize();
@@ -3139,9 +3242,36 @@ Share
 
             }
         });
-
+        */
         // DesfireFile[] getFileSettings()
 
+    }
+
+    private String getFileInformationType(int fileNumber) {
+        String fileType;
+        String commType;
+        DesfireFile desfireFile = null;
+        try {
+            desfireFile = desfire.getFileSettings(fileNumber);
+        } catch (Exception e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+            e.printStackTrace();
+            return "";
+        }
+        if (desfireFile == null) {
+            writeToUiAppend(output, "the fileSettings from DESFireEV1 class are NULL");
+            return "";
+        }
+        fileType = desfireFile.getFileTypeName();
+        int comSett = desfireFile.getCommunicationSettings().getValue();
+        if (comSett == 0) {
+            commType = "Plain";
+        } else if (comSett == 1) {
+            commType = "MACed";
+        } else {
+            commType = "Encrypted";
+        }
+        return fileType + " | " + commType;
     }
 
     /**
@@ -3237,7 +3367,6 @@ Share
 
     /**
      * section for authentication
-     *
      */
 
     private boolean authenticateApplicationDes(byte keyNumber, byte[] key, String keyName) {
@@ -3297,7 +3426,6 @@ Share
     }
 
 
-
     /**
      * section for change key handling
      */
@@ -3306,10 +3434,10 @@ Share
     private boolean changeApplicationKeyDes(byte[] applicationId, byte applicationMasterKeyNumber,
                                             byte[] applicationMasterKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName) {
 */
-        private boolean changeApplicationKeyDes(byte applicationMasterKeyNumber,
-        byte[] applicationMasterKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName) {
+    private boolean changeApplicationKeyDes(byte applicationMasterKeyNumber,
+                                            byte[] applicationMasterKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName) {
 
-            // change key name e.g. master, read&write, car, read, write
+        // change key name e.g. master, read&write, car, read, write
         boolean result = false;
         try {
             /*

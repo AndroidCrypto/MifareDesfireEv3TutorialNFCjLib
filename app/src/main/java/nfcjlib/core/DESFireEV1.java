@@ -2828,7 +2828,7 @@ public class DESFireEV1 {
 		return skey;
 	}
 
-	public DesfireFile[] getFileSettings() {
+	public DesfireFile[] getFileSettingsA() {
 		return fileSettings;
 	}
 
