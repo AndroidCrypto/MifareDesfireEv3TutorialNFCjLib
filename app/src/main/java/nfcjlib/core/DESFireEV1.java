@@ -2816,6 +2816,10 @@ public class DESFireEV1 {
 		return data;
 	}
 
+	/**
+	 * section for new implemented methods by AndroidCrypto
+	 */
+
 	public byte[] getIv() {
 		return iv;
 	}
@@ -2823,12 +2827,6 @@ public class DESFireEV1 {
 	public byte[] getSkey() {
 		return skey;
 	}
-
-	/**
-	 * section for new implemented methods by AndroidCrypto
-	 */
-
-
 
 	public DesfireFile[] getFileSettings() {
 		return fileSettings;
