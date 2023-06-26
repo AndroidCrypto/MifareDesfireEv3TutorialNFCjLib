@@ -162,6 +162,13 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
+
                 <TextView
                     android:id="@+id/tvApplications"
                     android:layout_width="match_parent"
@@ -292,6 +299,13 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
+
                 <TextView
                     android:id="@+id/tvFiles"
                     android:layout_width="match_parent"
@@ -369,6 +383,13 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
+
                 <TextView
                     android:id="@+id/tvStandardFiles"
                     android:layout_width="match_parent"
@@ -433,7 +454,6 @@
                         android:text="backup file" />
 
                 </RadioGroup>
-
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -577,6 +597,13 @@
                 android:layout_marginEnd="8dp"
                 android:orientation="vertical"
                 android:visibility="visible">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
 
                 <TextView
                     android:id="@+id/tvValueFiles"
@@ -778,6 +805,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="8dp"
+                        android:layout_marginTop="8dp"
                         android:layout_weight="1"
                         android:text="credit" />
 
@@ -786,6 +814,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginTop="8dp"
                         android:layout_weight="1"
                         android:text="debit" />
 
@@ -831,6 +860,12 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
                 <TextView
                     android:id="@+id/tvRecordFiles"
                     android:layout_width="match_parent"
@@ -1083,6 +1118,13 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
+
                 <TextView
                     android:id="@+id/tvStandardFilesEnc"
                     android:layout_width="match_parent"
@@ -1134,6 +1176,13 @@
                 android:layout_marginEnd="8dp"
                 android:orientation="vertical"
                 android:visibility="visible">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
 
                 <TextView
                     android:id="@+id/tvAuthentication"
@@ -1252,6 +1301,13 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
+
                 <TextView
                     android:id="@+id/tvAuthenticationChanged"
                     android:layout_width="match_parent"
@@ -1336,6 +1392,13 @@
                 android:layout_marginEnd="8dp"
                 android:orientation="vertical"
                 android:visibility="visible">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
 
                 <TextView
                     android:id="@+id/tvKeys"
@@ -1454,6 +1517,13 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
+
                 <TextView
                     android:id="@+id/tvKeysC"
                     android:layout_width="match_parent"
@@ -1538,6 +1608,13 @@
                 android:layout_marginEnd="8dp"
                 android:orientation="vertical"
                 android:visibility="visible">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetStart="8dp"
+                    app:dividerInsetEnd="8dp"/>
 
                 <TextView
                     android:id="@+id/tvGeneral"
@@ -1627,6 +1704,13 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:dividerInsetStart="8dp"
+                app:dividerInsetEnd="8dp"/>
 
         </LinearLayout>
 
