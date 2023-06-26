@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     private LinearLayout llValueFile;
     private Button fileValueCreate, fileValueCredit, fileValueDebit, fileValueRead;
+    RadioButton rbFileValuePlainCommunication, rbFileValueMacedCommunication, rbFileValueEncryptedCommunication;
     private com.shawnlin.numberpicker.NumberPicker npValueFileId;
     private com.google.android.material.textfield.TextInputEditText lowerLimitValue, upperLimitValue, initialValueValue, creditDebitValue;
 
@@ -127,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private LinearLayout llRecordFile;
     private Button fileRecordCreate, fileRecordWrite, fileRecordRead;
     private RadioButton rbLinearRecordFile, rbCyclicRecordFile;
+    RadioButton rbFileRecordPlainCommunication, rbFileRecordMacedCommunication, rbFileRecordEncryptedCommunication;
     private com.shawnlin.numberpicker.NumberPicker npRecordFileId;
     private com.google.android.material.textfield.TextInputEditText fileRecordSize, fileRecordData, fileRecordNumberOfRecords;
 
@@ -273,6 +275,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileValueCredit = findViewById(R.id.btnCreditValueFile);
         fileValueDebit = findViewById(R.id.btnDebitValueFile);
         npValueFileId = findViewById(R.id.npValueFileId);
+        rbFileValuePlainCommunication = findViewById(R.id.rbFileValuePlainCommunication);
+        rbFileValueMacedCommunication = findViewById(R.id.rbFileValueMacedCommunication);
+        rbFileValueEncryptedCommunication = findViewById(R.id.rbFileValueEncryptedCommunication);
         lowerLimitValue = findViewById(R.id.etValueLowerLimit);
         upperLimitValue = findViewById(R.id.etValueUpperLimit);
         initialValueValue = findViewById(R.id.etValueInitialValue);
@@ -284,6 +289,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileRecordRead = findViewById(R.id.btnReadRecordFile);
         fileRecordWrite = findViewById(R.id.btnWriteRecordFile);
         npRecordFileId = findViewById(R.id.npRecordFileId);
+        rbFileRecordPlainCommunication = findViewById(R.id.rbFileRecordPlainCommunication);
+        rbFileRecordMacedCommunication = findViewById(R.id.rbFileRecordMacedCommunication);
+        rbFileRecordEncryptedCommunication = findViewById(R.id.rbFileRecordEncryptedCommunication);
         fileRecordSize = findViewById(R.id.etRecordFileSize);
         fileRecordNumberOfRecords = findViewById(R.id.etRecordFileNumberRecords);
         fileRecordData = findViewById(R.id.etRecordFileData);
@@ -695,37 +703,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, "could not get the key settings (missing authentication ?)");
                     return;
                 }
-
-/*
-I fixed my own issue. The trick was to cast the dialoginterface that gets passed to the onClick function and cast it as AlertDialog:
-
-.setPositiveButton("Add", new DialogInterface.OnClickListener()
-{
-   @Override
-   public void onClick(DialogInterface dialogInterface, int i)
-   {
-      // Get our inputs
-      EditText editName = (EditText) ((AlertDialog) dialogInterface).findViewById(R.id.editTaskName);
-      EditText editDesc = (EditText) ((AlertDialog) dialogInterface).findViewById(R.id.editTaskDesc);
-Share
- */
-
-                /*
-                CheckBox cbBit0MasterKeyIsChangeable = ((AlertDialog) dialogInterface).findViewById(R.id.cbAksBit0MasterKeyIsChangeable);
-                CheckBox cbBit1MasterKeyAuthenticationNeededDirListing = findViewById(R.id.cbAksBit1MasterKeyAuthenticationNeededDirListing);
-                CheckBox cbBit2MasterKeyAuthenticationNeededCreateDelete = findViewById(R.id.cbAksBit2MasterKeyAuthenticationNeededCreateDelete);
-                CheckBox cbBit3MasterKeySettingsChangeAllowed = findViewById(R.id.cbBit3MasterKeySettingsChangeAllowed);
-                EditText maximumNumberOfKeys = findViewById(R.id.etAksMaximumNumberOfKeys);
-                EditText keySettingsCarKey = findViewById(R.id.etAksKeySettingsCarKey);
-                // set data from key settings
-                cbBit0MasterKeyIsChangeable.setChecked(keySettings.isCanChangeMasterKey());
-                cbBit1MasterKeyAuthenticationNeededDirListing.setChecked(!keySettings.isFreeDirectoryAccess());
-                cbBit2MasterKeyAuthenticationNeededCreateDelete.setChecked(!keySettings.isFreeCreateAndDelete());
-                cbBit3MasterKeySettingsChangeAllowed.setChecked(keySettings.isConfigurationChangable());
-                DesfireKeyType keyType = keySettings.getType();
-                maximumNumberOfKeys.setText(keySettings.getMaxKeys() + " of type " + keyType.toString());
-                keySettingsCarKey.setText(keySettings.getChangeKeyAccessRights());
-*/
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -820,31 +797,6 @@ Share
                         .setTitle("Application key settings")
                         //.setView(R.layout.application_key_settings)
                         .show();
-
-                /*
-                // showing a dialog box with the application key settings
-                // custom dialog
-                final Dialog dialog = new Dialog(view.getContext());
-                dialog.setContentView(R.layout.application_key_settings);
-                dialog.setTitle("Title...");
-
-                // set the custom dialog components - text, image and button
-                //TextView text = (TextView) dialog.findViewById(R.id.text);
-                //text.setText("Android custom dialog example!");
-                //ImageView image = (ImageView) dialog.findViewById(R.id.image);
-                //image.setImageResource(R.drawable.ic_launcher);
-
-                Button dialogButton = (Button) dialog.findViewById(R.id.btnGetApplicationKeySettingsDone);
-                // if button is clicked, close the custom dialog
-                dialogButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-
-                dialog.show();
-*/
 
             }
         });
@@ -1751,7 +1703,15 @@ Share
                 }
 
                 PayloadBuilder pb = new PayloadBuilder();
-
+                // new for communication setting choice
+                PayloadBuilder.CommunicationSetting communicationSetting;
+                if (rbFileValuePlainCommunication.isChecked()) {
+                    communicationSetting = PayloadBuilder.CommunicationSetting.Plain;
+                } else if (rbFileValueMacedCommunication.isChecked()) {
+                    communicationSetting = PayloadBuilder.CommunicationSetting.MACed;
+                } else {
+                    communicationSetting = PayloadBuilder.CommunicationSetting.Encrypted;
+                }
                 if ((lowerLimitInt < pb.getMINIMUM_VALUE_LOWER_LIMIT()) || (lowerLimitInt > pb.getMAXIMUM_VALUE_LOWER_LIMIT())) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong lower limit, maximum 1000 allowed only", COLOR_RED);
                     return;
@@ -1770,7 +1730,7 @@ Share
                 }
 
                 try {
-                    byte[] payloadValueFile = pb.createValueFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
+                    byte[] payloadValueFile = pb.createValueFile(fileIdByte, communicationSetting,
                             1, 2, 3, 4, lowerLimitInt, upperLimitInt, initialValueInt, false);
 
                     boolean success = desfire.createValueFile(payloadValueFile);
@@ -2055,15 +2015,24 @@ Share
                 }
                 try {
                     PayloadBuilder pb = new PayloadBuilder();
+                    // new for communication setting choice
+                    PayloadBuilder.CommunicationSetting communicationSetting;
+                    if (rbFileRecordPlainCommunication.isChecked()) {
+                        communicationSetting = PayloadBuilder.CommunicationSetting.Plain;
+                    } else if (rbFileRecordMacedCommunication.isChecked()) {
+                        communicationSetting = PayloadBuilder.CommunicationSetting.MACed;
+                    } else {
+                        communicationSetting = PayloadBuilder.CommunicationSetting.Encrypted;
+                    }
                     byte[] payloadRecordFile;
                     boolean success;
                     if (isLinearRecordFile) {
-                        payloadRecordFile = pb.createLinearRecordsFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
+                        payloadRecordFile = pb.createLinearRecordsFile(fileIdByte, communicationSetting,
                                 1, 2, 3, 4, fileSizeInt, fileNumberOfRecordsInt);
                         writeToUiAppend(output, printData("payloadCreateRecordFile", payloadRecordFile));
                         success = desfire.createLinearRecordFile(payloadRecordFile);
                     } else {
-                        payloadRecordFile = pb.createCyclicRecordsFile(fileIdByte, PayloadBuilder.CommunicationSetting.Plain,
+                        payloadRecordFile = pb.createCyclicRecordsFile(fileIdByte, communicationSetting,
                                 1, 2, 3, 4, fileSizeInt, fileNumberOfRecordsInt);
                         writeToUiAppend(output, printData("payloadCreateRecordFile", payloadRecordFile));
                         success = desfire.createCyclicRecordFile(payloadRecordFile);

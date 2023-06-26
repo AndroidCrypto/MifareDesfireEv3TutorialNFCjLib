@@ -611,6 +611,47 @@
 
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/tvFileValueCommunication"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="communication type"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbFileValuePlainCommunication"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="plain" />
+
+                    <RadioButton
+                        android:id="@+id/rbFileValueMacedCommunication"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MACed" />
+
+                    <RadioButton
+                        android:id="@+id/rbFileValueEncryptedCommunication"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Encrypted" />
+
+                </RadioGroup>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
@@ -844,6 +885,47 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="cyclic record file" />
+
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/tvFileRecordCommunication"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="communication type"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbFileRecordPlainCommunication"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="plain" />
+
+                    <RadioButton
+                        android:id="@+id/rbFileRecordMacedCommunication"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MACed" />
+
+                    <RadioButton
+                        android:id="@+id/rbFileRecordEncryptedCommunication"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Encrypted" />
 
                 </RadioGroup>
 
