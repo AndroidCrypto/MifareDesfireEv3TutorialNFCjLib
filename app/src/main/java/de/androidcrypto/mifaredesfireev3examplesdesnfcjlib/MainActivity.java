@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      * section for application handling
      */
     private LinearLayout llApplicationHandling;
-    private Button applicationList, applicationCreate, applicationSelect, applicationDelete;
+    private Button applicationList, applicationCreate, applicationCreateAes, applicationSelect, applicationDelete;
     private com.google.android.material.textfield.TextInputEditText numberOfKeys, applicationId, applicationSelected;
     private byte[] selectedApplicationId = null;
 
@@ -138,6 +138,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     private LinearLayout llStandardFileEnc;
     private Button fileStandardCreateEnc, fileStandardWriteEnc, manualEncryption;
+
+    /**
+     * work with transaction mac files - only available on EV2+
+     */
+
+    private LinearLayout llTMacFile;
+    private Button fileTMacCreate, fileTMacWrite, fileTMacRead;
+
+
 
     /**
      * section for authentication
@@ -242,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         llApplicationHandling = findViewById(R.id.llApplications);
         applicationList = findViewById(R.id.btnListApplications);
         applicationCreate = findViewById(R.id.btnCreateApplication);
+        applicationCreateAes = findViewById(R.id.btnCreateApplicationAes);
         applicationSelect = findViewById(R.id.btnSelectApplication);
         applicationDelete = findViewById(R.id.btnDeleteApplication);
         applicationSelected = findViewById(R.id.etSelectedApplicationId);
@@ -297,6 +307,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileRecordData = findViewById(R.id.etRecordFileData);
         rbLinearRecordFile = findViewById(R.id.rbLinearRecordFile);
         rbCyclicRecordFile = findViewById(R.id.rbCyclicRecordFile);
+
+        // transaction mac file handling
+        llTMacFile = findViewById(R.id.llTransactionMacFile);
+        fileTMacCreate = findViewById(R.id.btnCreateTransactionMacFile);
+        fileTMacWrite = findViewById(R.id.btnWriteTransactionMacFile);
+        fileTMacRead = findViewById(R.id.btnReadTransactionMacFile);
 
         // encrypted standard file handling
         llStandardFileEnc = findViewById(R.id.llStandardFileEnc);
@@ -970,6 +986,49 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 try {
                     boolean success = desfire.createApplication(applicationIdentifier, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, numberOfKeysByte);
+                    writeToUiAppend(output, "createApplicationSuccess: " + success);
+                    if (!success) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "createApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication success", COLOR_GREEN);
+                    }
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        applicationCreateAes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // create a new application
+                // get the input and sanity checks
+                clearOutputFields();
+                writeToUiAppend(output, "create an application (AES keys)");
+                byte numberOfKeysByte = Byte.parseByte(numberOfKeys.getText().toString());
+                byte[] applicationIdentifier = Utils.hexStringToByteArray(applicationId.getText().toString());
+                if (applicationIdentifier == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong application ID", COLOR_RED);
+                    return;
+                }
+                Utils.reverseByteArrayInPlace(applicationIdentifier); // change to LSB
+                if (applicationIdentifier.length != 3) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you did not enter a 6 hex string application ID", COLOR_RED);
+                    return;
+                }
+                try {
+                    boolean success = desfire.createApplication(applicationIdentifier, APPLICATION_MASTER_KEY_SETTINGS, KeyType.AES, numberOfKeysByte);
                     writeToUiAppend(output, "createApplicationSuccess: " + success);
                     if (!success) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication NOT Success, aborted", COLOR_RED);
@@ -2288,7 +2347,106 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
 
         /**
-         * section for standard files
+         * section for transaction MAC files
+         * Note: this  is available on DESFire EV2+ cards and using AES keys in application
+         */
+
+        fileTMacCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // create a new transaction mac file
+                // get the input and sanity checks
+                clearOutputFields();
+                byte fileIdByte = (byte) (npRecordFileId.getValue() & 0xFF);
+
+                // the number of files on an EV1 tag is limited to 32 (00..31), but we are using the limit for the old D40 tag with a maximum of 15 files (00..14)
+                // this limit is hardcoded in the XML file for the fileId numberPicker
+
+                //byte fileIdByte = Byte.parseByte(fileId.getText().toString());
+                int fileSizeInt = Integer.parseInt(fileRecordSize.getText().toString());
+                if (fileSizeInt == 0) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a 0 size (minimum 1)", COLOR_RED);
+                    return;
+                }
+                if (fileIdByte > (byte) 0x0f) {
+                    // this should not happen as the limit is hardcoded in npFileId
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
+                    return;
+                }
+                int fileNumberOfRecordsInt = Integer.parseInt(fileRecordNumberOfRecords.getText().toString());
+                if (fileNumberOfRecordsInt < 2) {
+                    // this should not happen as the limit is hardcoded in npFileId
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a 0 record number (minimum 2)", COLOR_RED);
+                    return;
+                }
+
+
+
+                // get the type of file - linear or cyclic
+                boolean isLinearRecordFile = rbLinearRecordFile.isChecked();
+                boolean isCyclicRecordFile = rbCyclicRecordFile.isChecked();
+
+                /*
+                if (fileSizeInt != 32) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file size, 32 bytes allowed only", COLOR_RED);
+                    return;
+                }
+                 */
+                String fileTypeString = "";
+                if (isLinearRecordFile) {
+                    fileTypeString = "LinearRecord";
+                } else {
+                    fileTypeString = "CyclicRecord";
+                }
+                try {
+                    PayloadBuilder pb = new PayloadBuilder();
+                    // new for communication setting choice
+                    PayloadBuilder.CommunicationSetting communicationSetting;
+                    if (rbFileRecordPlainCommunication.isChecked()) {
+                        communicationSetting = PayloadBuilder.CommunicationSetting.Plain;
+                    } else if (rbFileRecordMacedCommunication.isChecked()) {
+                        communicationSetting = PayloadBuilder.CommunicationSetting.MACed;
+                    } else {
+                        communicationSetting = PayloadBuilder.CommunicationSetting.Encrypted;
+                    }
+                    byte[] payloadRecordFile;
+                    boolean success;
+                    if (isLinearRecordFile) {
+                        payloadRecordFile = pb.createLinearRecordsFile(fileIdByte, communicationSetting,
+                                1, 2, 3, 4, fileSizeInt, fileNumberOfRecordsInt);
+                        writeToUiAppend(output, printData("payloadCreateRecordFile", payloadRecordFile));
+                        success = desfire.createLinearRecordFile(payloadRecordFile);
+                    } else {
+                        payloadRecordFile = pb.createCyclicRecordsFile(fileIdByte, communicationSetting,
+                                1, 2, 3, 4, fileSizeInt, fileNumberOfRecordsInt);
+                        writeToUiAppend(output, printData("payloadCreateRecordFile", payloadRecordFile));
+                        success = desfire.createCyclicRecordFile(payloadRecordFile);
+                    }
+                    writeToUiAppend(output, "create" + fileTypeString + "FileSuccess: " + success
+                            + " with FileID: " + Utils.byteToHex(fileIdByte) + ", size: " + fileSizeInt + " and number of records: " + fileNumberOfRecordsInt);
+                    if (!success) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "create" + fileTypeString + "File NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "create" + fileTypeString + "File NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "create" + fileTypeString + "File Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        /**
+         * section for encrypted standard files
          */
 
         fileStandardCreateEnc.setOnClickListener(new View.OnClickListener() {

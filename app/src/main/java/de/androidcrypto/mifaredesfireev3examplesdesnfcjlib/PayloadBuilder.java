@@ -553,6 +553,59 @@ public class PayloadBuilder {
         return payload;
     }
 
+    /**
+     * section for file type 05 = Transaction MAC Files
+     */
+
+    // as a new record is temporary stored the maximum number needs to be maximum + 1,
+    // so the minimum on this field is 2
+    public byte[] createTransactionMacFile(int fileNumber, CommunicationSetting communicationSetting, int keyRW, int keyCar, int keyR, int keyW, byte keyOption, byte[] tmacAesKey, byte tmacKeyVersion) {
+        // sanity checks
+        if ((fileNumber < 0) || (fileNumber > MAXIMUM_FILE_NUMBER)) return null;
+        if ((keyRW < 0) || (keyRW > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyCar < 0) || (keyCar > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyR < 0) || (keyR > MAXIMUM_KEY_NUMBER)) return null;
+        if ((keyW < 0) || (keyW > MAXIMUM_KEY_NUMBER)) return null;
+        // todo work on sanity checks, are just copied
+//        if ((fileSize < 0)) return null;
+//        if ((maximumRecords < 2) || (maximumRecords > MAXIMUM_RECORD_NUMBER)) return null;
+
+/*
+see Midare DESFire Light Features and Hints, pages 84 + 85
+00 fileNumber
+01 communication settings
+02 accessRightsRwCar
+03 accessRightsRW
+04 keyOption
+05 encrypted data (key & key version
+06 8 bytes CMAC
+
+Encrypted Data 32 bytes E64CF1262C6B798B95C950FD7353EA8764B1F4F4C69C4068F513715C486E18B3
+CMAC            8 bytes B3BE705D3E1FB8DC
+
+ */
+
+
+
+
+        // build
+        byte[] payload = new byte[32]; // just to show the length
+        byte communicationSettings = 0;
+        if (communicationSetting == CommunicationSetting.Plain) communicationSettings = (byte) 0x00;
+        if (communicationSetting == CommunicationSetting.MACed) communicationSettings = (byte) 0x01;
+        if (communicationSetting == CommunicationSetting.Encrypted) communicationSettings = (byte) 0x03;
+        byte accessRightsRwCar = (byte) ((keyRW << 4) | (keyCar & 0x0F)); // Read&Write Access & ChangeAccessRights
+        byte accessRightsRW = (byte) ((keyR << 4) | (keyW & 0x0F)) ;// Read Access & Write Access // read with key 0, write with key 0
+        payload[0] = (byte) (fileNumber & 0xff); // fileNumber
+        payload[1] = communicationSettings;
+        payload[2] = accessRightsRwCar;
+        payload[3] = accessRightsRW;
+        payload[4] = keyOption;
+        System.arraycopy(tmacAesKey, 0, payload, 5, 16);
+        payload[31] = tmacKeyVersion;
+        return payload;
+    }
+
     public enum CommunicationSetting{
         Plain, MACed, Encrypted
     }
