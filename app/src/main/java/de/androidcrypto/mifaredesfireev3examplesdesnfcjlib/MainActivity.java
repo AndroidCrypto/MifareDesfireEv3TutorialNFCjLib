@@ -919,22 +919,23 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 clearOutputFields();
-                writeToUiAppend(output, "select the master application");
+                String logString = "select the Master application";
+                writeToUiAppend(output, logString);
                 String[] applicationList;
                 try {
                     // select PICC (is selected by default but...)
                     boolean success = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "selectMasterApplicationSuccess: " + success);
+                    writeToUiAppend(output, logString +  ": " + success);
                     if (!success) {
-                        writeToUiAppend(output, "selectMasterApplication NOT Success, aborted");
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectMasterApplication NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(output, logString + " NOT Success, aborted");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success, aborted", COLOR_RED);
                         return;
                     } else {
                         applicationSelected.setText("000000");
                         selectedApplicationId = new byte[3]; // 00 00 00
                         selectedFileId = "";
                         fileSelected.setText("");
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectApplicationResult: " + success, COLOR_GREEN);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + ": " + success, COLOR_GREEN);
                     }
 
                 } catch (IOException e) {
@@ -1032,7 +1033,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // create a new application
                 // get the input and sanity checks
                 clearOutputFields();
-                writeToUiAppend(output, "create an application (AES keys)");
+                String logString = "create a new application (AES keys)";
+                writeToUiAppend(output, logString);
                 byte numberOfKeysByte = Byte.parseByte(numberOfKeys.getText().toString());
                 byte[] applicationIdentifier = Utils.hexStringToByteArray(applicationId.getText().toString());
                 if (applicationIdentifier == null) {
@@ -1046,13 +1048,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 try {
                     boolean success = desfire.createApplication(applicationIdentifier, APPLICATION_MASTER_KEY_SETTINGS, KeyType.AES, numberOfKeysByte);
-                    writeToUiAppend(output, "createApplicationSuccess: " + success);
+                    writeToUiAppend(output, logString + ": " + success);
                     if (!success) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "createApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, logString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         return;
                     } else {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication success", COLOR_GREEN);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " success", COLOR_GREEN);
                     }
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
@@ -1074,7 +1076,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public void onClick(View view) {
                 // get all applications and show them in a listview for selection
                 clearOutputFields();
-                writeToUiAppend(output, "select an application");
+                String logString = "select an application";
+                writeToUiAppend(output, logString);
                 String[] applicationList;
                 try {
                     // select PICC (is selected by default but...)
@@ -1134,15 +1137,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         String desfireKeyTypeString = desfireKeyType.toString();
                         // correct the output 'TDES' is in this context to 'DES'
                         if (desfireKeyTypeString.equals(DesfireKeyType.TDES.toString())) desfireKeyTypeString = "DES";
-                        writeToUiAppend(output, "selectApplicationResult: " + dfSelectApplication);
+                        writeToUiAppend(output, logString + " Result: " + dfSelectApplication);
                         if (dfSelectApplication) {
                             selectedApplicationId = Utils.hexStringToByteArray(applicationList[which]);
                             applicationSelected.setText(applicationList[which] + " (max " + maxKeys + " keys of " + desfireKeyTypeString + " type)");
                             selectedFileId = "";
                             fileSelected.setText("");
-                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectApplicationResult: " + dfSelectApplication, COLOR_GREEN);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " Result: " + dfSelectApplication, COLOR_GREEN);
                         } else {
-                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
                         }
                     }
                 });
@@ -1156,7 +1159,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 clearOutputFields();
-                writeToUiAppend(output, "delete a selected application");
+                String logString = "delete a selected application";
+                writeToUiAppend(output, logString);
                 if (selectedApplicationId == null) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
@@ -1172,14 +1176,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                     byte[] aid = selectedApplicationId.clone();
                                     Utils.reverseByteArrayInPlace(aid);
                                     boolean success = desfire.deleteApplication(aid);
-                                    writeToUiAppend(output, "deleteApplicationSuccess: " + success + " for applicationID: " + Utils.bytesToHexNpe(selectedApplicationId));
+                                    writeToUiAppend(output, logString + " Success: " + success + " for applicationID: " + Utils.bytesToHexNpe(selectedApplicationId));
                                     if (!success) {
-                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteApplication NOT Success, aborted", COLOR_RED);
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success, aborted", COLOR_RED);
                                         writeToUiAppend(errorCode, "Did you forget to authenticate with the Application Master Key first ?");
-                                        writeToUiAppend(errorCode, "deleteApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                                        writeToUiAppend(errorCode, logString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                                         return;
                                     } else {
-                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteApplication success", COLOR_GREEN);
+                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " success", COLOR_GREEN);
                                         applicationSelected.setText("");
                                         selectedApplicationId = null;
                                         selectedFileId = "";
@@ -1194,7 +1198,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             case DialogInterface.BUTTON_NEGATIVE:
                                 //No button clicked
                                 // nothing to do
-                                writeToUiAppend(output, "delete a selected application aborted");
+                                writeToUiAppend(output, logString + " aborted");
                                 break;
                         }
                     }
