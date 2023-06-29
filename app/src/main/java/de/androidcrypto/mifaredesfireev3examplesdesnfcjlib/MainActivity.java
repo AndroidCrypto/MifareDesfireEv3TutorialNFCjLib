@@ -2365,6 +2365,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        // todo write timestamp to record file
+
+
         /**
          * section for transaction MAC files
          * Note: this  is available on DESFire EV2+ cards and using AES keys in application
