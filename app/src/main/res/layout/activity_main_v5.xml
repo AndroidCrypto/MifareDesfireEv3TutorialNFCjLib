@@ -265,40 +265,6 @@
                         tools:ignore="KeyboardInaccessibleWidget" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:id="@+id/tvKeyTypeApplication"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="choose key type"
-                    android:textAlignment="center"
-                    android:textSize="16sp"
-                    android:textStyle="normal" />
-
-                <RadioGroup
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rbApplicationKeyTypeDes"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="DES key" />
-
-                    <RadioButton
-                        android:id="@+id/rbApplicationKeyTypeAes"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="AES key" />
-
-                </RadioGroup>
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

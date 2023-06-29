@@ -339,7 +339,6 @@ public class PayloadBuilder {
     public byte[] creditValueFile(int fileNumber, int creditValue) {
         if ((fileNumber < 0) || (fileNumber > MAXIMUM_FILE_NUMBER)) return null;
         if ((creditValue < 0) || (creditValue > MAXIMUM_VALUE_CREDIT)) return null;
-
         // build
         byte[] payload = new byte[5];
         byte[] value = intTo4Byte_le(creditValue);
@@ -571,7 +570,7 @@ public class PayloadBuilder {
 //        if ((maximumRecords < 2) || (maximumRecords > MAXIMUM_RECORD_NUMBER)) return null;
 
 /*
-see Midare DESFire Light Features and Hints, pages 84 + 85
+see Mifare DESFire Light Features and Hints, pages 84 + 85
 00 fileNumber
 01 communication settings
 02 accessRightsRwCar

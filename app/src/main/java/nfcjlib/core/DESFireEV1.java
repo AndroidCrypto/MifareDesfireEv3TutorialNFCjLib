@@ -2049,7 +2049,9 @@ public class DESFireEV1 {
 		//DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, true, false, true, false); // todo ERROR changed
 		DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, kno, true, false, true, false);
 		if (cs == null) {
-			Log.e(TAG, "readData cs is null, aborted"); // todo added
+			Log.e(TAG, "read - cs are null, aborted"); // todo added
+			// as the method will immediately return false we need to set an error code for this
+			code = 174; // dec 174 = 0xAE = authentication error, todo added
 			return null;
 		}
 
@@ -2142,9 +2144,10 @@ public class DESFireEV1 {
 		DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], kno, true, false, false, true);
 
 		if (cs == null) {
-			Log.e(TAG, "write - cs are NULL");
-			//Log.e(TAG, "trying to write anyway");
-			return false; // todo ERROR ? removed as cs settings seems to be gone
+			Log.e(TAG, "write - cs are NULL, aborted");
+			// as the method will immediately return false we need to set an error code for this
+			code = 174; // dec 174 = 0xAE = authentication error, todo added
+			return false;
 		}
 
 		//byte[] apdu;
@@ -2153,15 +2156,6 @@ public class DESFireEV1 {
 		fullApdu[1] = cmd;
 		//fullApdu[4] = -1; // todo ERROR is this correct ??
 		fullApdu[4] = (byte) (payload.length & (0xff)); // todo is this change correct ? This seems to work on a 32 byte long standard file
-		// check if dataSize > max CAPDU size (55 - 8 = 47)
-		/*
-		// todo added for large data
-		if (payload.length > 47) {
-			// adjust the length to 47
-			fullApdu[4] = (byte) (47 & (0xff));
-		}
-
-		 */
 
 		System.arraycopy(payload, 0, fullApdu, 5, payload.length);
 

@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private LinearLayout llApplicationHandling;
     private Button applicationList, applicationCreate, applicationCreateAes, applicationSelect, applicationDelete;
     private com.google.android.material.textfield.TextInputEditText numberOfKeys, applicationId, applicationSelected;
+    private RadioButton rbApplicationKeyTypeDes, rbApplicationKeyTypeAes;
     private byte[] selectedApplicationId = null;
 
     /**
@@ -257,6 +258,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         applicationSelected = findViewById(R.id.etSelectedApplicationId);
         numberOfKeys = findViewById(R.id.etNumberOfKeys);
         applicationId = findViewById(R.id.etApplicationId);
+        rbApplicationKeyTypeDes = findViewById(R.id.rbApplicationKeyTypeDes);
+        rbApplicationKeyTypeAes = findViewById(R.id.rbApplicationKeyTypeAes);
+
 
         // files handling
         fileList = findViewById(R.id.btnListFiles);
@@ -972,7 +976,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // create a new application
                 // get the input and sanity checks
                 clearOutputFields();
-                writeToUiAppend(output, "create an application");
+                String logString = "create a new application";
+                writeToUiAppend(output, logString);
                 byte numberOfKeysByte = Byte.parseByte(numberOfKeys.getText().toString());
                 byte[] applicationIdentifier = Utils.hexStringToByteArray(applicationId.getText().toString());
                 if (applicationIdentifier == null) {
@@ -984,15 +989,17 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you did not enter a 6 hex string application ID", COLOR_RED);
                     return;
                 }
+                KeyType keyType = KeyType.DES; // default
+                if (rbApplicationKeyTypeAes.isChecked()) keyType = KeyType.AES;
                 try {
-                    boolean success = desfire.createApplication(applicationIdentifier, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, numberOfKeysByte);
-                    writeToUiAppend(output, "createApplicationSuccess: " + success);
+                    boolean success = desfire.createApplication(applicationIdentifier, APPLICATION_MASTER_KEY_SETTINGS, keyType, numberOfKeysByte);
+                    writeToUiAppend(output, logString + " Success: " + success);
                     if (!success) {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication NOT Success, aborted", COLOR_RED);
-                        writeToUiAppend(errorCode, "createApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, logString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         return;
                     } else {
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createApplication success", COLOR_GREEN);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
                     }
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
@@ -1571,30 +1578,25 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, "write to a standard or backup file");
                 // this uses the pre selected file
                 if (TextUtils.isEmpty(selectedFileId)) {
-                    //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
                     return;
                 }
                 String dataToWriteString = fileData.getText().toString();
                 if (TextUtils.isEmpty(dataToWriteString)) {
-                    //writeToUiAppend(errorCode, "please enter some data to write");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "please enter some data to write", COLOR_RED);
                     return;
                 }
                 int fileIdInt = Integer.parseInt(selectedFileId);
-                byte fileIdByte = Byte.parseByte(selectedFileId);
 
                 // check that it is a standard or backup file !
                 DesfireFile fileSettings = null;
                 try {
                     fileSettings = desfire.getFileSettings(fileIdInt);
                 } catch (Exception e) {
-                    //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
                     return;
                 }
-                //DesfireFile fileSettings = desfire.getFileSettings((byte) 0x00);
                 // check that it is a standard or backup file !
                 String fileTypeName = fileSettings.getFileTypeName();
                 writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
@@ -1641,7 +1643,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (writeStandardSuccess) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, writeFileString + " Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
                 } else {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout,  writeFileString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout,  writeFileString + " NOT Success: " + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
                 }
                 if (isBackupFile) {
                     // a following commit is necessary
@@ -1652,11 +1655,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppend(output, "commitSuccess: " + successCommit);
                         if (!successCommit) {
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
-                            writeToUiAppend(errorCode, "commit NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                            writeToUiAppend(errorCode, "commit NOT Success: " + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                             writeToUiAppend(errorCode, "Did you forget to authenticate with a Write Access Key first ?");
                             return;
                         }
-                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
                         } catch (Exception e) {
                             //throw new RuntimeException(e);
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
