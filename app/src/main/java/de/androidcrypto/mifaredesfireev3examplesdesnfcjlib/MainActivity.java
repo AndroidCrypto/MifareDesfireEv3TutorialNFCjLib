@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private LinearLayout llRecordFile;
-    private Button fileRecordCreate, fileRecordWrite, fileRecordRead;
+    private Button fileRecordCreate, fileRecordWrite, fileRecordWriteTimestamp, fileRecordRead;
     private RadioButton rbLinearRecordFile, rbCyclicRecordFile;
     RadioButton rbFileRecordPlainCommunication, rbFileRecordMacedCommunication, rbFileRecordEncryptedCommunication;
     private com.shawnlin.numberpicker.NumberPicker npRecordFileId;
@@ -311,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileRecordCreate = findViewById(R.id.btnCreateRecordFile);
         fileRecordRead = findViewById(R.id.btnReadRecordFile);
         fileRecordWrite = findViewById(R.id.btnWriteRecordFile);
+        fileRecordWriteTimestamp = findViewById(R.id.btnWriteRecordFileTimestamp);
         npRecordFileId = findViewById(R.id.npRecordFileId);
         rbFileRecordPlainCommunication = findViewById(R.id.rbFileRecordPlainCommunication);
         rbFileRecordMacedCommunication = findViewById(R.id.rbFileRecordMacedCommunication);
@@ -1626,12 +1627,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // get a random payload with 32 bytes
                 UUID uuid = UUID.randomUUID(); // this is 36 characters long
                 //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
-                byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
 
                 // create an empty array and copy the dataToWrite to clear the complete standard file
                 StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
                 int fileSize = standardDesfireFile.getFileSize();
                 byte[] fullDataToWrite = new byte[fileSize];
+                // limit the string
+                if (dataToWriteString.length() > fileSize) dataToWriteString = dataToWriteString.substring(0, fileSize);
+                byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
                 System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
 
                 PayloadBuilder pb = new PayloadBuilder();
@@ -2264,8 +2267,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     int maxRecords = recordDesfireFile.getMaxRecords();
                     writeToUiAppend(output, "recordSize: " + recordSize + " currentRecords: " + currentRecords + " maxRecords: " + maxRecords);
 
-                    // todo check maximum records for linear records file - if maximum is reached stop any further writing
-
                     // get a random payload with 32 bytes
                     UUID uuid = UUID.randomUUID(); // this is 36 characters long
                     byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
@@ -2365,7 +2366,163 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
-        // todo write timestamp to record file
+        fileRecordWriteTimestamp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // write to a selected record file in a selected application, the record gets an actual timestamp at the beginning
+                clearOutputFields();
+                writeToUiAppend(output, "write to a record file with a timestamp");
+                // this uses the pre selected file
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    //writeToUiAppend(errorCode, "you need to select a file first");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                String dataToWriteString = fileRecordData.getText().toString();
+                if (TextUtils.isEmpty(dataToWriteString)) {
+                    //writeToUiAppend(errorCode, "please enter some data to write");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "please enter some data to write", COLOR_RED);
+                    return;
+                }
+                int fileIdInt = selectedFileIdInt;
+                try {
+                    // check that it is a record file !
+                    // get the maximal length from getFileSettings
+                    DesfireFile fileSettings = desfire.getFileSettings(fileIdInt);
+                    // check that it is a standard file !
+                    String fileTypeName = fileSettings.getFileTypeName();
+                    writeToUiAppend(output, "file number " + fileIdInt + " is of type " + fileTypeName);
+                    boolean isLinearRecordFile = false;
+                    if (fileTypeName.equals("Linear Record")) {
+                        isLinearRecordFile = true;
+                        writeToUiAppend(output, "The selected file is of type Linear Record File");
+                    } else if (fileTypeName.equals("Cyclic Record")) {
+                        isLinearRecordFile = false;
+                        writeToUiAppend(output, "The selected file is of type Cyclic Record File");
+                    } else {
+                        writeToUiAppend(output, "The selected file is not of type Linear or Cyclic Record but of type " + fileTypeName + ", aborted");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        return;
+                    }
+                    String fileTypeString = "";
+                    if (isLinearRecordFile) {
+                        fileTypeString = "LinearRecord";
+                    } else {
+                        fileTypeString = "CyclicRecord";
+                    }
+                    RecordDesfireFile recordDesfireFile = (RecordDesfireFile) fileSettings;
+                    //StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
+                    int recordSize = recordDesfireFile.getRecordSize();
+                    int currentRecords = recordDesfireFile.getCurrentRecords();
+                    int maxRecords = recordDesfireFile.getMaxRecords();
+                    writeToUiAppend(output, "recordSize: " + recordSize + " currentRecords: " + currentRecords + " maxRecords: " + maxRecords);
+
+                    // get a random payload with 32 bytes
+                    UUID uuid = UUID.randomUUID(); // this is 36 characters long
+                    //byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
+                    //byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
+
+                    // limit the string
+                    dataToWriteString = Utils.getTimestamp() + " " + dataToWriteString;
+                    if (dataToWriteString.length() > recordSize) dataToWriteString = dataToWriteString.substring(0, recordSize);
+                    byte[] dataToWrite = dataToWriteString.getBytes(StandardCharsets.UTF_8);
+                    byte[] fullDataToWrite = new byte[recordSize];
+                    System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
+
+                    /* testdata
+                    // create an empty array and copy the dataToWrite to clear the complete standard file
+                    byte[] fullDataToWrite = new byte[recordSize];
+                    fullDataToWrite = Utils.generateTestData(recordSize);
+                    System.arraycopy(dataToWrite, 0, fullDataToWrite, 0, dataToWrite.length);
+                     */
+
+                    writeToUiAppend(output, printData("fullDataToWrite", fullDataToWrite));
+                    boolean writeRecordSuccess = false;
+                    PayloadBuilder pbRecord = new PayloadBuilder();
+                    if (isLinearRecordFile) {
+                        byte[] payload = pbRecord.writeToLinearRecordsFile(fileIdInt, fullDataToWrite);
+                        writeToUiAppend(output, printData("payloadWriteData", payload));
+                        writeRecordSuccess = desfire.writeRecord(payload);
+                    } else {
+                        byte[] payload = pbRecord.writeToCyclicRecordsFile(fileIdInt, fullDataToWrite);
+                        writeToUiAppend(output, printData("payloadWriteData", payload));
+                        writeRecordSuccess = desfire.writeRecord(payload);
+                    }
+                    writeToUiAppend(output, "writeRecordResult: " + writeRecordSuccess);
+                    if (writeRecordSuccess) {
+                        writeToUiAppend(output, "record written " + " to fileID " + fileIdInt);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeRecord success", COLOR_GREEN);
+                    } else {
+                        writeToUiAppend(output, "writeRecord NO success for fileID" + fileIdInt);
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeRecord failed with code " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                    }
+
+                    boolean successCommit = desfire.commitTransaction();
+                    writeToUiAppend(output, "commitSuccess: " + successCommit);
+                    if (!successCommit) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
+                        writeToUiAppend(errorCode, "commit NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        return;
+                    }
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+
+
+                    // todo remove testdata
+                    //fullDataToWrite = Utils.generateTestData(recordSize);
+
+                    // this is new to accept standard file data > 32/42 bytes size
+                    // this is due to maximum APDU size limit of 55 bytes for a DESFire D40 card
+                    // I'm splitting the complete data and send them in chunks
+/*
+                    List<byte[]> chunkedFullData = divideArray(fullDataToWrite, MAXIMUM_STANDARD_DATA_CHUNK);
+                    int chunkedFullDataSize = chunkedFullData.size();
+                    int dataSizeLoop = 0;
+                    System.out.println("chunkedFullDataSize: " + chunkedFullDataSize + " full length: " + fullDataToWrite.length);
+                    for (int i = 0; i < chunkedFullDataSize; i++) {
+                        System.out.println("chunk " + i + " length: " + chunkedFullData.get(i).length);
+                        writeToUiAppend(output, "writeStandard chunk number " + (i + 1));
+
+                        PayloadBuilder pb = new PayloadBuilder();
+                        byte[] payload = pb.writeToStandardFile(fileIdInt, chunkedFullData.get(i), dataSizeLoop);
+
+                        writeToUiAppend(output, printData("payloadWriteData", payload));
+                        boolean writeStandardSuccess = false;
+                        try {
+                            writeStandardSuccess = desfire.writeData(payload);
+                        } catch (Exception e) {
+                            //throw new RuntimeException(e);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                            writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                            e.printStackTrace();
+                            return;
+                        }
+                        writeToUiAppend(output, "writeStandardResult: " + writeStandardSuccess);
+                        if (writeStandardSuccess) {
+                            writeToUiAppend(output, "number of bytes written: " + chunkedFullData.get(i).length + " to fileID " + fileIdInt);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeStandard success", COLOR_GREEN);
+                        } else {
+                            writeToUiAppend(output, "writeStandard NO success for fileID" + fileIdInt);
+                            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeStandard failed with code " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                        }
+                        dataSizeLoop += chunkedFullData.get(i).length;
+                    }
+
+ */
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
 
 
         /**
