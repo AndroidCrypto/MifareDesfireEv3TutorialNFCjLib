@@ -512,7 +512,6 @@ public class DESFireEV1 {
 		} else {
 			apdu[9] = numberOfKeys;
 		}
-
 		preprocess(apdu, DesfireFileCommunicationSettings.PLAIN);
 		byte[] responseAPDU = transmit(apdu);
 		code = getSW2(responseAPDU);

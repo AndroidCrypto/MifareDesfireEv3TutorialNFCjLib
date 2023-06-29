@@ -174,31 +174,40 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3]; // '00 00 00'
-    private final byte[] MASTER_APPLICATION_KEY_DEFAULT = Utils.hexStringToByteArray("0000000000000000");
+    private final byte[] MASTER_APPLICATION_KEY_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000");
     private final byte[] MASTER_APPLICATION_KEY_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
-    private final byte[] MASTER_APPLICATION_KEY = Utils.hexStringToByteArray("DD00000000000000");
+    private final byte[] MASTER_APPLICATION_KEY_DES = Utils.hexStringToByteArray("DD00000000000000");
+    private final byte[] MASTER_APPLICATION_KEY_AES = Utils.hexStringToByteArray("AA000000000000000000000000000000");
     private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
     private final byte[] APPLICATION_ID_DES = Utils.hexStringToByteArray("A1A2A3");
-    private final byte[] DES_DEFAULT_KEY = new byte[8];
-    private final byte[] APPLICATION_KEY_MASTER_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-    private final byte[] APPLICATION_KEY_MASTER = Utils.hexStringToByteArray("D000000000000000");
+    private final byte[] APPLICATION_KEY_MASTER_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_MASTER_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000"); // default AES key with 16 nulls
+    private final byte[] APPLICATION_KEY_MASTER_DES = Utils.hexStringToByteArray("D000000000000000");
+    private final byte[] APPLICATION_KEY_MASTER_AES = Utils.hexStringToByteArray("A0000000000000000000000000000000");
     private final byte APPLICATION_KEY_MASTER_NUMBER = (byte) 0x00;
     private final byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks
     private final byte KEY_NUMBER_RW = (byte) 0x01;
-    private final byte[] APPLICATION_KEY_RW_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-    private final byte[] APPLICATION_KEY_RW = Utils.hexStringToByteArray("D100000000000000");
+    private final byte[] APPLICATION_KEY_RW_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_RW_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
+    private final byte[] APPLICATION_KEY_RW_DES = Utils.hexStringToByteArray("D100000000000000");
+    private final byte[] APPLICATION_KEY_RW_AES = Utils.hexStringToByteArray("A1000000000000000000000000000000");
     private final byte APPLICATION_KEY_RW_NUMBER = (byte) 0x01;
-    private final byte[] APPLICATION_KEY_CAR_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-    private final byte[] APPLICATION_KEY_CAR = Utils.hexStringToByteArray("D200000000000000");
+    private final byte[] APPLICATION_KEY_CAR_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_CAR_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
+    private final byte[] APPLICATION_KEY_CAR_DES = Utils.hexStringToByteArray("D200000000000000");
+    private final byte[] APPLICATION_KEY_CAR_AES = Utils.hexStringToByteArray("A2000000000000000000000000000000");
     private final byte APPLICATION_KEY_CAR_NUMBER = (byte) 0x02;
 
-    private final byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-    private final byte[] APPLICATION_KEY_R = Utils.hexStringToByteArray("D300000000000000");
+    private final byte[] APPLICATION_KEY_R_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_R_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
+    private final byte[] APPLICATION_KEY_R_DES = Utils.hexStringToByteArray("D300000000000000");
+    private final byte[] APPLICATION_KEY_R_AES = Utils.hexStringToByteArray("A3000000000000000000000000000000");
     private final byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
 
-    private final byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-    //private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("B400000000000000");
-    private final byte[] APPLICATION_KEY_W = Utils.hexStringToByteArray("D400000000000000");
+    private final byte[] APPLICATION_KEY_W_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
+    private final byte[] APPLICATION_KEY_W_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
+    private final byte[] APPLICATION_KEY_W_DES = Utils.hexStringToByteArray("D400000000000000");
+    private final byte[] APPLICATION_KEY_W_AES = Utils.hexStringToByteArray("A4000000000000000000000000000000");
     private final byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
 
     private final byte[] VIRTUAL_CARD_KEY_CONFIG_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
@@ -388,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
                     // authenticate with MasterApplicationKey
                     byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
 
                     byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
@@ -466,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     //byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
                     //byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
                     // authenticate with ApplicationWriteKey
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W_DEFAULT, APPLICATION_KEY_W_NUMBER, KeyType.DES);
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, KeyType.DES);
                     //boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W, APPLICATION_KEY_W_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
 
@@ -500,7 +509,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     // authenticate with MasterApplicationKey
                     //byte[] MASTER_APPLICATION_KEY = new byte[8];
                     //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-                    boolean dfAuthMR = desfire.authenticate(MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
+                    boolean dfAuthMR = desfire.authenticate(MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthMR);
 
                     //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
@@ -1076,7 +1085,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         return;
                     }
                     List<DesfireApplicationId> desfireApplicationIdList = desfire.getApplicationsIds();
-
                     applicationList = new String[desfireApplicationIdList.size()];
                     for (int i = 0; i < desfireApplicationIdList.size(); i++) {
                         applicationList[i] = desfireApplicationIdList.get(i).getIdString();
@@ -1107,20 +1115,28 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     public void onClick(DialogInterface dialog, int which) {
                         writeToUiAppend(output, "you  selected nr " + which + " = " + applicationList[which]);
                         boolean dfSelectApplication = false;
+                        DesfireApplicationKeySettings desfireApplicationKeySettings;
                         try {
                             byte[] aid = Utils.hexStringToByteArray(applicationList[which]);
                             Utils.reverseByteArrayInPlace(aid);
                             dfSelectApplication = desfire.selectApplication(aid);
+                            desfireApplicationKeySettings = desfire.getKeySettings();
                         } catch (IOException e) {
                             //throw new RuntimeException(e);
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                             e.printStackTrace();
                             return;
                         }
+                        // get the number and type of keys
+                        int maxKeys = desfireApplicationKeySettings.getMaxKeys();
+                        DesfireKeyType desfireKeyType = desfireApplicationKeySettings.getType();
+                        String desfireKeyTypeString = desfireKeyType.toString();
+                        // correct the output 'TDES' is in this context to 'DES'
+                        if (desfireKeyTypeString.equals(DesfireKeyType.TDES.toString())) desfireKeyTypeString = "DES";
                         writeToUiAppend(output, "selectApplicationResult: " + dfSelectApplication);
                         if (dfSelectApplication) {
                             selectedApplicationId = Utils.hexStringToByteArray(applicationList[which]);
-                            applicationSelected.setText(applicationList[which]);
+                            applicationSelected.setText(applicationList[which] + " (max " + maxKeys + " keys of " + desfireKeyTypeString + " type)");
                             selectedFileId = "";
                             fileSelected.setText("");
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectApplicationResult: " + dfSelectApplication, COLOR_GREEN);
@@ -2624,7 +2640,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
                     return;
                 }
-                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, "master");
+                boolean success = authenticateApplicationDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, "master");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2635,7 +2651,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 clearOutputFields();
                 writeToUiAppend(output, "authenticate with key number 0x00 = application master key");
                 try {
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
                     if (!dfAuthApp) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
@@ -2667,7 +2683,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 clearOutputFields();
                 writeToUiAppend(output, "authenticate with key number 0x01 = read&write access key");
                 try {
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_RW_DEFAULT, KEY_NUMBER_RW, KeyType.DES);
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_RW_DES_DEFAULT, KEY_NUMBER_RW, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
                     if (!dfAuthApp) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
@@ -2698,7 +2714,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public void onClick(View view) {
                 // authenticate with the change access access key = 02...
                 clearOutputFields();
-                boolean success = authenticateWithKeyDes(APPLICATION_KEY_CAR_DEFAULT, APPLICATION_KEY_CAR_NUMBER);
+                boolean success = authenticateWithKeyDes(APPLICATION_KEY_CAR_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER);
             }
         });
 
@@ -2709,7 +2725,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 clearOutputFields();
                 writeToUiAppend(output, "authenticate with key number 0x03 = read access key");
                 try {
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
+                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_R_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
                     writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
                     if (!dfAuthApp) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
@@ -2747,7 +2763,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplicationDes(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DEFAULT, "write");
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, "write");
+                //boolean success = authenticateApplicationAes(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, "write");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
 
                 /*
@@ -2819,7 +2836,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplicationDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, "master");
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, "master");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2836,7 +2853,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplicationDes(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW, "read & write");
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, "read & write");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2853,7 +2870,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplicationDes(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR, "change");
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, "change");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2870,7 +2887,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplicationDes(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R, "read");
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, "read");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2887,7 +2904,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplicationDes(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W, "write");
+                boolean success = authenticateApplicationDes(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, "write");
                 writeToUiAppend(output, "authenticateApplication run successfully: " + success);
             }
         });
@@ -2957,7 +2974,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     return;
                 }
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_DEFAULT, "master");
+                boolean success = changeApplicationKeyDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_DES_DEFAULT, "master");
                 writeToUiAppend(output, "changeMasterApplicationKey run successfully: " + success);
             }
         });
@@ -2973,7 +2990,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, APPLICATION_KEY_MASTER, "master");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
 
 
@@ -3027,7 +3044,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW, APPLICATION_KEY_RW_DEFAULT, "read & write");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read & write");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
             }
         });
@@ -3043,7 +3060,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId;
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR, APPLICATION_KEY_CAR_DEFAULT, "change");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
             }
         });
@@ -3059,7 +3076,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R, APPLICATION_KEY_R_DEFAULT, "read");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
 
 
@@ -3113,7 +3130,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W, APPLICATION_KEY_W_DEFAULT, "write");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
 
                 /*
@@ -3197,7 +3214,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     return;
                 }
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY, "master");
+                boolean success = changeApplicationKeyDes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_DES, "master");
                 // todo CHANGE because misconfiguration
                 //boolean success = changeApplicationKeyAes(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_AES_DEFAULT, "master");
                 writeToUiAppend(output, "changeMasterApplicationKey run successfully: " + success);
@@ -3215,7 +3232,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER, "master");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_MASTER_DES, "master");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
             }
         });
@@ -3231,7 +3248,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DEFAULT, APPLICATION_KEY_RW, "read & write");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, APPLICATION_KEY_RW_DES, "read & write");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
             }
         });
@@ -3247,7 +3264,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DEFAULT, APPLICATION_KEY_CAR, "change");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, APPLICATION_KEY_CAR_DES, "change");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
             }
         });
@@ -3263,7 +3280,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R, "read");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, APPLICATION_KEY_R_DES, "read");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
             }
         });
@@ -3279,7 +3296,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 byte[] selectedAid = selectedApplicationId.clone();
                 Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DEFAULT, APPLICATION_KEY_W, "write");
+                boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, APPLICATION_KEY_W_DES, "write");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
             }
         });
