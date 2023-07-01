@@ -153,6 +153,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      * section for authentication
      */
 
+    private Button authDM0D, authD0D, authD1D, authD2D, authD3D, authD4D; // auth with default DES keys
+    private Button authDM0A, authD0A, authD1A, authD2A, authD3A, authD4A; // auth with default AES keys
+    private Button authDM0DC, authD0DC, authD1DC, authD2DC, authD3DC, authD4DC; // auth with changed DES keys
+    private Button authDM0AC, authD0AC, authD1AC, authD2AC, authD3AC, authD4AC; // auth with changed AES keys
+
+    // the old menu:
     private Button authKeyDM0, authKeyD0, authKeyD1, authKeyD2, authKeyD3, authKeyD4; // M0 is the Master Application Key
 
     // changed keys
@@ -334,7 +340,39 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileStandardWriteEnc = findViewById(R.id.btnWriteStandardFileEnc);
         manualEncryption = findViewById(R.id.btnManualEnc);
 
-        // authentication handling
+        // authentication handling DES default keys
+        authDM0D = findViewById(R.id.btnAuthDM0D);
+        authD0D = findViewById(R.id.btnAuthD0D);
+        authD1D = findViewById(R.id.btnAuthD1D);
+        authD2D = findViewById(R.id.btnAuthD2D);
+        authD3D = findViewById(R.id.btnAuthD3D);
+        authD4D = findViewById(R.id.btnAuthD4D);
+
+        // authentication handling AES default keys
+        authDM0A = findViewById(R.id.btnAuthDM0A);
+        authD0A = findViewById(R.id.btnAuthD0A);
+        authD1A = findViewById(R.id.btnAuthD1A);
+        authD2A = findViewById(R.id.btnAuthD2A);
+        authD3A = findViewById(R.id.btnAuthD3A);
+        authD4A = findViewById(R.id.btnAuthD4A);
+
+        // authentication handling DES changed keys
+        authDM0DC = findViewById(R.id.btnAuthDM0DC);
+        authD0DC = findViewById(R.id.btnAuthD0DC);
+        authD1DC = findViewById(R.id.btnAuthD1DC);
+        authD2DC = findViewById(R.id.btnAuthD2DC);
+        authD3DC = findViewById(R.id.btnAuthD3DC);
+        authD4DC = findViewById(R.id.btnAuthD4DC);
+
+        // authentication handling AES changed keys
+        authDM0AC = findViewById(R.id.btnAuthDM0AC);
+        authD0AC = findViewById(R.id.btnAuthD0AC);
+        authD1AC = findViewById(R.id.btnAuthD1AC);
+        authD2AC = findViewById(R.id.btnAuthD2AC);
+        authD3AC = findViewById(R.id.btnAuthD3AC);
+        authD4AC = findViewById(R.id.btnAuthD4AC);
+
+        // authentication handling old menu
         authKeyDM0 = findViewById(R.id.btnAuthDM0);
         authKeyD0 = findViewById(R.id.btnAuthD0);
         authKeyD1 = findViewById(R.id.btnAuthD1);
@@ -1117,7 +1155,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 builder.setItems(applicationList, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        writeToUiAppend(output, "you  selected nr " + which + " = " + applicationList[which]);
+                        writeToUiAppend(output, "you selected nr " + which + " = " + applicationList[which]);
                         boolean dfSelectApplication = false;
                         DesfireApplicationKeySettings desfireApplicationKeySettings;
                         try {
