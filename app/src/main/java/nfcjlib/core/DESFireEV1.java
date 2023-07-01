@@ -24,7 +24,6 @@ import com.github.skjolber.desfire.ev1.model.file.ValueDesfireFile;
 import com.github.skjolber.desfire.ev1.model.random.DefaultRandomSource;
 import com.github.skjolber.desfire.ev1.model.random.RandomSource;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -386,9 +385,9 @@ public class DESFireEV1 {
 					crc = CRC16.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 2, 2);
 				}
-				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
+				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, null);
-				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
+				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				break;
 			case TKTDES:
 			case AES:
@@ -403,9 +402,9 @@ public class DESFireEV1 {
 					crc = CRC32.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 4, crc.length);
 				}
-				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
+				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, iv);
-				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
+				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				iv = Arrays.copyOfRange(ciphertext, ciphertext.length - iv.length, ciphertext.length);
 				break;
 			default:
@@ -1461,7 +1460,7 @@ public class DESFireEV1 {
 			return apdu;
 		}
 		Log.d(TAG, "preprocess "
-				+ de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("apdu", apdu)
+				+ de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("apdu", apdu)
 				+ " offset: " + offset);
 		switch (commSett) {
 			case PLAIN:
@@ -1516,23 +1515,23 @@ public class DESFireEV1 {
 	// calculate CRC and append, encrypt, and update global IV
 	private byte[] preprocessEnciphered(byte[] apdu, int offset) {
 		Log.d(TAG, "preprocessEnciphered "
-				+ de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("apdu", apdu)
+				+ de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("apdu", apdu)
 				+ " offset: " + offset);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("skey", skey));
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("iv", iv));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("skey", skey));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
 		byte[] ciphertext = encryptApdu(apdu, offset, skey, iv, ktype);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("ciphertext", ciphertext));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ciphertext", ciphertext));
 
 		byte[] ret = new byte[5 + offset + ciphertext.length + 1];
 		System.arraycopy(apdu, 0, ret, 0, 5 + offset);
 		System.arraycopy(ciphertext, 0, ret, 5 + offset, ciphertext.length);
 		ret[4] = (byte) (offset + ciphertext.length);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("ret", ret));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ret", ret));
 		if (ktype == KeyType.TKTDES || ktype == KeyType.AES) {
 			iv = new byte[iv.length];
 			System.arraycopy(ciphertext, ciphertext.length - iv.length, iv, 0, iv.length);
 		}
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("iv", iv));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
 		return ret;
 	}
 
@@ -2070,8 +2069,8 @@ public class DESFireEV1 {
 
 		byte[] responseAPDU = adapter.transmitChain(apdu);
 		feedback(apdu, responseAPDU);
-		System.out.println("*** READ APDU: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(apdu));
-		System.out.println("*** RESP APDU: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(responseAPDU));
+		System.out.println("*** READ APDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(apdu));
+		System.out.println("*** RESP APDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(responseAPDU));
 		//return postprocess(baos.toByteArray(), responseLength, cs); // todo ERROR, baos is empty
 		return postprocess(responseAPDU, responseLength, cs);
 	}
@@ -2923,9 +2922,9 @@ public class DESFireEV1 {
 					crc = CRC16.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 2, 2);
 				}
-				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
+				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, null);
-				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
+				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				break;
 			case TKTDES:
 			case AES:
@@ -2940,9 +2939,9 @@ public class DESFireEV1 {
 					crc = CRC32.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 4, crc.length);
 				}
-				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
+				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, iv);
-				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
+				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				iv = Arrays.copyOfRange(ciphertext, ciphertext.length - iv.length, ciphertext.length);
 				break;
 			default:
@@ -2991,14 +2990,14 @@ public class DESFireEV1 {
 		System.arraycopy(crc16Second, 0, plaintext,19, 2);
 		System.arraycopy(new byte[3], 0, plaintext,21, 3); // padding
 
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("plaintext", plaintext));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("plaintext", plaintext));
 		byte[] ciphertext = new byte[24];
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("skey", skey));
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("iv", iv));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("skey", skey));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
 		KeyType kt = KeyType.DES;
 		Log.d(TAG, "ktype: " + kt.toString());
 		ciphertext = send(skey, plaintext, kt, iv);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("ciphertext", ciphertext));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ciphertext", ciphertext));
 
 		// now we are going to send this cryptogram to the card
 		byte[] apdu = new byte[5 + 1 + ciphertext.length + 1];
@@ -3015,7 +3014,7 @@ public class DESFireEV1 {
 		}
 		this.code = getSW2(responseAPDU);
 		feedback(apdu, responseAPDU);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
 
 		return false;
 	}

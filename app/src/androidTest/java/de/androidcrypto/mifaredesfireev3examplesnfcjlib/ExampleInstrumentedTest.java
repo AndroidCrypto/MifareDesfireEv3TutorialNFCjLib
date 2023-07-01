@@ -1,4 +1,4 @@
-package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
+package de.androidcrypto.mifaredesfireev3examplesnfcjlib;
 
 import android.content.Context;
 

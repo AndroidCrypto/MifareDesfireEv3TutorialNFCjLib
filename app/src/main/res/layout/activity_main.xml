@@ -30,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text="Mifare DESFire EV3 Examples DES using NFCJLib (Encrypted)"
+                android:text="Mifare DESFire EV3 Examples using NFCJLib library"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />

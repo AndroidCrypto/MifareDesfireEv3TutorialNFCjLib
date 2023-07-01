@@ -1,4 +1,4 @@
-package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
+package de.androidcrypto.mifaredesfireev3examplesnfcjlib;
 
 /***************************************************************************
  *
@@ -20,7 +20,7 @@ package de.androidcrypto.mifaredesfireev3examplesdesnfcjlib;
  ****************************************************************************/
 
 
-import static de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.byteToHex;
+import static de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.byteToHex;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

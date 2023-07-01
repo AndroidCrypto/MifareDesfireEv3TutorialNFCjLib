@@ -46,7 +46,7 @@ import java.util.Locale;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.R;
+import de.androidcrypto.mifaredesfireev3examplesnfcjlib.R;
 
 /**
  * A widget that enables the user to select a number from a predefined range.

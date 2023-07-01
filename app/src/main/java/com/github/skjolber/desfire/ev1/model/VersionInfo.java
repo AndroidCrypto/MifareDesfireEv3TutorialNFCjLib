@@ -20,8 +20,6 @@ package com.github.skjolber.desfire.ev1.model;
  ****************************************************************************/
 
 
-import static de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.byteToHex;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 

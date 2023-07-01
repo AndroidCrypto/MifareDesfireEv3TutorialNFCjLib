@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.github.skjolber.desfire.ev1.model.key.DesfireKeyType;
 
-import de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils;
+import de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils;
 
 public class DesfireApplicationKeySettings implements Parcelable {
 

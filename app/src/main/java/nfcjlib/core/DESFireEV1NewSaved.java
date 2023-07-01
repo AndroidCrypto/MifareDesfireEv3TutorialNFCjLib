@@ -1162,7 +1162,7 @@ public class DESFireEV1NewSaved {
 	
 	public VersionInfo getVersion() throws Exception {
 		byte[] bytes = getVersionImpl();
-		Log.d(TAG, "getVersion from Impl: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(bytes));
+		Log.d(TAG, "getVersion from Impl: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(bytes));
 		if(bytes != null) {
 		    VersionInfo version = new VersionInfo();
 		    version.read(bytes);
@@ -1185,14 +1185,14 @@ public class DESFireEV1NewSaved {
 		};
 		preprocess(apdu, DesfireFileCommunicationSettings.PLAIN);
 		responseAPDU = adapter.transmitChain(apdu);
-		Log.d(TAG, "getVersion responseAPDU: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(responseAPDU));
+		Log.d(TAG, "getVersion responseAPDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(responseAPDU));
 		feedback(apdu, responseAPDU);
 
 		code = getSW2(responseAPDU);
 		Log.d(TAG, "getVersionImpl code: " + code);
 		if(code == 0x00) {
 			Log.d(TAG, "getVersionImpl code== 0x00");
-			Log.d(TAG, "getVersionImpl postprocess: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHexNpe(postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN)));
+			Log.d(TAG, "getVersionImpl postprocess: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN)));
 			return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
 		}
 		//return null;
@@ -1262,8 +1262,8 @@ public class DESFireEV1NewSaved {
 
 		preprocess(apdu, DesfireFileCommunicationSettings.PLAIN);
 		byte[] responseAPDU = transmit(apdu);
-		System.out.println("## getFileSettingsImpl send APDU: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(apdu));
-		System.out.println("## getFileSettingsImpl resp APDU: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(responseAPDU));
+		System.out.println("## getFileSettingsImpl send APDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(apdu));
+		System.out.println("## getFileSettingsImpl resp APDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(responseAPDU));
 		code = getSW2(responseAPDU);
 
 		feedback(apdu, responseAPDU);
@@ -1857,13 +1857,13 @@ public class DESFireEV1NewSaved {
 	private byte[] preprocessPlain(byte[] apdu) {
 		if (ktype == KeyType.TKTDES || ktype == KeyType.AES) {
 			System.out.println("*** preprocessPlain ***");
-			System.out.println("*** apdu old: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(apdu));
-			System.out.println("*** IV old:   " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(iv));
-			System.out.println("*** skey old: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(skey));
+			System.out.println("*** apdu old: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(apdu));
+			System.out.println("*** IV old:   " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(iv));
+			System.out.println("*** skey old: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(skey));
 			iv = calculateApduCMAC(apdu, skey, iv, ktype);
-			System.out.println("*** apdu new: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(apdu));
-			System.out.println("*** IV new:   " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(iv));
-			System.out.println("*** skey new: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(skey));
+			System.out.println("*** apdu new: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(apdu));
+			System.out.println("*** IV new:   " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(iv));
+			System.out.println("*** skey new: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(skey));
 		}
 
 		return apdu;
@@ -2016,9 +2016,9 @@ public class DESFireEV1NewSaved {
 
 		byte[] ciphertext = Arrays.copyOfRange(apdu, 0, apdu.length - 2);
 		System.out.println("*** postprocessEnciphered start decryption in recv ***");
-		System.out.println("* ciphertext: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(ciphertext));
-		System.out.println("* skey      : " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(skey));
-		System.out.println("* IV        : " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(iv));
+		System.out.println("* ciphertext: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(ciphertext));
+		System.out.println("* skey      : " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(skey));
+		System.out.println("* IV        : " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(iv));
 		byte[] plaintext = recv(skey, ciphertext, ktype, iv);
 
 		byte[] crc;
@@ -2318,12 +2318,12 @@ public class DESFireEV1NewSaved {
 		apdu[4] = 0x07;
 		System.arraycopy(payload, 0, apdu, 5, 7);
 		apdu[12] = 0x00;
-		System.out.println("### Desfire read send apdu length: " + apdu.length +" data: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(apdu));
+		System.out.println("### Desfire read send apdu length: " + apdu.length +" data: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(apdu));
 		preprocess(apdu, DesfireFileCommunicationSettings.PLAIN);
 		
 		byte[] responseAPDU = adapter.transmitChain(apdu);
 		feedback(apdu, responseAPDU);
-		System.out.println("### Desfire read resp apdu length: " + responseAPDU.length +" data: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(responseAPDU));
+		System.out.println("### Desfire read resp apdu length: " + responseAPDU.length +" data: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(responseAPDU));
 		//return postprocess(responseAPDU, responseLength, cs); // this seems to be better
 		// todo for encrypted use this
 		// todo HARDCODED ENCRYPTION in read, line 1927
@@ -2377,7 +2377,7 @@ public class DESFireEV1NewSaved {
 
 	/* Support method for writeData/writeRecord. */
 	private boolean write(byte[] payload, byte cmd) throws Exception {
-		System.out.println("### write payload length: " + payload.length + " data: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(payload));
+		System.out.println("### write payload length: " + payload.length + " data: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(payload));
 
 		DesfireFile settings = updateFileSett(payload[0], false); // todo new ORG false
 		System.out.println("### settings: " + settings.toString());
@@ -2400,12 +2400,12 @@ public class DESFireEV1NewSaved {
 		// todo changed
 		fullApdu[4] = (byte) (payload.length & 0xFF); // length byte
 		System.arraycopy(payload, 0, fullApdu, 5, payload.length);
-		System.out.println("### write fullAPDU 1 length: " + fullApdu.length + " data: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(fullApdu));
+		System.out.println("### write fullAPDU 1 length: " + fullApdu.length + " data: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(fullApdu));
 		fullApdu = preprocess(fullApdu, 7, cs);  // 7 = 1+3+3 (keyNo+off+len)
-		System.out.println("### write fullAPDU 2 length: " + fullApdu.length + " data: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(fullApdu));
+		System.out.println("### write fullAPDU 2 length: " + fullApdu.length + " data: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(fullApdu));
 		
 		byte[] responseAPDU = adapter.transmitChain(fullApdu);
-		System.out.println("### write responseAPDU length: " + responseAPDU.length + " data: " + de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.bytesToHex(responseAPDU));
+		System.out.println("### write responseAPDU length: " + responseAPDU.length + " data: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHex(responseAPDU));
 		return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN) != null;
 	}
 
