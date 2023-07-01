@@ -2826,6 +2826,31 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
          * section for authentication with default keys
          */
 
+        authD1A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT AES key number 0x01 = read & write access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, "read & write", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+
+        // following is the old authentication menu
+
+        /**
+         * section for authentication with default keys
+         */
+
         authKeyDM0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -3717,6 +3742,34 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     /**
      * section for authentication
      */
+
+    private boolean authenticateApplication(byte keyNumber, byte[] key, String keyName, KeyType keyType) {
+        writeToUiAppend(output,  keyType.toString() + " authentication with key " + String.format("0x%02X", keyNumber) + "(= " + keyName + "access key)");
+        try {
+            boolean authApp = desfire.authenticate(key, keyNumber, keyType);
+            writeToUiAppend(output, "authApplicationResult: " + authApp);
+            if (!authApp) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication NOT Success, aborted", COLOR_RED);
+                writeToUiAppend(errorCode, "authenticateApplication NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                return false;
+            } else {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticateApplication SUCCESS", COLOR_GREEN);
+                return true;
+            }
+        } catch (IOException e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+            //writeToUiAppend(output, "IOException: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+            //writeToUiAppend(output, "IOException: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     private boolean authenticateApplicationDes(byte keyNumber, byte[] key, String keyName) {
         writeToUiAppend(output, "authenticate the selected application with the key number " + String.format("0x%02X", keyNumber) + "(= " + keyName + "access key)");
