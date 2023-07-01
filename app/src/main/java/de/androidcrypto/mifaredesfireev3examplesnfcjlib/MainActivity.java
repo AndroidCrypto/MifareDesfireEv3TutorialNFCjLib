@@ -2826,6 +2826,154 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
          * section for authentication with default keys
          */
 
+        authDM0D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the master application key = 00...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT DES key number 0x00 = master application key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, "master", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+
+        authD0D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the application master key = 00...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT DES key number 0x00 = application master key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, "app master", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD1D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT DES key number 0x01 = read & write access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, "read & write", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD2D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the change access rights key = 02...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT DES key number 0x02 = change access rights key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, "change access rights", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD3D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read access key = 03...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT DES key number 0x03 = read access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD4D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT DES key number 0x04 = write access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+        
+        // AES keys
+        
+        authDM0A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the master application key = 00...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT AES key number 0x00 = master application key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, "master", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+
+        authD0A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the application master key = 00...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT AES key number 0x00 = application master key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, "app master", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+        
         authD1A.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -2844,6 +2992,284 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        authD2A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the change access rights key = 02...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT AES key number 0x02 = change access rights key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, "change access rights", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD3A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read access key = 03...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT AES key number 0x03 = read access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD4A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                String logString = "authenticate with DEFAULT AES key number 0x04 = write access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        /**
+         * section for authentication with changed keys
+         */
+
+        authDM0DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the master application key = 00...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED DES key number 0x00 = master application key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+
+        authD0DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the application master key = 00...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED DES key number 0x00 = application master key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, "app master", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD1DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED DES key number 0x01 = read & write access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, "read & write", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD2DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the change access rights key = 02...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED DES key number 0x02 = change access rights key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, "change access rights", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD3DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read access key = 03...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED DES key number 0x03 = read access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, "read", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD4DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED DES key number 0x04 = write access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, "write", KeyType.DES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        // AES keys
+
+        authDM0AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the master application key = 00...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED AES key number 0x00 = master application key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+
+        authD0AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the application master key = 00...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED AES key number 0x00 = application master key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, "app master", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD1AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED AES key number 0x01 = read & write access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, "read & write", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD2AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the change access rights key = 02...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED AES key number 0x02 = change access rights key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, "change access rights", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD3AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read access key = 03...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED AES key number 0x03 = read access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, "read", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+
+        authD4AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // authenticate with the read&write access key = 01...
+                clearOutputFields();
+                String logString = "authenticate with CHANGED AES key number 0x04 = write access key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId;
+                Utils.reverseByteArrayInPlace(selectedAid);
+                boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, "write", KeyType.AES);
+                writeToUiAppend(output, logString + " success: " + success);
+            }
+        });
+        
 
         // following is the old authentication menu
 
