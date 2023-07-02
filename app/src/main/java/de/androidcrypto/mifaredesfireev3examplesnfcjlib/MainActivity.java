@@ -169,6 +169,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      * section for key handling
      */
 
+    private Button changeKeyDM0D, changeKeyD0D, changeKeyD1D, changeKeyD2D, changeKeyD3D, changeKeyD4D;
+    private Button changeKeyDM0A, changeKeyD0A, changeKeyD1A, changeKeyD2A, changeKeyD3A, changeKeyD4A;
+    private Button changeKeyDM0DC, changeKeyD0DC, changeKeyD1DC, changeKeyD2DC, changeKeyD3DC, changeKeyD4DC;
+    private Button changeKeyDM0AC, changeKeyD0AC, changeKeyD1AC, changeKeyD2AC, changeKeyD3AC, changeKeyD4AC;
+    // old
     private Button changeKeyDM0, changeKeyD0, changeKeyD1, changeKeyD2, changeKeyD3, changeKeyD4;
 
     // virtual card key handling
@@ -371,6 +376,38 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         authD2AC = findViewById(R.id.btnAuthD2AC);
         authD3AC = findViewById(R.id.btnAuthD3AC);
         authD4AC = findViewById(R.id.btnAuthD4AC);
+
+        // change keys handling DES from DEFAULT to CHANGED
+        changeKeyDM0D = findViewById(R.id.btnChangeKeyDM0D);
+        changeKeyD0D = findViewById(R.id.btnChangeKeyD0D);
+        changeKeyD1D = findViewById(R.id.btnChangeKeyD1D);
+        changeKeyD2D = findViewById(R.id.btnChangeKeyD2D);
+        changeKeyD3D = findViewById(R.id.btnChangeKeyD3D);
+        changeKeyD4D = findViewById(R.id.btnChangeKeyD4D);
+
+        // change keys handling AES from CHANGED to DEFAULT
+        changeKeyDM0A = findViewById(R.id.btnChangeKeyDM0A);
+        changeKeyD0A = findViewById(R.id.btnChangeKeyD0A);
+        changeKeyD1A = findViewById(R.id.btnChangeKeyD1A);
+        changeKeyD2A = findViewById(R.id.btnChangeKeyD2A);
+        changeKeyD3A = findViewById(R.id.btnChangeKeyD3A);
+        changeKeyD4A = findViewById(R.id.btnChangeKeyD4A);
+
+        // change keys handling DES from CHANGED to DEFAULT
+        changeKeyDM0DC = findViewById(R.id.btnChangeKeyDM0DC);
+        changeKeyD0DC = findViewById(R.id.btnChangeKeyD0DC);
+        changeKeyD1DC = findViewById(R.id.btnChangeKeyD1DC);
+        changeKeyD2DC = findViewById(R.id.btnChangeKeyD2DC);
+        changeKeyD3DC = findViewById(R.id.btnChangeKeyD3DC);
+        changeKeyD4DC = findViewById(R.id.btnChangeKeyD4DC);
+
+        // change keys handling AES from CHANGED to DEFAULT
+        changeKeyDM0AC = findViewById(R.id.btnChangeKeyDM0AC);
+        changeKeyD0AC = findViewById(R.id.btnChangeKeyD0AC);
+        changeKeyD1AC = findViewById(R.id.btnChangeKeyD1AC);
+        changeKeyD2AC = findViewById(R.id.btnChangeKeyD2AC);
+        changeKeyD3AC = findViewById(R.id.btnChangeKeyD3AC);
+        changeKeyD4AC = findViewById(R.id.btnChangeKeyD4AC);
 
         // authentication handling old menu
         authKeyDM0 = findViewById(R.id.btnAuthDM0);
@@ -2837,8 +2874,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, "master", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -2856,8 +2891,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, "app master", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -2874,8 +2907,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, "read & write", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -2892,8 +2923,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, "change access rights", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -2910,8 +2939,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -2948,8 +2975,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, "master", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -2967,8 +2992,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, "app master", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -2985,8 +3008,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, "read & write", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3003,8 +3024,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, "change access rights", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3021,8 +3040,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3039,8 +3056,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3061,8 +3076,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3080,8 +3093,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, "app master", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3098,8 +3109,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, "read & write", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3116,8 +3125,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, "change access rights", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3134,8 +3141,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, "read", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3152,8 +3157,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, "write", KeyType.DES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3172,8 +3175,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3191,8 +3192,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, "app master", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3209,8 +3208,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, "read & write", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3227,8 +3224,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, "change access rights", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3245,8 +3240,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, "read", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
@@ -3263,13 +3256,450 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
                     return;
                 }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
                 boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, "write", KeyType.AES);
                 writeToUiAppend(output, logString + " success: " + success);
             }
         });
-        
+
+        /**
+         * section for key handling (default keys)
+         */
+
+        changeKeyDM0D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = master application key
+                clearOutputFields();
+                String logString = "change the DES key number 0x00 = master application key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId.clone();
+                // this method should run with selected Master Application (master AID) only
+                if (!Arrays.equals(selectedAid, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_DES_DEFAULT, "master", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD0D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = application master key
+                clearOutputFields();
+                String logString = "change the DES key number 0x00 = application master key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD1D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x01 = read & write access key
+                clearOutputFields();
+                String logString = "change the DES key number 0x01 = read & write access key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD2D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x02 = change access key
+                clearOutputFields();
+                String logString = "change the DES key number 0x02 = change access key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD3D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x03 = read access key
+                clearOutputFields();
+                String logString = "change the DES key number 0x03 = read  access key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD4D.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = read & write access key
+                clearOutputFields();
+                String logString = "change the DES key number 0x04 = write access key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyDM0A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = master application key
+                clearOutputFields();
+                String logString = "change the AES key number 0x00 = master application key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId.clone();
+                // this method should run with selected Master Application (master AID) only
+                if (!Arrays.equals(selectedAid, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, MASTER_APPLICATION_KEY_AES_DEFAULT, "master", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD0A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = application master key
+                clearOutputFields();
+                String logString = "change the AES key number 0x00 = application master key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD1A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x01 = read & write access key
+                clearOutputFields();
+                String logString = "change the AES key number 0x01 = read & write access key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD2A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x02 = change access key
+                clearOutputFields();
+                String logString = "change the AES key number 0x02 = change access key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD3A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x03 = read access key
+                clearOutputFields();
+                String logString = "change the AES key number 0x03 = read  access key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD4A.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = read & write access key
+                clearOutputFields();
+                String logString = "change the AES key number 0x04 = write access key from DEFAULT to CHANGED";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        /**
+         * section for key handling (changed keys)
+         */
+
+        changeKeyDM0DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = master application key
+                clearOutputFields();
+                String logString = "change the DES key number 0x00 = master application key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId.clone();
+                // this method should run with selected Master Application (master AID) only
+                if (!Arrays.equals(selectedAid, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD0DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = application master key
+                clearOutputFields();
+                String logString = "change the DES key number 0x00 = application master key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_MASTER_DES, "master", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD1DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x01 = read & write access key
+                clearOutputFields();
+                String logString = "change the DES key number 0x01 = read & write access key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, APPLICATION_KEY_RW_DES, "read&write", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD2DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x02 = change access key
+                clearOutputFields();
+                String logString = "change the DES key number 0x02 = change access key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, APPLICATION_KEY_CAR_DES, "change", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD3DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x03 = read access key
+                clearOutputFields();
+                String logString = "change the DES key number 0x03 = read  access key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, APPLICATION_KEY_R_DES, "read", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD4DC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = read & write access key
+                clearOutputFields();
+                String logString = "change the DES key number 0x04 = write access key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, APPLICATION_KEY_W_DES, "write", KeyType.DES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyDM0AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = master application key
+                clearOutputFields();
+                String logString = "change the AES key number 0x00 = master application key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                byte[] selectedAid = selectedApplicationId.clone();
+                // this method should run with selected Master Application (master AID) only
+                if (!Arrays.equals(selectedAid, new byte[3])) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD0AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = application master key
+                clearOutputFields();
+                String logString = "change the AES key number 0x00 = application master key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_MASTER_AES, "master", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD1AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x01 = read & write access key
+                clearOutputFields();
+                String logString = "change the AES key number 0x01 = read & write access key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, APPLICATION_KEY_RW_AES, "read&write", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD2AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x02 = change access key
+                clearOutputFields();
+                String logString = "change the AES key number 0x02 = change access key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, APPLICATION_KEY_CAR_AES, "change", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD3AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x03 = read access key
+                clearOutputFields();
+                String logString = "change the AES key number 0x03 = read  access key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, APPLICATION_KEY_R_AES, "read", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeKeyD4AC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change key number 0x00 = read & write access key
+                clearOutputFields();
+                String logString = "change the AES key number 0x04 = write access key from CHANGED to DEFAULT";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, APPLICATION_KEY_W_AES, "write", KeyType.AES);
+                writeToUiAppend(output, logString + " run successfully: " + success);
+                writeToUiAppend(output, "");
+            }
+        });
 
         // following is the old authentication menu
 
@@ -4253,10 +4683,57 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         }
     }
 
-
     /**
      * section for change key handling
      */
+
+    private boolean changeApplicationKey(byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber,
+                                         byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
+
+        // change key name e.g. master, read&write, car, read, write
+        boolean result = false;
+        try {
+            writeToUiAppend(output, "changing the key number " + String.format("0x%02X", changeKeyNumber) + "(= " + changeKeyName + "access key)");
+            // step 1 authenticate with the master application key (for master application) or application master key
+            boolean authApp = desfire.authenticate(authenticationKey, authenticationKeyNumber, keyType);
+            writeToUiAppend(output, "authResult: " + authApp);
+            if (!authApp) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on authenticate application, aborted", COLOR_RED);
+                return false;
+            }
+            // step 2 change the key
+            if (Arrays.equals(selectedApplicationId, new byte[3])) {
+                if (changeKeyNumber != 0) {
+                    writeToUiAppend(output, "you selected the Master Application but there are no key numbers > 0 available, aborted");
+                    return false;
+                }
+            }
+            // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
+            boolean changeKey = desfire.changeKey(changeKeyNumber, keyType, changeKeyNew, changeKeyOld);
+            writeToUiAppend(output, "changeKeyResult: " + changeKey);
+            writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+            if (changeKey) {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey SUCCESS", COLOR_GREEN);
+                return true;
+            } else {
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey NOT SUCCESS", COLOR_RED);
+                writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+                return false;
+            }
+        } catch (IOException e) {
+            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+            e.printStackTrace();
+        } catch (Exception e) {
+            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     /*
     private boolean changeApplicationKeyDes(byte[] applicationId, byte applicationMasterKeyNumber,
