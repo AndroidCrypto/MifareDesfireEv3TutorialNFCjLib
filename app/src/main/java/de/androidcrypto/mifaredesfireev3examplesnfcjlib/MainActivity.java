@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private Button authDM0A, authD0A, authD1A, authD2A, authD3A, authD4A; // auth with default AES keys
     private Button authDM0DC, authD0DC, authD1DC, authD2DC, authD3DC, authD4DC; // auth with changed DES keys
     private Button authDM0AC, authD0AC, authD1AC, authD2AC, authD3AC, authD4AC; // auth with changed AES keys
-
+    private Button authCheckAllKeysD, authCheckAllKeysA; // check all auth keys (default and changed) for DES and AES
 
     /**
      * section for key handling
@@ -337,6 +337,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         authD3AC = findViewById(R.id.btnAuthD3AC);
         authD4AC = findViewById(R.id.btnAuthD4AC);
 
+        // check all auth keys
+        authCheckAllKeysD = findViewById(R.id.btnCheckAllKeysD);
+        authCheckAllKeysA = findViewById(R.id.btnCheckAllKeysA);
+
         // change keys handling DES from DEFAULT to CHANGED
         changeKeyDM0D = findViewById(R.id.btnChangeKeyDM0D);
         changeKeyD0D = findViewById(R.id.btnChangeKeyD0D);
@@ -370,15 +374,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         changeKeyD4AC = findViewById(R.id.btnChangeKeyD4AC);
 
         // change all application keys DES from Default to Changed with Default Master Key
-        changeAllKeysWithDefaultMasterKeyD = findViewById(R.id.btnChangeKeyDAllMasterDefaultD);
+        changeAllKeysWithDefaultMasterKeyD = findViewById(R.id.btnChangeKeysAllMasterDefaultD);
         // change all application keys AES from Default to Changed with Default Master Key
-        changeAllKeysWithDefaultMasterKeyA = findViewById(R.id.btnChangeKeyDAllMasterDefaultA);
+        changeAllKeysWithDefaultMasterKeyA = findViewById(R.id.btnChangeKeysAllMasterDefaultA);
         // change all application keys DES from Default to Changed with Changed Master Key
-        changeAllKeysWithDefaultMasterKeyD = findViewById(R.id.btnChangeKeyDAllMasterDefaultD);
+        changeAllKeysWithChangedMasterKeyD = findViewById(R.id.btnChangeKeysAllMasterChangedD);
         // change all application keys AES from Default to Changed with Changed Master Key
-
-
-        // todo clear TextView (e.g. selectedApplication/file) on some actions
+        changeAllKeysWithChangedMasterKeyA = findViewById(R.id.btnChangeKeysAllMasterChangedA);
 
         //allLayoutsInvisible(); // default
 
@@ -2938,6 +2940,117 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
 
         /**
+         * section for checking all auth keys
+         */
+
+        authCheckAllKeysD.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // check the authentication with all access keys
+                clearOutputFields();
+                String logString = "check all DES authentication keys";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success0 = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
+                boolean success0C = false;
+                if (!success0) {
+                    success0C = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, "master", KeyType.DES);
+                }
+                boolean success1 = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
+                boolean success1C = false;
+                if (!success1) {
+                    success1C = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, "read&write", KeyType.DES);
+                }
+                boolean success2 = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
+                boolean success2C = false;
+                if (!success2) {
+                    success2C = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, "change", KeyType.DES);
+                }
+                boolean success3 = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
+                boolean success3C = false;
+                if (!success3) {
+                    success3C = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, "read", KeyType.DES);
+                }
+                boolean success4 = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
+                boolean success4C = false;
+                if (!success4) {
+                    success4C = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, "write", KeyType.DES);
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.append("check of all DES auth keys:").append("\n");
+                sb.append("key 0 master default: ").append(success0).append("\n");
+                sb.append("key 0 master changed: ").append(success0C).append("\n");
+                sb.append("key 1 read&write default: ").append(success1).append("\n");
+                sb.append("key 1 read&write changed: ").append(success1C).append("\n");
+                sb.append("key 2 CAR default: ").append(success2).append("\n");
+                sb.append("key 2 CAR changed: ").append(success2C).append("\n");
+                sb.append("key 3 read default: ").append(success3).append("\n");
+                sb.append("key 3 read changed: ").append(success3C).append("\n");
+                sb.append("key 4 write default: ").append(success4).append("\n");
+                sb.append("key 4 write changed: ").append(success4C).append("\n");
+                writeToUiAppend(output, sb.toString());
+                writeToUiAppend(errorCode, "see above result");
+            }
+        });
+
+        authCheckAllKeysA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // check the authentication with all access keys
+                clearOutputFields();
+                String logString = "check all AES authentication keys";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                boolean success0 = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
+                boolean success0C = false;
+                if (!success0) {
+                    success0C = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, "master", KeyType.AES);
+                }
+                boolean success1 = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
+                boolean success1C = false;
+                if (!success1) {
+                    success1C = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, "read&write", KeyType.AES);
+                }
+                boolean success2 = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
+                boolean success2C = false;
+                if (!success2) {
+                    success2C = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, "change", KeyType.AES);
+                }
+                boolean success3 = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
+                boolean success3C = false;
+                if (!success3) {
+                    success3C = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, "read", KeyType.AES);
+                }
+                boolean success4 = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
+                boolean success4C = false;
+                if (!success4) {
+                    success4C = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, "write", KeyType.AES);
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.append("check of all AES auth keys:").append("\n");
+                sb.append("key 0 master default: ").append(success0).append("\n");
+                sb.append("key 0 master changed: ").append(success0C).append("\n");
+                sb.append("key 1 read&write default: ").append(success1).append("\n");
+                sb.append("key 1 read&write changed: ").append(success1C).append("\n");
+                sb.append("key 2 CAR default: ").append(success2).append("\n");
+                sb.append("key 2 CAR changed: ").append(success2C).append("\n");
+                sb.append("key 3 read default: ").append(success3).append("\n");
+                sb.append("key 3 read changed: ").append(success3C).append("\n");
+                sb.append("key 4 write default: ").append(success4).append("\n");
+                sb.append("key 4 write changed: ").append(success4C).append("\n");
+                writeToUiAppend(output, sb.toString());
+                writeToUiAppend(errorCode, "see above result");
+            }
+        });
+
+
+        /**
          * section for key handling (default keys)
          */
 
@@ -3394,10 +3507,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     return;
                 }
                 // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
-                boolean success1 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
-                boolean success2 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
-                boolean success3 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
-                boolean success4 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
+                boolean success1 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
+                boolean success2 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
+                boolean success3 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
+                boolean success4 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
                 writeToUiAppend(output, "change key " + APPLICATION_KEY_RW_NUMBER + " result: " + success1);
                 writeToUiAppend(output, "chagne key " + APPLICATION_KEY_CAR_NUMBER + " result: " + success2);
                 writeToUiAppend(output, "change key " + APPLICATION_KEY_R_NUMBER + " result: " + success3);
@@ -3458,6 +3571,81 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        changeAllKeysWithChangedMasterKeyD.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change all application keys to changed with changed master application key
+                clearOutputFields();
+                String logString = "DES change the all application keys to CHANGED with CHANGED Master Key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
+                boolean success1 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
+                boolean success2 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
+                boolean success3 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
+                boolean success4 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_RW_NUMBER + " result: " + success1);
+                writeToUiAppend(output, "chagne key " + APPLICATION_KEY_CAR_NUMBER + " result: " + success2);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_R_NUMBER + " result: " + success3);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_W_NUMBER + " result: " + success4);
+                // proceed only when all changes are successfully
+                if ((!success1) || (!success2) || (!success3) || (!success4)) {
+                    writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
+                    return;
+                }
+                boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
+                if (!success0) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
+                    return;
+                }
+                writeToUiAppend(output, logString + " SUCCESS");
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                writeToUiAppend(output, "");
+            }
+        });
+
+        changeAllKeysWithChangedMasterKeyA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change all application keys to changed with changed master application key
+                clearOutputFields();
+                String logString = "AES change the all application keys to CHANGED with CHANGED Master Key";
+                writeToUiAppend(output, logString);
+                if (selectedApplicationId == null) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    return;
+                }
+                // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
+                boolean success1 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
+                boolean success2 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
+                boolean success3 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
+                boolean success4 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_RW_NUMBER + " result: " + success1);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_CAR_NUMBER + " result: " + success2);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_R_NUMBER + " result: " + success3);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_W_NUMBER + " result: " + success4);
+                // proceed only when all changes are successfully
+                if ((!success1) || (!success2) || (!success3) || (!success4)) {
+                    writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
+                    return;
+                }
+                boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
+                writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
+                if (!success0) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
+                    return;
+                }
+                writeToUiAppend(output, logString + " SUCCESS");
+                writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                writeToUiAppend(output, "");
+            }
+        });
 
         /**
          * section for service methods

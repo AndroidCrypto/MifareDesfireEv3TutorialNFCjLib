@@ -2192,7 +2192,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/tvChangeKeyDAllMasterDefault"
+                        android:id="@+id/tvChangeKeysAllMasterDefault"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -2204,7 +2204,7 @@
                         android:textStyle="normal" />
 
                     <Button
-                        android:id="@+id/btnChangeKeyDAllMasterDefaultD"
+                        android:id="@+id/btnChangeKeysAllMasterDefaultD"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -2213,7 +2213,7 @@
                         android:text="DES" />
 
                     <Button
-                        android:id="@+id/btnChangeKeyDAllMasterDefaultA"
+                        android:id="@+id/btnChangeKeysAllMasterDefaultA"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="1dp"
@@ -2229,7 +2229,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/tvChangeKeyAllMasterDefaultC"
+                        android:id="@+id/tvChangeKeysAllMasterDefaultDC"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -2241,7 +2241,7 @@
                         android:textStyle="normal" />
 
                     <Button
-                        android:id="@+id/btnChangeKeyDAllMasterDefaultDC"
+                        android:id="@+id/btnChangeKeysAllMasterDefaultDC"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -2251,7 +2251,7 @@
                         android:text="DES" />
 
                     <Button
-                        android:id="@+id/btnChangeKeyDAllMasterDefaultAC"
+                        android:id="@+id/btnChangeKeysAllMasterDefaultAC"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="1dp"
@@ -2296,7 +2296,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/tvChangeKeyDAllMasterChanged"
+                        android:id="@+id/tvChangeKeysAllMasterChanged"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -2308,7 +2308,7 @@
                         android:textStyle="normal" />
 
                     <Button
-                        android:id="@+id/btnChangeKeyDAllMasterChangedD"
+                        android:id="@+id/btnChangeKeysAllMasterChangedD"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -2317,7 +2317,7 @@
                         android:text="DES" />
 
                     <Button
-                        android:id="@+id/btnChangeKeyDAllMasterChangedA"
+                        android:id="@+id/btnChangeKeysAllMasterChangedA"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="1dp"
@@ -2333,7 +2333,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/tvChangeKeyAllMasterChangedC"
+                        android:id="@+id/tvChangeKesyAllMasterChangedDC"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -2345,7 +2345,7 @@
                         android:textStyle="normal" />
 
                     <Button
-                        android:id="@+id/btnChangeKeyDAllMasterChangedDC"
+                        android:id="@+id/btnChangeKeysAllMasterChangedDC"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -2355,13 +2355,78 @@
                         android:text="DES" />
 
                     <Button
-                        android:id="@+id/btnChangeKeyDAllMasterChangedAC"
+                        android:id="@+id/btnChangeKeysAllMasterChangedAC"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="1dp"
                         android:layout_marginRight="1dp"
                         android:layout_weight="1"
                         android:enabled="false"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llAuthCheck"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
+
+                <TextView
+                    android:id="@+id/tvAuthCheck"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text=" check all auth keys"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvCheckAllKeys"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="to changed"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnCheckAllKeysD"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnCheckAllKeysA"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
                         android:text="AES" />
 
                 </LinearLayout>
