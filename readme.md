@@ -165,10 +165,14 @@ As mentioned in step 03 (create an application) there are different keys availab
 
 ```plaintext
 Example DES session key (16 bytes)
-The random A is e1 94 a5 2f d9 40 2c 62
-The random B is 50 22 50 3e c5 23 d2 2f
-The skey     is e1 94 a5 2f 50 22 50 3e
+The random A is a6 01 73 75 8e 1d 29 8f
+The random B is 6a 3e 01 a8 53 06 37 5d
+The skey     is a6 01 73 75 6a 3e 01 a8
                 A0 A1 A2 A3 B0 B1 B2 B3 
+
+rndA length: 8  b8 75 bc 4d e2 0f 45 07
+rndB length: 8  f6 3a 13 02 a7 d8 89 9b
+
 
 Example AES session key (16 bytes)
 The random A is dd 62 af 26 90 75 27 99 07 99 78 31 f2 c7 37 40
