@@ -92,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private LinearLayout llFiles;
 
     private Button fileList, fileSelect, fileDelete;
+    private Button getFileSettings, changeFileSettings;
+
     private com.google.android.material.textfield.TextInputEditText fileSelected;
     private String selectedFileId = "";
     private int selectedFileIdInt = -1;
@@ -258,6 +260,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileList = findViewById(R.id.btnListFiles);
         fileSelect = findViewById(R.id.btnSelectFile);
         fileDelete = findViewById(R.id.btnDeleteFile);
+        getFileSettings = findViewById(R.id.btnGetFileSettings);
+        changeFileSettings = findViewById(R.id.btnChangeFileSettings);
 
         // standard & backup file handling
         llStandardFile = findViewById(R.id.llStandardFile);
@@ -1389,6 +1393,84 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         .setPositiveButton(android.R.string.yes, dialogClickListener)
         .setNegativeButton(android.R.string.no, dialogClickListener)
          */
+            }
+        });
+
+        getFileSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // get the settings from the selected file
+                clearOutputFields();
+                String logString = "getFileSettings";
+                writeToUiAppend(output, logString);
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                int selectedFileNumberInt = Integer.parseInt(selectedFileId);
+                try {
+                    DesfireFile fileSettings = desfire.getFileSettings(selectedFileNumberInt);
+                    writeToUiAppend(output, "The following fileSettings are for fileId " + selectedFileNumberInt);
+                    writeToUiAppend(output, fileSettings.toString());
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                    return;
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
+        changeFileSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // change the file settings for the selected file
+                // get the settings from the selected file
+                clearOutputFields();
+                String logString = "changeFileSettings";
+                writeToUiAppend(output, logString);
+                if (TextUtils.isEmpty(selectedFileId)) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    return;
+                }
+                int selectedFileNumberInt = Integer.parseInt(selectedFileId);
+                byte selectedFileIdByte = Byte.parseByte(selectedFileId);
+                byte commSettingsByte = 0; // plain communication without any encryption
+                byte accessRightsRwCar = (byte) 0x12; // Read&Write Access & ChangeAccessRights
+                byte accessRightsRW = (byte) 0x22; // Read Access & Write Access // read with key 2, write with key 2
+                //byte accessRightsRW = (byte) 0x34; // Read Access & Write Access // read with key 3, write with key 4, original setting
+                // Requires a preceding authentication with the CAR key.
+                try {
+                    boolean changeResult = desfire.changeFileSettings(selectedFileIdByte, commSettingsByte, accessRightsRwCar, accessRightsRW);
+                    writeToUiAppend(output, logString + " was " + changeResult);
+                    if (changeResult) {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                        return;
+                    } else {
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT SUCCESS", COLOR_RED);
+                        writeToUiAppend(errorCode, "Did you forget to authenticate with the CAR key before ?");
+                        return;
+                    }
+                } catch (IOException e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
+                    return;
+                }
             }
         });
 

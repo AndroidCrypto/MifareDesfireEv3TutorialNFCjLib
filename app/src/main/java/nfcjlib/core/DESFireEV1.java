@@ -135,7 +135,7 @@ public class DESFireEV1 {
 		switch (type) {
 			case DES:
 			case TDES:
-				apdu[1] = (byte) Command.AUTHENTICATE_DES_2K3DES.getCode();
+				apdu[1] = (byte) (0x0A);
 				break;
 			case TKTDES:
 				apdu[1] = (byte) Command.AUTHENTICATE_3K3DES.getCode();
@@ -902,8 +902,12 @@ public class DESFireEV1 {
 	 */
 	public boolean changeFileSettings(byte fileNo, byte commSett, byte ar1, byte ar2) throws Exception {
 		DesfireFileCommunicationSettings cs = getChangeFileSetting(fileNo);
-		if (cs == null)
+		// old DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, true, false, true, false); // todo ERROR changed
+		// new DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, kno, true, false, true, false);
+		if (cs == null) {
+			Log.e(TAG, "the cs are NULL, aborted");
 			return false;
+		}
 
 		byte[] apdu = new byte[10];
 		apdu[0] = (byte) 0x90;
@@ -913,9 +917,15 @@ public class DESFireEV1 {
 		apdu[6] = commSett;
 		apdu[7] = ar1;
 		apdu[8] = ar2;
-
+		Log.d(TAG, "changeFileSettings apdu: " + Utils.getHexString(apdu, true)); // todo remove
 		apdu = preprocess(apdu, 1, cs);
-		byte[] responseAPDU = transmit(apdu);
+		Log.d(TAG, "preprocess offset 1 done"); // todo remove
+		Log.d(TAG, "changeFileSettings apdu: " + Utils.getHexString(apdu, true)); // todo remove
+		Log.d(TAG, "next data are manual encrypted changeFileSettings");
+		Log.d(TAG, "parameter " + Utils.getHexString(getTheFileSettingsCommand(skey), true));
+		byte[] responseAPDU = new byte[0];
+
+		//byte[] responseAPDU = transmit(apdu);
 		code = getSW2(responseAPDU);
 
 		feedback(apdu, responseAPDU);
@@ -927,6 +937,76 @@ public class DESFireEV1 {
 
 		return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN) != null;
 	}
+
+	// todo remove the code segment as it is for testing the manual method only
+	private byte[] getTheFileSettingsCommand(byte [] SESSION_KEY_DES) {
+		int selectedFileIdInt = Integer.parseInt("0");
+		byte selectedFileIdByte = Byte.parseByte("0");
+		Log.d(TAG, "changeTheFileSettings for selectedFileId " + selectedFileIdInt);
+		Log.d(TAG, printData("DES session key", SESSION_KEY_DES));
+
+		byte changeFileSettingsCommand = (byte) 0x5f;
+		// CD | File No | Comms setting byte | Access rights (2 bytes) | File size (3 bytes)
+		byte commSettingsByte = 0; // plain communication without any encryption
+                /*
+                M0775031 DESFIRE
+                Plain Communication = 0;
+                Plain communication secured by DES/3DES MACing = 1;
+                Fully DES/3DES enciphered communication = 3;
+                 */
+		//byte[] accessRights = new byte[]{(byte) 0xee, (byte) 0xee}; // should mean plain/free access without any keys
+                /*
+                There are four different Access Rights (2 bytes for each file) stored for each file within
+                each application:
+                - Read Access
+                - Write Access
+                - Read&Write Access
+                - ChangeAccessRights
+                 */
+		// the application master key is key 0
+		// here we are using key 3 for read and key 4 for write access access, key 1 has read&write access and key 2 has change rights !
+		byte accessRightsRwCar = (byte) 0x12; // Read&Write Access & ChangeAccessRights
+		//byte accessRightsRW = (byte) 0x34; // Read Access & Write Access // read with key 3, write with key 4
+		byte accessRightsRW = (byte) 0x22; // Read Access & Write Access // read with key 2, write with key 2
+		// to calculate the crc16 over the setting bytes we need a 3 byte long array
+		byte[] bytesForCrc = new byte[3];
+		bytesForCrc[0] = commSettingsByte;
+		bytesForCrc[1] = accessRightsRwCar;
+		bytesForCrc[2] = accessRightsRW;
+		Log.d(TAG, printData("bytesForCrc", bytesForCrc));
+		byte[] crc16Value = CRC16.get(bytesForCrc);
+		Log.d(TAG, printData("crc16Value", crc16Value));
+		// create a 8 byte long array
+		byte[] bytesForDecryption = new byte[8];
+		System.arraycopy(bytesForCrc,0, bytesForDecryption, 0, 3);
+		System.arraycopy(crc16Value,0, bytesForDecryption, 3, 2);
+		Log.d(TAG, printData("bytesForDecryption", bytesForDecryption));
+		// generate 24 bytes long triple des key
+		byte[] tripleDES_SESSION_KEY = new byte[24];
+		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 0, 8);
+		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 8, 8);
+		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 16, 8);
+		Log.d(TAG, printData("tripeDES Session Key", tripleDES_SESSION_KEY));
+		byte[] IV_DES = new byte[8];
+		Log.d(TAG, printData("IV_DES", IV_DES));
+		//byte[] decryptedData = TripleDES.encrypt(IV_DES, tripleDES_SESSION_KEY, bytesForDecryption);
+		byte[] decryptedData = TripleDES.decrypt(IV_DES, tripleDES_SESSION_KEY, bytesForDecryption);
+		Log.d(TAG, printData("decryptedData", decryptedData));
+		// the parameter for wrapping
+		byte[] parameter = new byte[9];
+		parameter[0] = selectedFileIdByte;
+		System.arraycopy(decryptedData, 0, parameter, 1, 8);
+		Log.d(TAG, printData("parameter", parameter));
+		return parameter;
+	}
+
+	private String printData(String str, byte[] data) {
+		String retStr = str + " ";
+		retStr += Utils.getHexString(data, true);
+		return retStr;
+	}
+	// todo remove until above
+
 
 	private void clearFileSettingsCache(int fileNo) {
 		this.fileSettings[fileNo] = null;
@@ -1789,6 +1869,10 @@ public class DESFireEV1 {
 	}
 
 	private DesfireFileCommunicationSettings getChangeFileSetting(byte fileNo) throws Exception {
+
+		// old DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, true, false, true, false); // todo ERROR changed
+		// new DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, kno, true, false, true, false);
+		Log.d(TAG, "getChangeFileSetting fileNo: " + fileNo + " kno: " + kno);
 		DesfireFile fileSett = updateFileSett(fileNo, false);
 		if(kno != null && fileSett.isChangeAccess(kno)) {
 			return DesfireFileCommunicationSettings.ENCIPHERED;
@@ -1796,6 +1880,7 @@ public class DESFireEV1 {
 			return DesfireFileCommunicationSettings.PLAIN;
 		}
 		// access is denied
+		Log.e(TAG, "getChangeFileSetting: access is denied - missing auth with CAR key ?");
 		return null;
 	}
 
