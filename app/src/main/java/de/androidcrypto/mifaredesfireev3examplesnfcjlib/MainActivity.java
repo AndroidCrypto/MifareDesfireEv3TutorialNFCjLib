@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
 
     // constants
+    private String lineSeparator = "----------";
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3]; // '00 00 00'
     private final byte[] MASTER_APPLICATION_KEY_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000");
     private final byte[] MASTER_APPLICATION_KEY_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
@@ -1255,6 +1256,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     return;
                     //throw new RuntimeException(e);
                 }
+
                 if (fileIds.length == 0) {
                     writeToUiAppend(output, "The getFileIds returned no files");
                     return;
