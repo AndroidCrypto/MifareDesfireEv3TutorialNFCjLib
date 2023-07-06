@@ -2407,7 +2407,7 @@
                         android:layout_marginRight="8dp"
                         android:layout_weight="1"
                         android:gravity="center_horizontal"
-                        android:text="to changed"
+                        android:text="key type"
                         android:textSize="16sp"
                         android:textStyle="normal" />
 
