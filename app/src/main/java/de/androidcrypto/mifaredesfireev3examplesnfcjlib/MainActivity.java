@@ -153,9 +153,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private Button changeKeyDM0DC, changeKeyD0DC, changeKeyD1DC, changeKeyD2DC, changeKeyD3DC, changeKeyD4DC;
     private Button changeKeyDM0AC, changeKeyD0AC, changeKeyD1AC, changeKeyD2AC, changeKeyD3AC, changeKeyD4AC;
 
+    // change all keys from DEFAULT to CHANGED
     private Button changeAllKeysWithDefaultMasterKeyD, changeAllKeysWithDefaultMasterKeyA;
     private Button changeAllKeysWithChangedMasterKeyD, changeAllKeysWithChangedMasterKeyA;
 
+    // change all keys from CHANGED to DEFAULT
+    private Button changeAllKeysWithDefaultMasterKeyDC, changeAllKeysWithDefaultMasterKeyAC;
 
     // constants
     private String lineSeparator = "----------";
