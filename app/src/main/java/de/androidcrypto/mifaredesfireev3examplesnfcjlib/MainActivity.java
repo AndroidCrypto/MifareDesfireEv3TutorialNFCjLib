@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private Button setupCompleteApplication, standardWriteRead, standardWriteReadDefaultKeys;
-    private Button getFileSettingsDesfire;
+    private Button getFileSettingsDesfire, changeFileSettingsDesfire;
 
     /**
      * section for general workflow
@@ -176,14 +176,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      * section for key handling
      */
 
-    private Button changeKeyDM0, changeKeyD0, changeKeyD1, changeKeyD2, changeKeyD3, changeKeyD4;
+    //private Button changeKeyDM0, changeKeyD0, changeKeyD1, changeKeyD2, changeKeyD3, changeKeyD4;
 
     // virtual card key handling
-    private Button authKeyAM0; // M0 is the Master Application Key AES
-    private Button changeKeyVc20, authKeyVc20, changeKeyVc21;
+    //private Button authKeyAM0; // M0 is the Master Application Key AES
+    //private Button changeKeyVc20, authKeyVc20, changeKeyVc21;
 
     // changed keys
-    private Button changeKeyDM0C, changeKeyD0C, changeKeyD1C, changeKeyD2C, changeKeyD3C, changeKeyD4C;
+    //private Button changeKeyDM0C, changeKeyD0C, changeKeyD1C, changeKeyD2C, changeKeyD3C, changeKeyD4C;
 
     // constants
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3]; // '00 00 00'
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         setupCompleteApplication = findViewById(R.id.btnSetupCompleteApplication);
         standardWriteRead = findViewById(R.id.btnStandardFileWriteRead);
         //standardWriteReadDefaultKeys = findViewById(R.id.btnStandardFileWriteReadDefaultKeys);
-        getFileSettingsDesfire = findViewById(R.id.btnGetFileSettings);
+
 
 
         // general workflow
@@ -288,6 +288,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileList = findViewById(R.id.btnListFiles);
         fileSelect = findViewById(R.id.btnSelectFile);
         fileDelete = findViewById(R.id.btnDeleteFile);
+        getFileSettingsDesfire = findViewById(R.id.btnGetFileSettings);
+        changeFileSettingsDesfire = findViewById(R.id.btnChangeFileSettings);
 
         // standard & backup file handling
         llStandardFile = findViewById(R.id.llStandardFile);
@@ -3747,7 +3749,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         /**
          * section for key handling (default keys)
          */
-
+/*
         changeKeyDM0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -3770,6 +3772,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+
+ */
+/*
         changeKeyD0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -3785,45 +3790,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
                 vibrateShort();
 
-                /*
-                try {
-
-                    // select master application
-                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
-
-                    // authenticate with MasterApplicationKey
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
-
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
-
-                    // we do need an authentication to change a key with the application master key = 0x00
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-
-                    // change the key
-                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_MASTER_NUMBER, KeyType.DES, APPLICATION_KEY_MASTER, APPLICATION_KEY_MASTER_DEFAULT);
-                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
-                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
-                    writeToUiAppend(output, "finished");
-                    writeToUiAppend(output, "");
-
-                } catch (IOException e) {
-                    writeToUiAppend(output, "IOException Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    writeToUiAppend(output, "Exception Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                }
-
-                 */
             }
         });
-
+*/
+        /*
         changeKeyD1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -3873,45 +3843,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
                 vibrateShort();
 
-                /*
-                try {
-
-                    // select master application
-                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
-
-                    // authenticate with MasterApplicationKey
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
-
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
-
-                    // we do need an authentication to change a key with the application master key = 0x00
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-
-                    // change the key
-                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_R_NUMBER, KeyType.DES, APPLICATION_KEY_R, APPLICATION_KEY_R_DEFAULT);
-                    writeToUiAppend(output, "dfChangeKeyResult: " + dfChangeKey);
-                    writeToUiAppend(output, "dfChangeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
-                    writeToUiAppend(output, "finished");
-                    writeToUiAppend(output, "");
-
-                } catch (IOException e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                }
-
-                 */
             }
         });
-
+*/
+        /*
         changeKeyD4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -3926,44 +3861,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 boolean success = changeApplicationKeyDes(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write");
                 writeToUiAppend(output, "changeApplicationKey run successfully: " + success);
                 vibrateShort();
-                /*
 
-                try {
-
-                    // select master application
-                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "selectMasterApplicationResult: " + dfSelectM);
-
-                    // authenticate with MasterApplicationKey
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "authMasterApplicationResult: " + dfAuthM);
-
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "selectApplicationResult: " + dfSelectApplication);
-
-                    // we do need an authentication to change a key with the application master key = 0x00
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_MASTER_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "authApplicationResult: " + dfAuthApp);
-
-                    // change the key
-                    // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-                    boolean dfChangeKey = desfire.changeKey(APPLICATION_KEY_W_NUMBER, KeyType.DES, APPLICATION_KEY_W, APPLICATION_KEY_W_DEFAULT);
-                    writeToUiAppend(output, "changeKeyResult: " + dfChangeKey);
-                    writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
-                    writeToUiAppend(output, "finished");
-                    writeToUiAppend(output, "");
-
-                } catch (IOException e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                } */
             }
         });
-
+*/
+        /*
         changeKeyVc20.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -3987,12 +3889,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 vibrateShort();
             }
         });
-
+*/
 
         /**
          * section for changed key handling
          */
-
+/*
         changeKeyDM0C.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -4100,7 +4002,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 vibrateShort();
             }
         });
-
+*/
         /**
          * section for service methods
          */
@@ -4110,7 +4012,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public void onClick(View view) {
                 // reads the stored file settings from DESFireEV1 class
                 clearOutputFields();
-                writeToUiAppend(output, "get the fileSettings from DESFireEV1 class");
+                writeToUiAppend(output, "get the fileSettings from DESFireEV1 card");
                 DesfireFile desfireFile = null;
                 try {
                     desfireFile = desfire.getFileSettings(selectedFileIdInt);
@@ -4143,6 +4045,49 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, entry.getKey() + ":" + entry.getValue().toString());
                 }
                 writeToUiAppend(output, "-----------");
+            }
+        });
+
+        changeFileSettingsDesfire.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // reads the stored file settings from DESFireEV1 class
+                clearOutputFields();
+                writeToUiAppend(output, "change the fileSettings on a DESFireEV1 card");
+                DesfireFile desfireFile = null;
+                try {
+                    desfireFile = desfire.getFileSettings(selectedFileIdInt);
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                }
+                if (desfireFile == null) {
+                    writeToUiAppend(output, "the fileSettings from DESFireEV1 class are NULL");
+                    return;
+                }
+                String fileTypeName = desfireFile.getFileTypeName();
+                int fileStandardSize = 0;
+                writeToUiAppend(output, "The file " + selectedFileIdInt + " is of type " + fileTypeName);
+                DesfireFileCommunicationSettings comSetting = desfireFile.getCommunicationSettings();
+                writeToUiAppend(output, "the communicationSettings are " + comSetting.getDescription());
+                if (!fileTypeName.equals("Standard")) {
+                    writeToUiAppend(output, "The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
+                    //writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                } else {
+                    StandardDesfireFile standardDesfireFile = (StandardDesfireFile) desfireFile;
+                    fileStandardSize = standardDesfireFile.getFileSize();
+                    writeToUiAppend(output, "file " + selectedFileIdInt + " size: " + fileStandardSize);
+                }
+
+                Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
+                writeToUiAppend(output, "----- permission map ------");
+                for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
+                    writeToUiAppend(output, entry.getKey() + ":" + entry.getValue().toString());
+                }
+                writeToUiAppend(output, "-----------");
+
+                writeToUiAppend(output, "now we change the keys");
             }
         });
 
