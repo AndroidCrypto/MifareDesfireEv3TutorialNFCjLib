@@ -4053,7 +4053,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             public void onClick(View view) {
                 // reads the stored file settings from DESFireEV1 class
                 clearOutputFields();
-                writeToUiAppend(output, "change the fileSettings on a DESFireEV1 card");
+                String logString = "change the fileSettings on a DESFireEV1 card";
+                writeToUiAppend(output, logString);
                 DesfireFile desfireFile = null;
                 try {
                     desfireFile = desfire.getFileSettings(selectedFileIdInt);
@@ -4086,8 +4087,21 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, entry.getKey() + ":" + entry.getValue().toString());
                 }
                 writeToUiAppend(output, "-----------");
-
+                writeToUiAppend(output, desfireFile.toString());
                 writeToUiAppend(output, "now we change the keys");
+                byte fileNumberByte = Byte.parseByte(selectedFileId);
+                byte FILE_COMMUNICATION_SETTINGS = (byte) 0x00; // plain communication
+                byte ACCESS_RIGHTS_RW_CAR_FREE = (byte) 0xEE; // Read&Write Access (free) & ChangeAccessRights (free)
+                byte ACCESS_RIGHTS_R_W_FREE = (byte) 0xEE; // Read Access (free) & Write Access (free)
+                try {
+                    boolean success = desfire.changeFileSettings(fileNumberByte, FILE_COMMUNICATION_SETTINGS, ACCESS_RIGHTS_RW_CAR_FREE, ACCESS_RIGHTS_R_W_FREE);
+                    writeToUiAppend(output, logString + "success: " + success);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                } catch (Exception e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    e.printStackTrace();
+                    return;
+                }
             }
         });
 
