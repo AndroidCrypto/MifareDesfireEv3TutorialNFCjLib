@@ -940,8 +940,8 @@ public class DESFireEV1 {
 
 	// todo remove the code segment as it is for testing the manual method only
 	private byte[] getTheFileSettingsCommand(byte [] SESSION_KEY_DES) {
-		int selectedFileIdInt = Integer.parseInt("0");
-		byte selectedFileIdByte = Byte.parseByte("0");
+		int selectedFileIdInt = Integer.parseInt("1");
+		byte selectedFileIdByte = Byte.parseByte("1");
 		Log.d(TAG, "changeTheFileSettings for selectedFileId " + selectedFileIdInt);
 		Log.d(TAG, printData("DES session key", SESSION_KEY_DES));
 
