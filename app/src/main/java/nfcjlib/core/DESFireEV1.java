@@ -940,8 +940,8 @@ public class DESFireEV1 {
 
 	// todo remove the code segment as it is for testing the manual method only
 	private byte[] getTheFileSettingsCommand(byte [] SESSION_KEY_DES) {
-		int selectedFileIdInt = Integer.parseInt("1");
-		byte selectedFileIdByte = Byte.parseByte("1");
+		int selectedFileIdInt = Integer.parseInt("2");
+		byte selectedFileIdByte = Byte.parseByte("2");
 		Log.d(TAG, "changeTheFileSettings for selectedFileId " + selectedFileIdInt);
 		Log.d(TAG, printData("DES session key", SESSION_KEY_DES));
 
@@ -2346,7 +2346,8 @@ public class DESFireEV1 {
 		}
 
 		if(print) {
-			Log.d(TAG, "<--- " + getHexString(response, true) + " (" + command.length + ")");
+			// Log.d(TAG, "<--- " + getHexString(response, true) + " (" + command.length + ")"); // todo ERROR command.length is wrong, response.length is right
+			Log.d(TAG, "<--- " + getHexString(response, true) + " (" + response.length + ")");
 		}
 	}
 

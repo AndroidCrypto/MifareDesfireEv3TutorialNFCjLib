@@ -4093,8 +4093,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 byte FILE_COMMUNICATION_SETTINGS = (byte) 0x00; // plain communication
                 byte ACCESS_RIGHTS_RW_CAR_FREE = (byte) 0xEE; // Read&Write Access (free) & ChangeAccessRights (free)
                 byte ACCESS_RIGHTS_R_W_FREE = (byte) 0xEE; // Read Access (free) & Write Access (free)
+
+                //byte ACCESS_RIGHTS_RW_CAR = (byte) 0x12;
+                //byte ACCESS_RIGHTS_R_W = (byte) 0x22;
+                byte ACCESS_RIGHTS_RW_CAR = (byte) 0x12;
+                byte ACCESS_RIGHTS_R_W = (byte) 0x34;
+
                 try {
-                    boolean success = desfire.changeFileSettings(fileNumberByte, FILE_COMMUNICATION_SETTINGS, ACCESS_RIGHTS_RW_CAR_FREE, ACCESS_RIGHTS_R_W_FREE);
+                    //boolean success = desfire.changeFileSettings(fileNumberByte, FILE_COMMUNICATION_SETTINGS, ACCESS_RIGHTS_RW_CAR_FREE, ACCESS_RIGHTS_R_W_FREE);
+                    boolean success = desfire.changeFileSettings(fileNumberByte, FILE_COMMUNICATION_SETTINGS, ACCESS_RIGHTS_RW_CAR, ACCESS_RIGHTS_R_W);
                     writeToUiAppend(output, logString + "success: " + success);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
                 } catch (Exception e) {
