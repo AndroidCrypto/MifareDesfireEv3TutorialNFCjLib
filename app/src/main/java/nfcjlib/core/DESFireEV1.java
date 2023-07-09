@@ -923,9 +923,9 @@ public class DESFireEV1 {
 		Log.d(TAG, "changeFileSettings apdu: " + Utils.getHexString(apdu, true)); // todo remove
 		Log.d(TAG, "next data are manual encrypted changeFileSettings");
 		Log.d(TAG, "parameter " + Utils.getHexString(getTheFileSettingsCommand(skey), true));
-		byte[] responseAPDU = new byte[0];
+		//byte[] responseAPDU = new byte[0];
 
-		//byte[] responseAPDU = transmit(apdu);
+		byte[] responseAPDU = transmit(apdu); // todo removed the comment on this line
 		code = getSW2(responseAPDU);
 
 		feedback(apdu, responseAPDU);
@@ -940,8 +940,8 @@ public class DESFireEV1 {
 
 	// todo remove the code segment as it is for testing the manual method only
 	private byte[] getTheFileSettingsCommand(byte [] SESSION_KEY_DES) {
-		int selectedFileIdInt = Integer.parseInt("0");
-		byte selectedFileIdByte = Byte.parseByte("0");
+		int selectedFileIdInt = Integer.parseInt("2");
+		byte selectedFileIdByte = Byte.parseByte("2");
 		Log.d(TAG, "changeTheFileSettings for selectedFileId " + selectedFileIdInt);
 		Log.d(TAG, printData("DES session key", SESSION_KEY_DES));
 
@@ -986,7 +986,7 @@ public class DESFireEV1 {
 		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 0, 8);
 		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 8, 8);
 		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 16, 8);
-		Log.d(TAG, printData("tripeDES Session Key", tripleDES_SESSION_KEY));
+		Log.d(TAG, printData("tripleDES Session Key", tripleDES_SESSION_KEY));
 		byte[] IV_DES = new byte[8];
 		Log.d(TAG, printData("IV_DES", IV_DES));
 		//byte[] decryptedData = TripleDES.encrypt(IV_DES, tripleDES_SESSION_KEY, bytesForDecryption);
@@ -1001,6 +1001,7 @@ public class DESFireEV1 {
 	}
 
 	private String printData(String str, byte[] data) {
+		if (data == null) return "";
 		String retStr = str + " ";
 		retStr += Utils.getHexString(data, true);
 		return retStr;
@@ -2345,7 +2346,8 @@ public class DESFireEV1 {
 		}
 
 		if(print) {
-			Log.d(TAG, "<--- " + getHexString(response, true) + " (" + command.length + ")");
+			// Log.d(TAG, "<--- " + getHexString(response, true) + " (" + command.length + ")"); // todo ERROR command.length is wrong, response.length is right
+			Log.d(TAG, "<--- " + getHexString(response, true) + " (" + response.length + ")");
 		}
 	}
 
