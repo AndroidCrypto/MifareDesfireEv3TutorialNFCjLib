@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private LinearLayout llGeneralWorkflow;
     private Button tagVersion, keySettings, freeMemory, formatPicc, selectMasterApplication;
 
+    private Button getCardUidDes, getCardUidAes; // get cardUID * encrypted
+
     /**
      * section for application handling
      */
@@ -237,7 +239,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         standardWriteRead = findViewById(R.id.btnStandardFileWriteRead);
         //standardWriteReadDefaultKeys = findViewById(R.id.btnStandardFileWriteReadDefaultKeys);
         getFileSettingsDesfire = findViewById(R.id.btnGetFileSettings);
-
+        getCardUidDes = findViewById(R.id.btnGetCardUidDes);
+        getCardUidAes = findViewById(R.id.btnGetCardUidAes);
 
         // general workflow
         tagVersion = findViewById(R.id.btnGetTagVersion);
@@ -3824,6 +3827,36 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
         */
         // DesfireFile[] getFileSettings()
+
+        getCardUidAes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearOutputFields();
+                String logString = "getCardUid (AES)";
+                writeToUiAppend(output, logString);
+                try {
+                    byte[] result = desfire.getCardUID();
+                    if (result == null) {
+                        writeToUiAppend(output, "Could not get the UID from card - did you forget to AUTHENTICATE with any key ?");
+                        writeToUiAppendBorderColor(errorCode, errorCodeLayout,  logString + " Did you forget to AUTHENTICATE with any key ?", COLOR_RED);
+                        return;
+                    }
+                    writeToUiAppend(output, printData("card UID", result));
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
 
     }
 

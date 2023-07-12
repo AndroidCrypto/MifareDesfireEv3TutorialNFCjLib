@@ -202,6 +202,7 @@ public class DESFireEV1 {
 		Log.d(TAG, "The random A is " + Dump.hex(randA));
 		Log.d(TAG, "The random B is " + Dump.hex(randB));
 		Log.d(TAG, "The skey     is " + Dump.hex(skey));
+		Log.d(TAG, "The iv0      is " + Dump.hex(iv0));
 		this.ktype = type;
 		this.kno = keyNo;
 		this.iv = iv0;
@@ -1712,7 +1713,11 @@ public class DESFireEV1 {
 		assert apdu.length >= 2;
 
 		byte[] ciphertext = Arrays.copyOfRange(apdu, 0, apdu.length - 2);
+		Log.d(TAG, "postprocessEnciphered before recv " + printData("skey", skey) + printData(" iv", iv) +
+				printData(" ciphertext", ciphertext));
 		byte[] plaintext = recv(skey, ciphertext, ktype, iv);
+		Log.d(TAG, "postprocessEnciphered after recv  " + printData("skey", skey) + printData(" iv", iv) +
+			printData(" ciphertext", ciphertext) + printData(" plaintext", plaintext));
 
 		byte[] crc;
 		switch (ktype) {
@@ -1724,6 +1729,8 @@ public class DESFireEV1 {
 			case AES:
 				iv = Arrays.copyOfRange(apdu, apdu.length - 2 - iv.length, apdu.length - 2);
 				crc = calculateApduCRC32R(plaintext, length);
+				Log.d(TAG, "postprocessEnciphered CRC32R " +  printData("plaintext", plaintext) +
+						printData(" crc", crc) + printData(" iv new", iv));
 				break;
 			default:
 				return null;
