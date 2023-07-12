@@ -1558,10 +1558,11 @@ public class DESFireEV1 {
 
 	// update global IV
 	private byte[] preprocessPlain(byte[] apdu) {
+		Log.d(TAG, "preprocessPlain" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu));
 		if (ktype == KeyType.TKTDES || ktype == KeyType.AES) {
 			iv = calculateApduCMAC(apdu, skey, iv, ktype);
+			Log.d(TAG, "preprocessPlain keyType == TKTDES or AES" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv));
 		}
-
 		return apdu;
 	}
 
@@ -1713,11 +1714,16 @@ public class DESFireEV1 {
 		assert apdu.length >= 2;
 
 		byte[] ciphertext = Arrays.copyOfRange(apdu, 0, apdu.length - 2);
-		Log.d(TAG, "postprocessEnciphered before recv " + printData("skey", skey) + printData(" iv", iv) +
-				printData(" ciphertext", ciphertext));
+		Log.d(TAG, "postprocessEnciphered before recv" +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" skey", skey) +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv) +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" ciphertext", ciphertext));
 		byte[] plaintext = recv(skey, ciphertext, ktype, iv);
-		Log.d(TAG, "postprocessEnciphered after recv  " + printData("skey", skey) + printData(" iv", iv) +
-			printData(" ciphertext", ciphertext) + printData(" plaintext", plaintext));
+		Log.d(TAG, "postprocessEnciphered after recv " +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" skey", skey) +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv) +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" ciphertext", ciphertext) +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" plaintext", plaintext));
 
 		byte[] crc;
 		switch (ktype) {
@@ -1729,8 +1735,10 @@ public class DESFireEV1 {
 			case AES:
 				iv = Arrays.copyOfRange(apdu, apdu.length - 2 - iv.length, apdu.length - 2);
 				crc = calculateApduCRC32R(plaintext, length);
-				Log.d(TAG, "postprocessEnciphered CRC32R " +  printData("plaintext", plaintext) +
-						printData(" crc", crc) + printData(" iv new", iv));
+				Log.d(TAG, "postprocessEnciphered CRC32R" +
+						de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" plaintext", plaintext) +
+						de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" crc", crc) +
+						de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv new", iv));
 				break;
 			default:
 				return null;
@@ -1746,6 +1754,9 @@ public class DESFireEV1 {
 	}
 
 	private static byte[] calculateApduCMAC(byte[] apdu, byte[] sessionKey, byte[] iv, KeyType type) {
+		Log.d(TAG, "calculateApduCMAC" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu) +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" sessionKey", sessionKey) +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv) + " KeyType: " + type.toString());
 		byte[] block;
 
 		if (apdu.length == 5) {
@@ -1761,7 +1772,9 @@ public class DESFireEV1 {
 			case TKTDES:
 				return CMAC.get(CMAC.Type.TKTDES, sessionKey, block, iv);
 			case AES:
-				return CMAC.get(CMAC.Type.AES, sessionKey, block, iv);
+				byte[] cmac = CMAC.get(CMAC.Type.AES, sessionKey, block, iv);
+				Log.d(TAG, "calculateApduCMAC AES key" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" cmac", cmac));
+				return cmac;
 			default:
 				return null;
 		}
