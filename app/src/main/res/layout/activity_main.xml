@@ -2586,12 +2586,12 @@
                         android:text="cardUID AES" />
 
                     <Button
-                        android:id="@+id/btncardUIDxx"
+                        android:id="@+id/btnGetCardUidAesManual"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
                         android:layout_weight="1"
-                        android:text="xx" />
+                        android:text="UID man" />
 
                 </LinearLayout>
 

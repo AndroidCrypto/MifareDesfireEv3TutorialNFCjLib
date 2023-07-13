@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,10 +55,15 @@ import java.util.UUID;
 import nfcjlib.core.DESFireAdapter;
 import nfcjlib.core.DESFireEV1;
 import nfcjlib.core.KeyType;
+import nfcjlib.core.util.AES;
+import nfcjlib.core.util.CMAC;
 import nfcjlib.core.util.CRC16;
+import nfcjlib.core.util.CRC32;
 import nfcjlib.core.util.TripleDES;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
+
+    private static final String TAG = MainActivity.class.getName();
 
     private com.google.android.material.textfield.TextInputEditText output, errorCode;
     private com.google.android.material.textfield.TextInputLayout errorCodeLayout;
@@ -77,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private Button tagVersion, keySettings, freeMemory, formatPicc, selectMasterApplication;
 
     private Button getCardUidDes, getCardUidAes; // get cardUID * encrypted
+    private Button getCardUidAesManual; // this is a mixed action: get the Session key from nfcjlib and do the command manual
 
     /**
      * section for application handling
@@ -241,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         getFileSettingsDesfire = findViewById(R.id.btnGetFileSettings);
         getCardUidDes = findViewById(R.id.btnGetCardUidDes);
         getCardUidAes = findViewById(R.id.btnGetCardUidAes);
+        getCardUidAesManual = findViewById(R.id.btnGetCardUidAesManual);
 
         // general workflow
         tagVersion = findViewById(R.id.btnGetTagVersion);
@@ -3858,7 +3866,118 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         });
 
+        getCardUidAesManual.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // status WORKING
+
+                clearOutputFields();
+                String logString = "getCardUid manual (AES)";
+                writeToUiAppend(output, logString);
+                byte[] response = new byte[0];
+                byte[] apdu = new byte[0];
+                try {
+                    byte[] sessionKey = desfire.getSkey();
+                    byte[] iv = desfire.getIv();
+                    writeToUiAppend(output, printData("sessionKey", sessionKey));
+                    writeToUiAppend(output, printData("iv", iv));
+                    byte GET_CARD_UID_COMMAND = (byte) 0x51;
+                    apdu = wrapMessage(GET_CARD_UID_COMMAND, null);
+                    Log.d(TAG, logString + printData(" apdu", apdu));
+                    response = isoDep.transceive(apdu);
+                    Log.d(TAG, logString + printData(" response", response));
+                    byte[] encryptedData = Arrays.copyOf(response, response.length - 2);
+                    Log.d(TAG, logString + printData(" encryptedData", encryptedData));
+                    //byte[] result = desfire.getCardUID();
+
+                    writeToUiAppend(output, printData("encryptionKey AES", sessionKey));
+                    //byte[] iv = new byte[16]; // an AES IV is 16 bytes long
+                    writeToUiAppend(output, printData("IV", iv));
+                    writeToUiAppend(output, printData("apdu", apdu));
+                    byte[] cmacIv = calculateApduCMAC(apdu, sessionKey, iv);
+                    writeToUiAppend(output, printData("cmacIv", cmacIv));
+                    byte[] decryptedData = AES.decrypt(cmacIv, sessionKey, encryptedData);
+                    writeToUiAppend(output, printData("decryptedData", decryptedData));
+                    // decryptedData length: 16 data: 045e0832501490195bacfb0000000000
+                    // data expected: 045e0832501490 ( 7 bytes)
+                    // decryptedData is 7 bytes UID || 4 bytes CRC32 || 5 bytes RFU = 00's
+                    //                  045e0832501490
+                    //                                 195bacfb
+                    byte[] cardUid = Arrays.copyOfRange(decryptedData, 0, 7);
+                    byte[] crc32Received = Arrays.copyOfRange(decryptedData, 7, 11);
+                    writeToUiAppend(output, printData("cardUid", cardUid));
+                    writeToUiAppend(output, printData("crc32 received", crc32Received));
+
+                    byte[] crc32Calculated = calculateApduCRC32R(decryptedData, 7);
+                    writeToUiAppend(output, printData("crc32 calcultd", crc32Calculated));
+                    if (Arrays.equals(crc32Received, crc32Calculated)) {
+                        writeToUiAppend(output, "CRC32 matches calculated CRC32");
+                    } else {
+                        writeToUiAppend(output, "CRC32 DOES NOT matches calculated CRC32");
+                    }
+
+                } catch (IOException e) {
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
+                    e.printStackTrace();
+                    return;
+                } catch (Exception e) {
+                    //throw new RuntimeException(e);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
+                    writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        });
+
     }
+
+    /**
+     * section for test methods
+     */
+
+    /**
+     * copied from DESFireEV1.java class
+     * necessary for calculation the  new IV for decryption of getCardUid
+     * @param apdu
+     * @param sessionKey
+     * @param iv
+     * @return
+     *
+     * Note: fixed to AES
+     */
+    private byte[] calculateApduCMAC(byte[] apdu, byte[] sessionKey, byte[] iv) {
+        Log.d(TAG, "calculateApduCMAC" + printData(" apdu", apdu) +
+                printData(" sessionKey", sessionKey) + printData(" iv", iv));
+        byte[] block;
+
+        if (apdu.length == 5) {
+            block = new byte[apdu.length - 4];
+        } else {
+            // trailing 00h exists
+            block = new byte[apdu.length - 5];
+            System.arraycopy(apdu, 5, block, 1, apdu.length - 6);
+        }
+        block[0] = apdu[1];
+        Log.d(TAG, "calculateApduCMAC" + printData(" block", block));
+        //byte[] newIv = desfireAuthenticateProximity.calculateDiverseKey(sessionKey, iv);
+        //return newIv;
+        byte[] cmacIv = CMAC.get(CMAC.Type.AES, sessionKey, block, iv);
+        Log.d(TAG, "calculateApduCMAC" + printData(" cmacIv", cmacIv));
+        return cmacIv;
+    }
+
+    private static byte[] calculateApduCRC32R(byte[] apdu, int length) {
+        byte[] data = new byte[length + 1];
+        System.arraycopy(apdu, 0, data, 0, length);// response code is at the end
+        return CRC32.get(data);
+    }
+
+    /**
+     * section for test methods END
+     */
 
     private String getFileInformationType(int fileNumber) {
         String fileType;
