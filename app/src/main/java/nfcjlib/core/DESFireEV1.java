@@ -1657,7 +1657,7 @@ public class DESFireEV1 {
 			Log.e(TAG, "postprocess: skey is null");
 			return Arrays.copyOfRange(apdu, 0, apdu.length - 2);
 		}
-
+		Log.d(TAG, "commSettings " + commSett.toString());
 		switch (commSett) {
 			case PLAIN:
 				if (ktype == KeyType.DES || ktype == KeyType.TDES)
@@ -1673,6 +1673,7 @@ public class DESFireEV1 {
 	}
 
 	private byte[] postprocessMaced(byte[] apdu) {
+		Log.d(TAG, "postprocessMaced" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu));
 		switch (ktype) {
 			case DES:
 			case TDES:
@@ -1693,12 +1694,14 @@ public class DESFireEV1 {
 				byte[] block2 = new byte[apdu.length - 9];
 				System.arraycopy(apdu, 0, block2, 0, apdu.length - 10);
 				block2[block2.length - 1] = apdu[apdu.length - 1];
+				Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("block2", block2));
 
 				CMAC.Type cmacType = ktype == KeyType.AES ? CMAC.Type.AES : CMAC.Type.TKTDES;
 				byte[] cmac = CMAC.get(cmacType, skey, block2, iv);
+				Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("cmac", cmac));
 				for (int i = 0, j = apdu.length - 10; i < 8 && j < apdu.length - 2; i++, j++) {
 					if (cmac[i] != apdu[j]) {
-						Log.e(TAG, "Received CMAC does not match calculated CMAC.");
+						Log.e(TAG, "postprocessMaced: Received CMAC does not match calculated CMAC.");
 						return null;
 					}
 				}
@@ -1711,6 +1714,9 @@ public class DESFireEV1 {
 	}
 
 	private byte[] postprocessEnciphered(byte[] apdu, int length) {
+		Log.d(TAG, "postprocessEnciphered" +
+				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu) + " length: " + length);
+
 		assert apdu.length >= 2;
 
 		byte[] ciphertext = Arrays.copyOfRange(apdu, 0, apdu.length - 2);
@@ -1745,7 +1751,7 @@ public class DESFireEV1 {
 		}
 		for (int i = 0; i < crc.length; i++) {
 			if (crc[i] != plaintext[i + length]) {
-				Log.e(TAG, "Received CMAC does not match calculated CMAC.");
+				Log.e(TAG, "postprocessEnciphered: Received CMAC does not match calculated CMAC.");
 				return null;
 			}
 		}
@@ -1832,9 +1838,7 @@ public class DESFireEV1 {
 
 	private static byte[] calculateApduCRC16R(byte[] apdu, int length) {
 		byte[] data = new byte[length];
-
 		System.arraycopy(apdu, 0, data, 0, length);
-
 		return CRC16.get(data);
 	}
 
@@ -2244,7 +2248,7 @@ public class DESFireEV1 {
 */
 
 		//DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], true, false, false, true); // todo ERROR changed
-		// this method is using the  authKey used for a successful authentication
+		// this method is using the authKey used for a successful authentication
 		DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], kno, true, false, false, true);
 
 		if (cs == null) {
@@ -2262,14 +2266,16 @@ public class DESFireEV1 {
 		fullApdu[4] = (byte) (payload.length & (0xff)); // todo is this change correct ? This seems to work on a 32 byte long standard file
 
 		System.arraycopy(payload, 0, fullApdu, 5, payload.length);
-
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("fullApdu1", fullApdu));
 		fullApdu = preprocess(fullApdu, 7, cs);  // 7 = 1+3+3 (fileNo+off+len)
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("fullApdu2", fullApdu));
 
 		byte[] responseAPDU = adapter.transmitChain(fullApdu);
+		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
 		//System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
-		byte[] postprocessRes = postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
+		//byte[] postprocessRes = postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
 		//System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("postprocessRes", postprocessRes));
-		boolean post = postprocessRes != null;
+		//boolean post = postprocessRes != null;
 		//System.out.println("post: " + post);
 
 		return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN) != null;

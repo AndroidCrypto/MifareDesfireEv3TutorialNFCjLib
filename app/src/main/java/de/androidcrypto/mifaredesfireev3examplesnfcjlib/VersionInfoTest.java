@@ -285,7 +285,7 @@ public class VersionInfoTest {
         sb.append("softwareStorageSize: ").append(softwareStorageSize).append("\n");
         sb.append("Uid: ").append(Utils.bytesToHex(uid)).append("\n");
         sb.append("batchNumber: ").append(Utils.bytesToHex(batchNumber)).append("\n");
-        sb.append("productionWeek1: ").append(byteToHex(productionWeekByte)).append("\n");
+        sb.append("productionWeek: ").append(byteToHex(productionWeekByte)).append("\n");
         sb.append("productionYear: ").append(byteToHex(productionYearByte)).append("\n");
         sb.append("*** dump ended ***").append("\n");
         return sb.toString();

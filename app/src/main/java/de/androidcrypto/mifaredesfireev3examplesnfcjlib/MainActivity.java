@@ -2564,8 +2564,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppend(output, "record written " + " to fileID " + fileIdInt);
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeRecord success", COLOR_GREEN);
                     } else {
-                        writeToUiAppend(output, "writeRecord NO success for fileID" + fileIdInt);
+                        writeToUiAppend(output, "writeRecord NO success for fileID " + fileIdInt);
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeRecord failed with code " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                        return; // don't try to submit a commit
                     }
 
                     boolean successCommit = desfire.commitTransaction();
