@@ -22,8 +22,9 @@ https://neteril.org/files/M075031_desfire.pdf.
 Another fine piece of information is the **NXP MIFARE DESFire EV1 Protocol** available here: https://github.com/revk/DESFireAES/blob/master/DESFire.pdf. 
 This is a short overview about most of the DESFire EV1 commands and error codes.
 
-## About this app: 
-It is developed using Android Studio version Flamingo | 2022.2.1 Patch 2n and is running on SDK 21 to 33 (Android 13) (tested on 
+## About this app:
+
+It is developed using Android Studio version Hedgehog | 2023.1.1 Patch 2 and is running on SDK 21 to 33 (Android 13) (tested on 
 Android 8 and 13 with real devices).  
 
 The main purpose of the app is to run all major functions on a DESFire tag in one application using **DES keys** and **plain / open communication**.
