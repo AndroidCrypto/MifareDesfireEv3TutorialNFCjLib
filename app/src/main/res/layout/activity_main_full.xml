@@ -17,6 +17,7 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <ScrollView
+        android:id="@+id/svScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -30,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text="Mifare DESFire EV3 Examples DES using NFCJLib (Encrypted)"
+                android:text="Mifare DESFire EV3 Examples using NFCJLib library"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -166,8 +167,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
                     android:id="@+id/tvApplications"
@@ -265,6 +266,40 @@
                         tools:ignore="KeyboardInaccessibleWidget" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <TextView
+                    android:id="@+id/tvKeyTypeApplication"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="choose key type"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbApplicationKeyTypeDes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="DES key" />
+
+                    <RadioButton
+                        android:id="@+id/rbApplicationKeyTypeAes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="AES key" />
+
+                </RadioGroup>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -303,8 +338,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
                     android:id="@+id/tvFiles"
@@ -354,13 +389,13 @@
                         android:text="file settings" />
 
                     <Button
-                        android:id="@+id/btnxx2"
+                        android:id="@+id/btnChangeFileSettings"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
                         android:layout_weight="1"
-                        android:enabled="false"
-                        android:text="xx" />
+                        android:enabled="true"
+                        android:text="chg file sett" />
 
                     <Button
                         android:id="@+id/btnDeleteFile"
@@ -387,8 +422,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
                     android:id="@+id/tvStandardFiles"
@@ -412,22 +447,6 @@
                         android:layout_marginRight="8dp"
                         android:layout_weight="1"
                         android:text="create" />
-
-                    <Button
-                        android:id="@+id/btnWriteStandardFile"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="write" />
-
-                    <Button
-                        android:id="@+id/btnReadStandardFile"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="read" />
 
                 </LinearLayout>
 
@@ -554,6 +573,13 @@
                         tools:ignore="KeyboardInaccessibleWidget" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/etFileStandardDataLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -590,6 +616,31 @@
             </LinearLayout>
 
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnWriteStandardFile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="1"
+                    android:text="write" />
+
+                <Button
+                    android:id="@+id/btnReadStandardFile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_weight="1"
+                    android:text="read" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/llValueFile"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -602,8 +653,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
                     android:id="@+id/tvValueFiles"
@@ -804,8 +855,8 @@
                         android:id="@+id/btnCreditValueFile"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
                         android:layout_marginTop="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
                         android:text="credit" />
 
@@ -864,8 +915,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
+
                 <TextView
                     android:id="@+id/tvRecordFiles"
                     android:layout_width="match_parent"
@@ -1065,12 +1117,12 @@
                         android:text="write" />
 
                     <Button
-                        android:id="@+id/btnXxxRecordFile"
+                        android:id="@+id/btnWriteRecordFileTimestamp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
                         android:layout_weight="1"
-                        android:text="xxx" />
+                        android:text="write timestamp" />
 
                 </LinearLayout>
 
@@ -1110,7 +1162,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/llStandardFileEnc"
+                android:id="@+id/llAuthentication2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
@@ -1122,15 +1174,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
-                    android:id="@+id/tvStandardFilesEnc"
+                    android:id="@+id/tvAuthentication2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
-                    android:text="work with Encrypted Standard files"
+                    android:text="authentication with default keys"
                     android:textAlignment="center"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -1140,36 +1192,227 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnCreateStandardFileEnc"
+                    <TextView
+                        android:id="@+id/tvAuthDM0"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
                         android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="create" />
+                        android:gravity="center_horizontal"
+                        android:text="M0 Master   "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
 
                     <Button
-                        android:id="@+id/btnWriteStandardFileEnc"
+                        android:id="@+id/btnAuthDM0D"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="write" />
+                        android:text="DES" />
 
                     <Button
-                        android:id="@+id/btnManualEnc"
+                        android:id="@+id/btnAuthDM0A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthD0"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="man Enc" />
+                        android:gravity="center_horizontal"
+                        android:text="0 App Master"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD0D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD0A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthD1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="1 App R &amp; W "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD1D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD1A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthD2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="2 App CAR   "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD2D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD2A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthD3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="3 App Read  "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD3D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD3A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthD4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="4 App Write "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD4D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD4A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/llAuthentication"
+                android:id="@+id/llAuthentication2C"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
@@ -1181,15 +1424,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
-                    android:id="@+id/tvAuthentication"
+                    android:id="@+id/tvAuthentication2C"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
-                    android:text="authentications with default keys"
+                    android:text="authentication with changed keys"
                     android:textAlignment="center"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -1199,30 +1442,35 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnAuthDM0"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="MAS D0 M" />
-
-                    <Button
-                        android:id="@+id/btnAuthD0"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D0 M" />
-
-                    <Button
-                        android:id="@+id/btnAuthD1"
+                    <TextView
+                        android:id="@+id/tvAuthDM0C"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="D1 RW" />
+                        android:gravity="center_horizontal"
+                        android:text="M0 Master   "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthDM0DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthDM0AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
@@ -1231,30 +1479,35 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnAuthAM0"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="MAS A0 M" />
-
-                    <Button
-                        android:id="@+id/btnAuthx1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="x" />
-
-                    <Button
-                        android:id="@+id/btnAuthx2"
+                    <TextView
+                        android:id="@+id/tvAuthD0C"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="x" />
+                        android:gravity="center_horizontal"
+                        android:text="0 App Master"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD0DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD0AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
@@ -1263,37 +1516,153 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnAuthD2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="D2 CAR" />
-
-                    <Button
-                        android:id="@+id/btnAuthD3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D3 R" />
-
-                    <Button
-                        android:id="@+id/btnAuthD4"
+                    <TextView
+                        android:id="@+id/tvAuthD1C"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="D4 W" />
+                        android:gravity="center_horizontal"
+                        android:text="1 App R &amp; W "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD1DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD1AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthD2C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="2 App CAR   "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD2DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD2AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthD3DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="3 App Read  "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD3DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD3AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthD4C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="4 App Write "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnAuthD4DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnAuthD4AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/llAuthenticationChanged"
+                android:id="@+id/llKeys2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
@@ -1305,103 +1674,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
-                    android:id="@+id/tvAuthenticationChanged"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="authentications with changed keys"
-                    android:textAlignment="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/btnAuthDM0C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="MAS D0 M" />
-
-                    <Button
-                        android:id="@+id/btnAuthD0C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="D0 M" />
-
-                    <Button
-                        android:id="@+id/btnAuthD1C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D1 RW" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/btnAuthD2C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="D2 CAR" />
-
-                    <Button
-                        android:id="@+id/btnAuthD3C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D3 R" />
-
-                    <Button
-                        android:id="@+id/btnAuthD4C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D4 W" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/llKeys"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:orientation="vertical"
-                android:visibility="visible">
-
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
-
-                <TextView
-                    android:id="@+id/tvKeys"
+                    android:id="@+id/tvKeys2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
@@ -1415,30 +1692,35 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnChangeKeyDM0"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="MAS D0 M" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyD0"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D0 M" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyD1"
+                    <TextView
+                        android:id="@+id/tvChangeKeyDM0"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="D1 RW" />
+                        android:gravity="center_horizontal"
+                        android:text="M0 Master   "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyDM0D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyDM0A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
@@ -1447,30 +1729,35 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnChangeKeyD2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="D2 CAR" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyD3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D3 R" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyD4"
+                    <TextView
+                        android:id="@+id/tvChangeKeyD0"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="D4 W" />
+                        android:gravity="center_horizontal"
+                        android:text="0 App Master"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD0D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD0A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
@@ -1479,37 +1766,153 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnChangeKeyA20"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="A20 VC C" />
-
-                    <Button
-                        android:id="@+id/btnAuthA20"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="Auth A20" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyA21"
+                    <TextView
+                        android:id="@+id/tvChangeKeyD1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="A21 VC P" />
+                        android:gravity="center_horizontal"
+                        android:text="1 App R &amp; W "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD1D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD1A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeyD2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="2 App CAR   "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD2D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD2A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeyD3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="3 App Read  "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD3D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD3A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeyD4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="4 App Write "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD4D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD4A"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/llKeysC"
+                android:id="@+id/llKeys2C"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
@@ -1521,11 +1924,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
-                    android:id="@+id/tvKeysC"
+                    android:id="@+id/tvKeys2C"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
@@ -1539,30 +1942,35 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnChangeKeyDM0C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="MAS D0 M" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyD0C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D0 M" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyD1C"
+                    <TextView
+                        android:id="@+id/tvChangeKeyDM0C"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="D1 RW" />
+                        android:gravity="center_horizontal"
+                        android:text="M0 Master   "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyDM0DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyDM0AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
@@ -1571,30 +1979,456 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnChangeKeyD2C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
-                        android:text="D2 CAR" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyD3C"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_weight="1"
-                        android:text="D3 R" />
-
-                    <Button
-                        android:id="@+id/btnChangeKeyD4C"
+                    <TextView
+                        android:id="@+id/tvChangeKeyD0C"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
-                        android:text="D4 W" />
+                        android:gravity="center_horizontal"
+                        android:text="0 App Master"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD0DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD0AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeyD1C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="1 App R &amp; W "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD1DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD1AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeyD2C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="2 App CAR   "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD2DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD2AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeyD3C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="3 App Read  "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD3DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD3AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeyD4C"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="4 App Write "
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD4DC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeyD4AC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llKeys3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
+
+                <TextView
+                    android:id="@+id/tvKeys3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="key management (change all keys with default Master App Key)"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeysAllMasterDefault"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="to changed"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeysAllMasterDefaultD"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeysAllMasterDefaultA"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeysAllMasterDefaultDC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="to default"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeysAllMasterDefaultDC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:enabled="false"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeysAllMasterDefaultAC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:enabled="false"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llKeys4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
+
+                <TextView
+                    android:id="@+id/tvKeys4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="key management (change all keys with changed Master App Key)"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKeysAllMasterChanged"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="to changed"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeysAllMasterChangedD"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeysAllMasterChangedA"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChangeKesyAllMasterChangedDC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="to default"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeysAllMasterChangedDC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:enabled="false"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnChangeKeysAllMasterChangedAC"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:enabled="false"
+                        android:text="AES" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llAuthCheck"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
+
+                <TextView
+                    android:id="@+id/tvAuthCheck"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text=" check all auth keys"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvCheckAllKeys"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text="key type"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/btnCheckAllKeysD"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="DES" />
+
+                    <Button
+                        android:id="@+id/btnCheckAllKeysA"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_weight="1"
+                        android:text="AES" />
 
                 </LinearLayout>
 
@@ -1613,8 +2447,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:dividerInsetStart="8dp"
-                    app:dividerInsetEnd="8dp"/>
+                    app:dividerInsetEnd="8dp"
+                    app:dividerInsetStart="8dp" />
 
                 <TextView
                     android:id="@+id/tvGeneral"
@@ -1709,8 +2543,67 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:dividerInsetStart="8dp"
-                app:dividerInsetEnd="8dp"/>
+                app:dividerInsetEnd="8dp"
+                app:dividerInsetStart="8dp" />
+
+            <LinearLayout
+                android:id="@+id/llEncryptedResponses"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tvEncryptedResponses"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="work with Encrypted Responses"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnGetCardUidDes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:text="cardUID DES" />
+
+                    <Button
+                        android:id="@+id/btnGetCardUidAes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="cardUID AES" />
+
+                    <Button
+                        android:id="@+id/btnGetCardUidAesManual"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_weight="1"
+                        android:text="UID man" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:dividerInsetEnd="8dp"
+                app:dividerInsetStart="8dp" />
 
         </LinearLayout>
 
