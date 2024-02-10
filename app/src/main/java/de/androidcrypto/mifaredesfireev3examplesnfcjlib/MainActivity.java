@@ -2,6 +2,7 @@ package de.androidcrypto.mifaredesfireev3examplesnfcjlib;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.nfc.NfcAdapter;
@@ -3115,6 +3116,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+
+        MenuItem mMain2 = menu.findItem(R.id.action_main2);
+        mMain2.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(MainActivity.this, MainActivityFull.class);
+                startActivity(intent);
+                return false;
+            }
+        });
 
         MenuItem mApplications = menu.findItem(R.id.action_applications);
         mApplications.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {

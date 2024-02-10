@@ -3658,6 +3658,9 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             scrollView.smoothScrollTo(0, 0);
             return;
         }
+
+        // todo work on this
+        /*
         byte[] selectedAid = selectedApplicationId.clone();
         // this method should run with selected Master Application (master AID) only
         if (!Arrays.equals(selectedAid, new byte[3])) {
@@ -3665,6 +3668,8 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             scrollView.smoothScrollTo(0, 0);
             return;
         }
+
+         */
         boolean success = changeApplicationKey(authenticationKeyNumber, authenticationKey, changeKeyNumber, changeKeyNew, changeKeyOld, changeKeyName, keyType);
         writeToUiAppend(output, logString + " run successfully: " + success);
         writeToUiAppend(output, "");

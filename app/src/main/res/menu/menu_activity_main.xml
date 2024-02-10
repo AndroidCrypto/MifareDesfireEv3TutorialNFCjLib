@@ -6,6 +6,11 @@
     <!-- https://fonts.google.com/icons?selected=Material+Icons -->
 
     <item
+        android:id="@+id/action_main2"
+        android:title="Main Activity 2"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/action_applications"
         android:title="applications"
         app:showAsAction="never"/>
