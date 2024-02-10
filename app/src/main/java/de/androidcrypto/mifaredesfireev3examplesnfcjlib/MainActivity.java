@@ -23,6 +23,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -63,11 +64,11 @@ import nfcjlib.core.util.TripleDES;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
 
-    private static final String TAG = MainActivity.class.getName();
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private com.google.android.material.textfield.TextInputEditText output, errorCode;
     private com.google.android.material.textfield.TextInputLayout errorCodeLayout;
-
+    private ScrollView scrollView;
     /**
      * section for temporary actions
      */
@@ -240,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         output = findViewById(R.id.etOutput);
         errorCode = findViewById(R.id.etErrorCode);
         errorCodeLayout = findViewById(R.id.etErrorCodeLayout);
-
+        scrollView = findViewById(R.id.svScrollView);
         // temporary workflow
         setupCompleteApplication = findViewById(R.id.btnSetupCompleteApplication);
         standardWriteRead = findViewById(R.id.btnStandardFileWriteRead);
@@ -871,6 +872,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     Utils.reverseByteArrayInPlace(freeMemoryOnPicc); // LSB
                     writeToUiAppend(output, "The free memory is " + Utils.intFrom3ByteArray(freeMemoryOnPicc) + " bytes");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "success in getting the free memory", COLOR_GREEN);
+                    scrollView.smoothScrollTo(0,0);
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
@@ -1707,11 +1709,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 // this uses the pre selected file
                 if (TextUtils.isEmpty(selectedFileId)) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 String dataToWriteString = fileData.getText().toString();
                 if (TextUtils.isEmpty(dataToWriteString)) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "please enter some data to write", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 int fileIdInt = Integer.parseInt(selectedFileId);
@@ -1723,6 +1727,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 } catch (Exception e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 // check that it is a standard or backup file !
@@ -1731,6 +1736,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if ((!fileTypeName.equals("Standard")) && (!fileTypeName.equals("Backup"))) {
                     writeToUiAppend(output, "The selected file is not of type Standard or Backup but of type " + fileTypeName + ", aborted");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 boolean isBackupFile = false; // backup files require a commit after writing
@@ -1766,6 +1772,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 writeToUiAppend(output, writeFileString + "Result: " + writeStandardSuccess);
@@ -1787,6 +1794,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
                             writeToUiAppend(errorCode, "commit NOT Success: " + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                             writeToUiAppend(errorCode, "Did you forget to authenticate with a Write Access Key first ?");
+                            scrollView.smoothScrollTo(0,0);
                             return;
                         }
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
@@ -1795,10 +1803,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                             writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
                             e.printStackTrace();
+                            scrollView.smoothScrollTo(0,0);
                             return;
                         }
                     } else {
                         writeToUiAppend(output, "as the writing to the backup file was not successful I'm not trying to send a commit");
+                        scrollView.smoothScrollTo(0,0);
                     }
                 }
             }
@@ -1814,6 +1824,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 int fileIdInt = selectedFileIdInt;
@@ -1829,6 +1840,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if ((!fileTypeName.equals("Standard")) && (!fileTypeName.equals("Backup"))) {
                         writeToUiAppend(output, "The selected file is not of type Standard or Backup but of type " + fileTypeName + ", aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     if (fileTypeName.equals("Backup")) isBackupFile = true;
@@ -1843,28 +1855,32 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     int fileSize = standardDesfireFile.getFileSize();
                     writeToUiAppend(output, "fileSize: " + fileSize);
                     readStandard = desfire.readData((byte) (fileIdInt & 0xff), 0, fileSize);
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, readFileString + "Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, readFileString + "Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);scrollView.smoothScrollTo(0,0);
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 if (readStandard == null) {
                     writeToUiAppend(output, "error on reading from file number " + fileIdInt);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "did you forget to authenticate with a read access key ?", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 writeToUiAppend(output, printData(readFileString, readStandard));
                 writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
                 writeToUiAppend(output, "finished");
                 writeToUiAppend(output, "");
+                scrollView.smoothScrollTo(0,0);
             }
         });
 
@@ -1891,6 +1907,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (fileIdByte > (byte) 0x0f) {
                     // this should not happen as the limit is hardcoded in npStandardFileId
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
 
@@ -1906,18 +1923,22 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 }
                 if ((lowerLimitInt < pb.getMINIMUM_VALUE_LOWER_LIMIT()) || (lowerLimitInt > pb.getMAXIMUM_VALUE_LOWER_LIMIT())) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong lower limit, maximum 1000 allowed only", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 if ((upperLimitInt < pb.getMINIMUM_VALUE_UPPER_LIMIT()) || (upperLimitInt > pb.getMAXIMUM_VALUE_UPPER_LIMIT())) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong upper limit, maximum 1000 allowed only", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 if (upperLimitInt <= lowerLimitInt) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong upper limit, should be higher than lower limit", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 if ((initialValueInt < pb.getMINIMUM_VALUE_LOWER_LIMIT()) || (initialValueInt > pb.getMAXIMUM_VALUE_UPPER_LIMIT())) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong initial value, should be between lower and higher limit", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
 
@@ -1931,6 +1952,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!success) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createValueFile NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "createValueFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "createValueFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
@@ -1938,12 +1960,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
             }
@@ -1959,6 +1983,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 int fileIdInt = Integer.parseInt(selectedFileId);
@@ -1972,6 +1997,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!fileTypeName.equals("Value")) {
                         writeToUiAppend(output, "The selected file is not of type Value but of type " + fileTypeName + ", aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     ValueDesfireFile valueDesfireFile = (ValueDesfireFile) fileSettings;
@@ -1989,23 +2015,27 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "readValue NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "readValue NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         writeToUiAppend(errorCode, "Did you forget to authenticate with a Read Access Key first ?");
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     int transactionCode = desfire.getCode();
                     if (transactionCode == 0) {
                         writeToUiAppend(output, "the actual value of fileID " + fileIdInt + " is: " + value);
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "readValue success", COLOR_GREEN);
+                        scrollView.smoothScrollTo(0,0);
                     } else {
                         writeToUiAppend(output, "cannot read the value of the file");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "readValue NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "readValue NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         writeToUiAppend(errorCode, "Did you forget to authenticate with a Read Access Key first ?");
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                 } catch (Exception e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
             }
@@ -2022,6 +2052,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 int fileIdInt = Integer.parseInt(selectedFileId);
@@ -2035,12 +2066,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!fileTypeName.equals("Value")) {
                         writeToUiAppend(output, "The selected file is not of type Value but of type " + fileTypeName + ", aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     ValueDesfireFile valueDesfireFile = (ValueDesfireFile) fileSettings;
                     try {
                         int valueFromFileSettings = valueDesfireFile.getValue();
                         writeToUiAppend(output, "the actual value of fileID " + fileIdInt + " is: " + valueFromFileSettings + " (retrieved from fileSettings)");
+                        scrollView.smoothScrollTo(0,0);
                     } catch (NullPointerException e) {
                         // do nothing
                     }
@@ -2050,6 +2083,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     int changeValueInt = Integer.parseInt(creditDebitValue.getText().toString());
                     if ((changeValueInt < 1) || (changeValueInt > pb.getMAXIMUM_VALUE_UPPER_LIMIT())) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong change value, should be between lower and higher limit", COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
 
@@ -2060,6 +2094,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "creditValueFile NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "creditValueFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "creditValueFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
@@ -2070,14 +2105,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "commit NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
-
+                    scrollView.smoothScrollTo(0,0);
                 } catch (Exception e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
             }
@@ -2094,6 +2131,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 int fileIdInt = Integer.parseInt(selectedFileId);
@@ -2107,6 +2145,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!fileTypeName.equals("Value")) {
                         writeToUiAppend(output, "The selected file is not of type Value but of type " + fileTypeName + ", aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     ValueDesfireFile valueDesfireFile = (ValueDesfireFile) fileSettings;
@@ -2122,6 +2161,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     int changeValueInt = Integer.parseInt(creditDebitValue.getText().toString());
                     if ((changeValueInt < 1) || (changeValueInt > pb.getMAXIMUM_VALUE_UPPER_LIMIT())) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong change value, should be between lower and higher limit", COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
 
@@ -2132,6 +2172,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "debitValueFile NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "debitValueFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "debitValueFile Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
@@ -2142,14 +2183,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "commit NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
-
+                    scrollView.smoothScrollTo(0,0);
                 } catch (Exception e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
             }
@@ -2175,17 +2218,20 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 int fileSizeInt = Integer.parseInt(fileRecordSize.getText().toString());
                 if (fileSizeInt == 0) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a 0 size (minimum 1)", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 if (fileIdByte > (byte) 0x0f) {
                     // this should not happen as the limit is hardcoded in npFileId
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 int fileNumberOfRecordsInt = Integer.parseInt(fileRecordNumberOfRecords.getText().toString());
                 if (fileNumberOfRecordsInt < 2) {
                     // this should not happen as the limit is hardcoded in npFileId
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a 0 record number (minimum 2)", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
 
@@ -2234,19 +2280,23 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!success) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "create" + fileTypeString + "File NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "create" + fileTypeString + "File NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "create" + fileTypeString + "File Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                    scrollView.smoothScrollTo(0,0);
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
             }
@@ -2262,6 +2312,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 int fileIdInt = selectedFileIdInt;
@@ -2281,6 +2332,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     } else {
                         writeToUiAppend(output, "The selected file is not of type Linear or Cyclic Record but of type " + fileTypeName + ", aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     String fileTypeString = "";
@@ -2311,16 +2363,19 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     }
                     writeToUiAppend(output, "finished");
                     writeToUiAppend(output, "");
+                    scrollView.smoothScrollTo(0,0);
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
 
@@ -2337,12 +2392,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (TextUtils.isEmpty(selectedFileId)) {
                     //writeToUiAppend(errorCode, "you need to select a file first");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 String dataToWriteString = fileRecordData.getText().toString();
                 if (TextUtils.isEmpty(dataToWriteString)) {
                     //writeToUiAppend(errorCode, "please enter some data to write");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "please enter some data to write", COLOR_RED);
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
                 int fileIdInt = selectedFileIdInt;
@@ -2363,6 +2420,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     } else {
                         writeToUiAppend(output, "The selected file is not of type Linear or Cyclic Record but of type " + fileTypeName + ", aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "wrong file type", COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     String fileTypeString = "";
@@ -2405,9 +2463,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (writeRecordSuccess) {
                         writeToUiAppend(output, "record written " + " to fileID " + fileIdInt);
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeRecord success", COLOR_GREEN);
+                        scrollView.smoothScrollTo(0,0);
                     } else {
                         writeToUiAppend(output, "writeRecord NO success for fileID" + fileIdInt);
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "writeRecord failed with code " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                        scrollView.smoothScrollTo(0,0);
                     }
 
                     boolean successCommit = desfire.commitTransaction();
@@ -2416,10 +2476,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, "commit NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                         writeToUiAppend(errorCode, "Did you forget to authenticate with a Read&Write Access Key first ?");
+                        scrollView.smoothScrollTo(0,0);
                         return;
                     }
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "commit Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
-
+                    scrollView.smoothScrollTo(0,0);
 
                     // todo remove testdata
                     //fullDataToWrite = Utils.generateTestData(recordSize);
@@ -2466,12 +2527,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a write access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0,0);
                     return;
                 }
             }
@@ -2644,15 +2707,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the master application key = 00...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT DES key number 0x00 = master application key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, "master", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT DES key number 0x00 = master application key", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, "master", KeyType.DES);
             }
         });
 
@@ -2661,15 +2716,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the application master key = 00...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT DES key number 0x00 = application master key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, "app master", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT DES key number 0x00 = application master key", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, "app master", KeyType.DES);
             }
         });
 
@@ -2677,15 +2724,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT DES key number 0x01 = read & write access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, "read & write", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT DES key number 0x01 = read & write access key", APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, "read & write", KeyType.DES);
             }
         });
 
@@ -2693,15 +2732,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the change access rights key = 02...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT DES key number 0x02 = change access rights key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, "change access rights", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT DES key number 0x02 = change access rights key", APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, "change access rights", KeyType.DES);
             }
         });
 
@@ -2709,15 +2740,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read access key = 03...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT DES key number 0x03 = read access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT DES key number 0x03 = read access key", APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
             }
         });
 
@@ -2725,17 +2748,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT DES key number 0x04 = write access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                byte[] selectedAid = selectedApplicationId;
-                Utils.reverseByteArrayInPlace(selectedAid);
-                boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT DES key number 0x04 = write access key", APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
             }
         });
         
@@ -2745,15 +2758,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the master application key = 00...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT AES key number 0x00 = master application key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, "master", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT AES key number 0x00 = master application key", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, "master", KeyType.AES);
             }
         });
 
@@ -2762,15 +2767,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the application master key = 00...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT AES key number 0x00 = application master key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, "app master", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT AES key number 0x00 = application master key", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, "app master", KeyType.AES);
             }
         });
         
@@ -2778,15 +2775,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT AES key number 0x01 = read & write access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, "read & write", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT AES key number 0x01 = read & write access key", APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, "read & write", KeyType.AES);
             }
         });
 
@@ -2794,15 +2783,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the change access rights key = 02...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT AES key number 0x02 = change access rights key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, "change access rights", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT AES key number 0x02 = change access rights key", APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, "change access rights", KeyType.AES);
             }
         });
 
@@ -2810,15 +2791,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read access key = 03...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT AES key number 0x03 = read access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT AES key number 0x03 = read access key", APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
             }
         });
 
@@ -2826,15 +2799,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                String logString = "authenticate with DEFAULT AES key number 0x04 = write access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with DEFAULT AES key number 0x04 = write access key", APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
             }
         });
 
@@ -2846,15 +2811,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the master application key = 00...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED DES key number 0x00 = master application key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED DES key number 0x00 = master application key", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
             }
         });
 
@@ -2863,15 +2820,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the application master key = 00...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED DES key number 0x00 = application master key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, "app master", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED DES key number 0x00 = application master key", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, "app master", KeyType.DES);
             }
         });
 
@@ -2879,15 +2828,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED DES key number 0x01 = read & write access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, "read & write", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED DES key number 0x01 = read & write access key", APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, "read & write", KeyType.DES);
             }
         });
 
@@ -2895,15 +2836,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the change access rights key = 02...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED DES key number 0x02 = change access rights key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, "change access rights", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED DES key number 0x02 = change access rights key", APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, "change access rights", KeyType.DES);
             }
         });
 
@@ -2911,15 +2844,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read access key = 03...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED DES key number 0x03 = read access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, "read", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED DES key number 0x03 = read access key", APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, "read", KeyType.DES);
             }
         });
 
@@ -2927,15 +2852,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED DES key number 0x04 = write access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, "write", KeyType.DES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED DES key number 0x04 = write access key", APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, "write", KeyType.DES);
             }
         });
 
@@ -2945,15 +2862,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the master application key = 00...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED AES key number 0x00 = master application key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED AES key number 0x00 = master application key", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
             }
         });
 
@@ -2962,15 +2871,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the application master key = 00...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED AES key number 0x00 = application master key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, "app master", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED AES key number 0x00 = application master key", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, "app master", KeyType.AES);
             }
         });
 
@@ -2978,15 +2879,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED AES key number 0x01 = read & write access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, "read & write", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED AES key number 0x01 = read & write access key", APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, "read & write", KeyType.AES);
             }
         });
 
@@ -2994,15 +2887,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the change access rights key = 02...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED AES key number 0x02 = change access rights key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, "change access rights", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED AES key number 0x02 = change access rights key", APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, "change access rights", KeyType.AES);
             }
         });
 
@@ -3010,31 +2895,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             @Override
             public void onClick(View view) {
                 // authenticate with the read access key = 03...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED AES key number 0x03 = read access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, "read", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                authenticate("authenticate with CHANGED AES key number 0x03 = read access key", APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, "read", KeyType.AES);
             }
         });
 
         authD4AC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // authenticate with the read&write access key = 01...
-                clearOutputFields();
-                String logString = "authenticate with CHANGED AES key number 0x04 = write access key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    return;
-                }
-                boolean success = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, "write", KeyType.AES);
-                writeToUiAppend(output, logString + " success: " + success);
+                // authenticate with the write access key = 04...
+                authenticate("authenticate with CHANGED AES key number 0x04 = write access key", APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, "write", KeyType.AES);
             }
         });
 
@@ -3934,6 +3803,27 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
 
     }
+
+    /**
+     * section for UI helper methods to shorten the code
+     */
+
+    private void authenticate(String logString, byte keyNumber, byte[] authenticationKey, String keyName, KeyType keyType) {
+        // authenticate with the application master key = 00...
+        clearOutputFields();
+        writeToUiAppend(output, logString);
+        if (selectedApplicationId == null) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+            scrollView.smoothScrollTo(0,0);
+            return;
+        }
+        boolean success = authenticateApplication(keyNumber, authenticationKey, keyName, keyType);
+        writeToUiAppend(output, logString + " success: " + success);
+        scrollView.smoothScrollTo(0,0);
+    }
+
+
+
 
     /**
      * section for test methods

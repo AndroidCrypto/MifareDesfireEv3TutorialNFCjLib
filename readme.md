@@ -200,28 +200,9 @@ The licenses for this library are a mixture:
 - libfreefare - LGPL 3.0 with classpath exception: https://github.com/skjolber/desfire-tools-for-android/blob/master/libfreefare/LICENSE (Note: I did not use this part of the repository)
 - everything else - Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0.html
 
-The second dependency is the NumberPicker, written by Shawn, available here: https://github.com/ShawnLin013/NumberPicker. It gives an easy way 
+The second dependency is the **NumberPicker**, written by Shawn, available here: https://github.com/ShawnLin013/NumberPicker. It gives an easy way 
 to select a file number in a specific range.
 
 MIT-License: https://github.com/ShawnLin013/NumberPicker/blob/master/LICENSE
-
-```plaintext
-The main library for the access to Mifare DESFire tags are the DESFire Tools for Android, written by Thomas Skjølberg ("skjolber")  
-https://github.com/skjolber/desfire-tools-for-android
-
-combined license:
-
-The following licenses apply
-
-nfcjlib - Modified BSD License (3-clause BSD): https://github.com/skjolber/desfire-tools-for-android/blob/master/nfcjlib/LICENSE
-libfreefare - LGPL 3.0 with classpath exception: https://github.com/skjolber/desfire-tools-for-android/blob/master/libfreefare/LICENSE
-everything else - Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0.html 
-
-
-Shawn
-https://github.com/ShawnLin013/NumberPicker
-
-MIT-License: https://github.com/ShawnLin013/NumberPicker/blob/master/LICENSE
-```
 
 
