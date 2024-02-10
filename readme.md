@@ -184,3 +184,44 @@ The skey     is dd 62 af 26 b7 05 8d 1e f2  c7  37  40  3b  bd  42  55
                 A0 A1 A2 A3 B0 B1 B2 B3 A12 A13 A14 A15 B12 B13 B14 B15                
                 
 ```
+
+
+## Dependencies
+
+I'm using 2 external dependencies for this project, but I did not load them with Gradle but included the source code. 
+This is specially due to the fact that you are trying to understand how the workflow for your communication with the 
+Mifare DESFire tag is going on. The best way for this is to have a direct access to the underlying source code.
+
+The main library for the access to Mifare DESFire tags are the **DESFire Tools for Android**, written by Thomas Skjølberg ("skjolber"), 
+available here: https://github.com/skjolber/desfire-tools-for-android 
+
+The licenses for this library are a mixture:
+- nfcjlib - Modified BSD License (3-clause BSD): https://github.com/skjolber/desfire-tools-for-android/blob/master/nfcjlib/LICENSE
+- libfreefare - LGPL 3.0 with classpath exception: https://github.com/skjolber/desfire-tools-for-android/blob/master/libfreefare/LICENSE (Note: I did not use this part of the repository)
+- everything else - Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0.html
+
+The second dependency is the NumberPicker, written by Shawn, available here: https://github.com/ShawnLin013/NumberPicker. It gives an easy way 
+to select a file number in a specific range.
+
+MIT-License: https://github.com/ShawnLin013/NumberPicker/blob/master/LICENSE
+
+```plaintext
+The main library for the access to Mifare DESFire tags are the DESFire Tools for Android, written by Thomas Skjølberg ("skjolber")  
+https://github.com/skjolber/desfire-tools-for-android
+
+combined license:
+
+The following licenses apply
+
+nfcjlib - Modified BSD License (3-clause BSD): https://github.com/skjolber/desfire-tools-for-android/blob/master/nfcjlib/LICENSE
+libfreefare - LGPL 3.0 with classpath exception: https://github.com/skjolber/desfire-tools-for-android/blob/master/libfreefare/LICENSE
+everything else - Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0.html 
+
+
+Shawn
+https://github.com/ShawnLin013/NumberPicker
+
+MIT-License: https://github.com/ShawnLin013/NumberPicker/blob/master/LICENSE
+```
+
+
