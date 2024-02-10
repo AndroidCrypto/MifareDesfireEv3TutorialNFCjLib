@@ -720,6 +720,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     //writeToUiAppend(output, "IOException: " + e.getMessage());
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
@@ -727,16 +728,19 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 if (versionInfo == null) {
                     writeToUiAppend(output, "getVersionInfo is NULL");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "getVersionInfo is NULL", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 writeToUiAppend(output, "getVersionInfo: " + versionInfo.dump());
                 writeToUiAppendBorderColor(errorCode, errorCodeLayout, "success in getting tagVersion", COLOR_GREEN);
                 writeToUiAppend(errorCode, "getVersion: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -756,10 +760,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     //writeToUiAppend(output, "IOException: " + e.getMessage());
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 if (keySettings == null) {
                     writeToUiAppend(output, "could not get the key settings (missing authentication ?)");
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -857,6 +863,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         //.setView(R.layout.application_key_settings)
                         .show();
 
+                scrollView.smoothScrollTo(0, 0);
+
             }
         });
 
@@ -878,6 +886,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     //writeToUiAppend(output, "IOException: " + e.getMessage());
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
             }
@@ -905,6 +914,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "formatPicc NOT Success, aborted", COLOR_RED);
                                         writeToUiAppend(errorCode, "formatPicc NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
                                         writeToUiAppend(errorCode, "Did you forget to authenticate with the Master Key first ?");
+                                        scrollView.smoothScrollTo(0, 0);
                                         return;
                                     } else {
                                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "formatPicc success", COLOR_GREEN);
@@ -912,12 +922,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                         fileSelected.setText("");
                                         selectedApplicationId = null;
                                         applicationSelected.setText("");
+                                        scrollView.smoothScrollTo(0, 0);
                                     }
                                 } catch (IOException e) {
                                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                                     //writeToUiAppend(output, "IOException: " + e.getMessage());
                                     e.printStackTrace();
+                                    scrollView.smoothScrollTo(0, 0);
                                     return;
                                 }
                                 break;
@@ -925,6 +937,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                 //No button clicked
                                 // nothing to do
                                 writeToUiAppend(output, "format of the PICC aborted");
+                                scrollView.smoothScrollTo(0, 0);
                                 break;
                         }
                     }
@@ -942,7 +955,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         .setPositiveButton(android.R.string.yes, dialogClickListener)
         .setNegativeButton(android.R.string.no, dialogClickListener)
          */
+
+                scrollView.smoothScrollTo(0, 0);
             }
+
         });
 
         selectMasterApplication.setOnClickListener(new View.OnClickListener() {
@@ -959,6 +975,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!success) {
                         writeToUiAppend(output, logString + " NOT Success, aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success, aborted", COLOR_RED);
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     } else {
                         applicationSelected.setText("000000");
@@ -966,6 +983,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         selectedFileId = "";
                         fileSelected.setText("");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + ": " + success, COLOR_GREEN);
+                        scrollView.smoothScrollTo(0, 0);
                     }
 
                 } catch (IOException e) {
@@ -973,12 +991,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     //writeToUiAppend(output, "IOException: " + e.getMessage());
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
             }
@@ -1008,6 +1028,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     //writeToUiAppend(errorCode, "getApplicationIdsList: returned NULL");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "getApplicationIdsList returned NULL", COLOR_RED);
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -1023,11 +1044,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 byte[] applicationIdentifier = Utils.hexStringToByteArray(applicationId.getText().toString());
                 if (applicationIdentifier == null) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong application ID", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 Utils.reverseByteArrayInPlace(applicationIdentifier); // change to LSB
                 if (applicationIdentifier.length != 3) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you did not enter a 6 hex string application ID", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 KeyType keyType = KeyType.DES; // default
@@ -1038,20 +1061,24 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!success) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, logString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     } else {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                        scrollView.smoothScrollTo(0, 0);
                     }
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
             }
@@ -1069,11 +1096,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 byte[] applicationIdentifier = Utils.hexStringToByteArray(applicationId.getText().toString());
                 if (applicationIdentifier == null) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong application ID", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 Utils.reverseByteArrayInPlace(applicationIdentifier); // change to LSB
                 if (applicationIdentifier.length != 3) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you did not enter a 6 hex string application ID", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 try {
@@ -1082,20 +1111,24 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!success) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, logString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     } else {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " success", COLOR_GREEN);
+                        scrollView.smoothScrollTo(0, 0);
                     }
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
             }
@@ -1116,6 +1149,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!success) {
                         writeToUiAppend(output, "selectMasterApplication NOT Success, aborted");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "selectMasterApplication NOT Success, aborted", COLOR_RED);
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     }
                     List<DesfireApplicationId> desfireApplicationIdList = desfire.getApplicationsIds();
@@ -1128,12 +1162,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     //writeToUiAppend(output, "IOException: " + e.getMessage());
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
 
@@ -1155,10 +1191,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             Utils.reverseByteArrayInPlace(aid);
                             dfSelectApplication = desfire.selectApplication(aid);
                             desfireApplicationKeySettings = desfire.getKeySettings();
+                            scrollView.smoothScrollTo(0, 0);
                         } catch (IOException e) {
                             //throw new RuntimeException(e);
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                             e.printStackTrace();
+                            scrollView.smoothScrollTo(0, 0);
                             return;
                         }
                         // get the number and type of keys
@@ -1175,8 +1213,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             selectedFileId = "";
                             fileSelected.setText("");
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " Result: " + dfSelectApplication, COLOR_GREEN);
+                            scrollView.smoothScrollTo(0, 0);
                         } else {
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_RED);
+                            scrollView.smoothScrollTo(0, 0);
                         }
                     }
                 });
@@ -1194,6 +1234,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, logString);
                 if (selectedApplicationId == null) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 // open a confirmation dialog
@@ -1212,6 +1253,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT Success, aborted", COLOR_RED);
                                         writeToUiAppend(errorCode, "Did you forget to authenticate with the Application Master Key first ?");
                                         writeToUiAppend(errorCode, logString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                                        scrollView.smoothScrollTo(0, 0);
                                         return;
                                     } else {
                                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " success", COLOR_GREEN);
@@ -1219,10 +1261,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                         selectedApplicationId = null;
                                         selectedFileId = "";
                                         fileSelected.setText("");
+                                        scrollView.smoothScrollTo(0, 0);
                                     }
                                 } catch (IOException e) {
                                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                                     e.printStackTrace();
+                                    scrollView.smoothScrollTo(0, 0);
                                     return;
                                 }
                                 break;
@@ -1230,6 +1274,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                 //No button clicked
                                 // nothing to do
                                 writeToUiAppend(output, logString + " aborted");
+                                scrollView.smoothScrollTo(0, 0);
                                 break;
                         }
                     }
@@ -1266,16 +1311,19 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     fileIds = desfire.getFileIds();
                     if (fileIds == null) {
                         writeToUiAppend(output, "The getFileIds returned NULL");
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     }
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                     //throw new RuntimeException(e);
                 }
 
                 if (fileIds.length == 0) {
                     writeToUiAppend(output, "The getFileIds returned no files");
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 List<Byte> fileIdList = new ArrayList<>();
@@ -1322,10 +1370,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             desfireFile = desfire.forceFileSettingsUpdate(selectedFileIdInt);
                         } catch (Exception e) {
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
+                            scrollView.smoothScrollTo(0, 0);
                             return;
                         }
                         if (desfireFile == null) {
                             writeToUiAppendBorderColor(errorCode, errorCodeLayout, "cant update the file communication settings, aborted", COLOR_RED);
+                            scrollView.smoothScrollTo(0, 0);
                             return;
                         }
                         int readAccessKey = desfireFile.getReadAccessKey();
@@ -1347,6 +1397,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         */
                         fileSelected.setText(fileList[which]);
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "file selected", COLOR_GREEN);
+                        scrollView.smoothScrollTo(0, 0);
                     }
                 });
                 // create and show the alert dialog
@@ -1362,6 +1413,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, "delete a selected file");
                 if (TextUtils.isEmpty(selectedFileId)) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 // open a confirmation dialog
@@ -1379,15 +1431,18 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteFile NOT Success, aborted", COLOR_RED);
                                         writeToUiAppend(errorCode, "Did you forget to authenticate with the Application Master Key first ?");
                                         writeToUiAppend(errorCode, "deleteFile NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                                        scrollView.smoothScrollTo(0, 0);
                                         return;
                                     } else {
                                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "deleteFile success", COLOR_GREEN);
                                         fileSelected.setText("");
                                         selectedFileId = null;
+                                        scrollView.smoothScrollTo(0, 0);
                                     }
                                 } catch (IOException e) {
                                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                                     e.printStackTrace();
+                                    scrollView.smoothScrollTo(0, 0);
                                     return;
                                 }
                                 break;
@@ -1395,6 +1450,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                                 //No button clicked
                                 // nothing to do
                                 writeToUiAppend(output, "delete a selected file aborted");
+                                scrollView.smoothScrollTo(0, 0);
                                 break;
                         }
                     }
@@ -1424,6 +1480,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, logString);
                 if (TextUtils.isEmpty(selectedFileId)) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 int selectedFileNumberInt = Integer.parseInt(selectedFileId);
@@ -1432,17 +1489,20 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, "The following fileSettings are for fileId " + selectedFileNumberInt);
                     writeToUiAppend(output, fileSettings.toString());
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
             }
@@ -1458,6 +1518,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, logString);
                 if (TextUtils.isEmpty(selectedFileId)) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select a file first", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 int selectedFileNumberInt = Integer.parseInt(selectedFileId);
@@ -1472,22 +1533,26 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, logString + " was " + changeResult);
                     if (changeResult) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     } else {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " NOT SUCCESS", COLOR_RED);
                         writeToUiAppend(errorCode, "Did you forget to authenticate with the CAR key before ?");
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     }
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
             }
@@ -1549,6 +1614,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if (fileIdByte > (byte) 0x0f) {
                     // this should not happen as the limit is hardcoded in npFileId
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file ID", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 /*
@@ -1585,19 +1651,23 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (!success) {
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, createString + " NOT Success, aborted", COLOR_RED);
                         writeToUiAppend(errorCode, createString + " NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     }
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, createString + " Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc(), COLOR_GREEN);
+                    scrollView.smoothScrollTo(0, 0);
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
             }
@@ -1813,6 +1883,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         scrollView.smoothScrollTo(0, 0);
                     }
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -1973,6 +2044,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     scrollView.smoothScrollTo(0, 0);
                     return;
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -2041,6 +2113,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     scrollView.smoothScrollTo(0, 0);
                     return;
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -2120,6 +2193,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     scrollView.smoothScrollTo(0, 0);
                     return;
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -2198,6 +2272,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     scrollView.smoothScrollTo(0, 0);
                     return;
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -2302,6 +2377,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     scrollView.smoothScrollTo(0, 0);
                     return;
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -2381,7 +2457,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     scrollView.smoothScrollTo(0, 0);
                     return;
                 }
-
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -2540,6 +2616,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     scrollView.smoothScrollTo(0, 0);
                     return;
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -2700,6 +2777,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     e.printStackTrace();
                     return;
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -3240,6 +3318,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, logString);
                 if (selectedApplicationId == null) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
@@ -3255,17 +3334,20 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if ((!success1) || (!success2) || (!success3) || (!success4)) {
                     writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
                 writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
                 if (!success0) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 writeToUiAppend(output, logString + " SUCCESS");
                 writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
                 writeToUiAppend(output, "");
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -3278,6 +3360,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, logString);
                 if (selectedApplicationId == null) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
@@ -3293,17 +3376,20 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if ((!success1) || (!success2) || (!success3) || (!success4)) {
                     writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
                 writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
                 if (!success0) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 writeToUiAppend(output, logString + " SUCCESS");
                 writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
                 writeToUiAppend(output, "");
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -3316,6 +3402,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, logString);
                 if (selectedApplicationId == null) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
@@ -3331,17 +3418,20 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if ((!success1) || (!success2) || (!success3) || (!success4)) {
                     writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
                 writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
                 if (!success0) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 writeToUiAppend(output, logString + " SUCCESS");
                 writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
                 writeToUiAppend(output, "");
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -3354,6 +3444,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 writeToUiAppend(output, logString);
                 if (selectedApplicationId == null) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
@@ -3369,17 +3460,20 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 if ((!success1) || (!success2) || (!success3) || (!success4)) {
                     writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
                 writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
                 if (!success0) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 writeToUiAppend(output, logString + " SUCCESS");
                 writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
                 writeToUiAppend(output, "");
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -3399,10 +3493,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 } catch (Exception e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 if (desfireFile == null) {
                     writeToUiAppend(output, "the fileSettings from DESFireEV1 class are NULL");
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
                 String fileTypeName = desfireFile.getFileTypeName();
@@ -3425,6 +3521,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     writeToUiAppend(output, entry.getKey() + ":" + entry.getValue().toString());
                 }
                 writeToUiAppend(output, "-----------");
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
@@ -3485,20 +3582,24 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     if (result == null) {
                         writeToUiAppend(output, "Could not get the UID from card - did you forget to AUTHENTICATE with any key ?");
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " Did you forget to AUTHENTICATE with any key ?", COLOR_RED);
+                        scrollView.smoothScrollTo(0, 0);
                         return;
                     }
                     writeToUiAppend(output, printData("card UID", result));
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
+                    scrollView.smoothScrollTo(0, 0);
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
             }
@@ -3554,19 +3655,22 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     } else {
                         writeToUiAppend(output, "CRC32 DOES NOT matches calculated CRC32");
                     }
-
+                    scrollView.smoothScrollTo(0, 0);
                 } catch (IOException e) {
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();
+                    scrollView.smoothScrollTo(0, 0);
                     return;
                 }
+                scrollView.smoothScrollTo(0, 0);
             }
         });
 
