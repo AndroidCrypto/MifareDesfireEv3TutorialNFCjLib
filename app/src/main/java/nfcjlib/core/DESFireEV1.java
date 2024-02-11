@@ -598,6 +598,9 @@ public class DESFireEV1 {
 		preprocess(apdu, DesfireFileCommunicationSettings.PLAIN);
 		byte[] responseAPDU = transmit(apdu);
 
+		// todo remove debug print
+		System.out.println(de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("freeMemory response", responseAPDU));
+
 		code = getSW2(responseAPDU);
 
 		feedback(apdu, responseAPDU);

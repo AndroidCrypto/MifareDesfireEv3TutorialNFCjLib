@@ -1938,6 +1938,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
                     return;
                 } catch (Exception e) {
                     //throw new RuntimeException(e);
+
                     writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
                     writeToUiAppend(errorCode, "did you forget to authenticate with a read access key ?");
                     e.printStackTrace();

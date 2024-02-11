@@ -609,6 +609,7 @@ public class MainActivityHce extends AppCompatActivity implements NfcAdapter.Rea
                 byte fileNumber02 = (byte) 0x02; // value
                 byte fileNumber04 = (byte) 0x04; // cyclic record
 
+                byte fileNumber05 = (byte) 0x05; // standard 64 bytes
 
                 try {
 
@@ -645,8 +646,7 @@ public class MainActivityHce extends AppCompatActivity implements NfcAdapter.Rea
                     // get value of file 02
                     value02 = desfire.getValue(fileNumber02);
                     writeToUiAppend(output, "getValue file02: " + value02);
-
-                    /*
+/*
                     try {
                         // get value of file 04
                         int value04 = desfire.getValue(fileNumber04);
@@ -655,12 +655,31 @@ public class MainActivityHce extends AppCompatActivity implements NfcAdapter.Rea
                         writeToUiAppend(output, "Exception on getValueFile04: " + e.getMessage());
                         e.printStackTrace();
                     }
-
-                     */
-
+*/
                     // get free memory
                     byte[] freeMemory = desfire.freeMemory();
-                    writeToUiAppend(output, printData("freeMemory", freeMemory) + " is " + Utils.intFrom3ByteArray(freeMemory));
+                    writeToUiAppend(output, printData("freeMemory", freeMemory) + " is " + Utils.intFrom3ByteArrayInversed(freeMemory));
+
+                    // create a new file
+                    PayloadBuilder pb = new PayloadBuilder();
+                    byte[] payloadCreateStdFile = pb.createStandardFile(fileNumber05, PayloadBuilder.CommunicationSetting.Plain, 0, 2, 3, 4, 32);
+                    boolean createStdFile05 = desfire.createStdDataFile(payloadCreateStdFile);
+                    writeToUiAppend(output, "createStdFile05: " + createStdFile05);
+
+                    // write to the new file
+                    byte[] payloadWriteStdFile05 = pb.writeToStandardFile(fileNumber05, Utils.getTimestamp());
+                    boolean writeStdFile05 = desfire.writeData(payloadWriteStdFile05);
+                    writeToUiAppend(output, "writeStdFile05: " + writeStdFile05);
+
+                    // read from the new file
+                    //byte[] payloadReadStdFile05 = pb.readFromStandardFile(fileNumber05, 0, 0);
+                    byte[] readStdFile05 = desfire.readData(fileNumber05, 0, 0);
+                    writeToUiAppend(output, printData("readStdFile05", readStdFile05));
+                    writeToUiAppend(output, new String(readStdFile05, StandardCharsets.UTF_8));
+
+                    // get file settings
+                    DesfireFile desfireStdFile05 = desfire.getFileSettings(fileNumber05);
+                    writeToUiAppend(output, desfireStdFile05.toString());
 
                 } catch (IOException e) {
                     e.printStackTrace();
