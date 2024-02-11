@@ -599,8 +599,78 @@ public class MainActivityHce extends AppCompatActivity implements NfcAdapter.Rea
             public void onClick(View view) {
                 writeToUiAppend(output, "=== Complete HCE test ===");
 
-                // select the Virtual application by DF name
-                //desfire.se
+                byte[] aid = Utils.hexStringToByteArray("025548"); // reversed order
+                byte[] key00 = Utils.hexStringToByteArray("00000000000000000000000000000000");
+                byte keyNumber00 = (byte) 0x00;
+                byte[] a = Utils.hexStringToByteArray("");
+
+                byte fileNumber00 = (byte) 0x00; // standard
+                byte fileNumber01 = (byte) 0x01; // standard
+                byte fileNumber02 = (byte) 0x02; // value
+                byte fileNumber04 = (byte) 0x04; // cyclic record
+
+
+                try {
+
+                    // select the Virtual application by AID
+                    boolean selectApplication = desfire.selectApplication(aid);
+                    writeToUiAppend(output, "selectApplication: " + selectApplication);
+
+                    // authenticate with key 00
+                    boolean authenticateKey00 = desfire.authenticate(key00, keyNumber00, KeyType.AES);
+                    writeToUiAppend(output, "authenticateKey00: " + authenticateKey00);
+
+                    // read file 00
+                    byte[] readFile00 = desfire.readData(fileNumber00, 0, 0); // read the complete file
+                    writeToUiAppend(output, printData("readFile00", readFile00));
+
+                    // read file 01
+                    byte[] readFile01 = desfire.readData(fileNumber01, 0, 0); // read the complete file
+                    writeToUiAppend(output, printData("readFile01", readFile01));
+
+                    // get value of file 02
+                    int value02 = desfire.getValue(fileNumber02);
+                    writeToUiAppend(output, "getValue file02: " + value02);
+
+                    // credit value file 02 by 4
+                    int creditValue = 4;
+                    boolean creditValueFile02 = desfire.credit(fileNumber02, creditValue);
+                    writeToUiAppend(output, "creditValueFile02: " + creditValueFile02);
+
+                    // debit value file 02 by 3
+                    int debitValue = 3;
+                    boolean debitValueFile02 = desfire.debit(fileNumber02, debitValue);
+                    writeToUiAppend(output, "debitValueFile02: " + debitValueFile02);
+
+                    // get value of file 02
+                    value02 = desfire.getValue(fileNumber02);
+                    writeToUiAppend(output, "getValue file02: " + value02);
+
+                    /*
+                    try {
+                        // get value of file 04
+                        int value04 = desfire.getValue(fileNumber04);
+                        writeToUiAppend(output, "getValue file04: " + value04);
+                    } catch (Exception e) {
+                        writeToUiAppend(output, "Exception on getValueFile04: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                     */
+
+                    // get free memory
+                    byte[] freeMemory = desfire.freeMemory();
+                    writeToUiAppend(output, printData("freeMemory", freeMemory) + " is " + Utils.intFrom3ByteArray(freeMemory));
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    writeToUiAppend(output, "selectApplication exception " + e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    writeToUiAppend(output, "selectApplication exception " + e.getMessage());
+                }
+
+
             }
         });
 
@@ -4546,7 +4616,7 @@ public class MainActivityHce extends AppCompatActivity implements NfcAdapter.Rea
                     if (eMessage.equals("Invalid response 69")) {
                         // try to select the tag by it's DF name
                         String selectHceStringDesfire = "00A4040007D2760000850100";
-                        String selectHceStringNew     = "00A4040007F0223344556677";
+                        String selectHceStringNew = "00A4040007F0223344556677";
                         String selectHceStringOrg = "00A4040007A0000002471001";
                         byte[] selectHce = Utils.hexStringToByteArray(selectHceStringDesfire);
                         System.out.println("selectHce: " + com.github.skjolber.desfire.ev1.model.command.Utils.getHexString(selectHce));
@@ -4585,7 +4655,7 @@ public class MainActivityHce extends AppCompatActivity implements NfcAdapter.Rea
             mNfcAdapter.enableReaderMode(this,
                     this,
                     NfcAdapter.FLAG_READER_NFC_A |
-                    NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK |
+                            NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK |
                             NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS,
                     options);
         }

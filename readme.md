@@ -187,6 +187,26 @@ The skey     is dd 62 af 26 b7 05 8d 1e f2  c7  37  40  3b  bd  42  55
                 
 ```
 
+## Alternative libraries
+
+This is an uncurated list of libraries that are been able to run Mifare DESFire commands or useful to run a communication:
+
+TapLinx (official SDK by NXP, requires just a registration) : https://www.mifare.net/en/products/tools/taplinx/
+
+DESFire Tools for Android: https://github.com/skjolber/desfire-tools-for-android
+
+Android NFC Lib: https://github.com/entur/android-nfc-lib
+
+LibreFreeFare (Java): https://github.com/skjolber/desfire-tools-for-android/tree/master/libfreefare
+
+LibreFreeFare (C): https://github.com/nfc-tools/libfreefare
+
+GitHub search on DESFire libraries: https://github.com/search?q=desfire&type=repositories
+
+TagInfo (Android app by NXP to get information about NFC tags): https://play.google.com/store/apps/details?id=com.nxp.taginfolite&hl=de&gl=US
+
+
+
 
 ## Dependencies
 

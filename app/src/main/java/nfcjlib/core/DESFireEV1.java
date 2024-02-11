@@ -597,6 +597,7 @@ public class DESFireEV1 {
 
 		preprocess(apdu, DesfireFileCommunicationSettings.PLAIN);
 		byte[] responseAPDU = transmit(apdu);
+
 		code = getSW2(responseAPDU);
 
 		feedback(apdu, responseAPDU);
