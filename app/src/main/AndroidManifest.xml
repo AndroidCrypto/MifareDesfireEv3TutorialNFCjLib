@@ -26,9 +26,11 @@
         </activity>
         <activity
             android:name=".MainActivityFull"
-            android:exported="false">
+            android:exported="false"/>
+        <activity
+            android:name=".MainActivityHce"
+            android:exported="false"/>
 
-        </activity>
     </application>
 
 </manifest>

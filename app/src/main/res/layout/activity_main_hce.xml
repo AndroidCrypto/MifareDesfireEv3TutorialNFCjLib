@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivityFull">
+    tools:context=".MainActivityHce">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/main_toolbar"
@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text="Mifare DESFire EV3 Examples using NFCJLib library"
+                android:text="Mifare DESFire EV3 Examples using NFCJLib library (HCE)"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -2604,6 +2604,14 @@
                 android:layout_marginTop="8dp"
                 app:dividerInsetEnd="8dp"
                 app:dividerInsetStart="8dp" />
+
+            <Button
+                android:id="@+id/btnHceCompleteTest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="1"
+                android:text="HCE test" />
 
         </LinearLayout>
 

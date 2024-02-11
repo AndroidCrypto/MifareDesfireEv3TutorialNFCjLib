@@ -7,7 +7,12 @@
 
     <item
         android:id="@+id/action_main2"
-        android:title="Main Activity 2"
+        android:title="Main Activity Full"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_mainHce"
+        android:title="Main Activity HCE"
         app:showAsAction="never"/>
 
     <item

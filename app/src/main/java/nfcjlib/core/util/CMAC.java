@@ -2,6 +2,8 @@ package nfcjlib.core.util;
 
 import java.util.Arrays;
 
+import de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils;
+
 /**
  * CMAC implementation according to NIST 800-38B.
  * 
@@ -39,6 +41,7 @@ public class CMAC {
 
 	// same as above but with external IV as argument
 	public static byte[] get(Type type, byte[] key, byte[] data, byte[] aesIv) {
+		System.out.println("CMAC get " + Utils.printData("key", key) + Utils.printData(" iv", aesIv) + Utils.printData(" data", data));
 		int blockSize = -1;
 		byte rb = -1;
 		byte[] nistL = null;
