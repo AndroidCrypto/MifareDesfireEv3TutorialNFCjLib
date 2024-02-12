@@ -633,6 +633,14 @@ public class MainActivityHce extends AppCompatActivity implements NfcAdapter.Rea
                     int value02 = desfire.getValue(fileNumber02);
                     writeToUiAppend(output, "getValue file02: " + value02);
 
+                    // commit all changes
+                    boolean commit = desfire.commitTransaction();
+                    writeToUiAppend(output, "commit: " + commit);
+
+                    // get value of file 02
+                    value02 = desfire.getValue(fileNumber02);
+                    writeToUiAppend(output, "getValue file02: " + value02);
+
                     // credit value file 02 by 4
                     int creditValue = 4;
                     boolean creditValueFile02 = desfire.credit(fileNumber02, creditValue);
