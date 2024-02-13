@@ -3113,7 +3113,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = master application key
-                changeKey("change the DES key number 0x00 = master application key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_DES_DEFAULT, "master", KeyType.DES);
+                changeMasterApplicationKey("change the DES key number 0x00 = master application key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_DES_DEFAULT, "master", KeyType.DES);
             }
         });
 
@@ -3121,7 +3121,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = application master key
-                changeKey("change the DES key number 0x00 = application master key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x00 = application master key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
             }
         });
 
@@ -3129,7 +3129,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x01 = read & write access key
-                changeKey("change the DES key number 0x01 = read & write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x01 = read & write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
             }
         });
 
@@ -3137,7 +3137,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x02 = change access key
-                changeKey("change the DES key number 0x02 = change access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x02 = change access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
             }
         });
 
@@ -3145,7 +3145,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x03 = read access key
-                changeKey("change the DES key number 0x03 = read  access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x03 = read  access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
             }
         });
 
@@ -3153,7 +3153,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = read & write access key
-                changeKey("change the DES key number 0x04 = write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x04 = write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
             }
         });
 
@@ -3161,7 +3161,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = master application key
-                changeKey("change the AES key number 0x00 = master application key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, MASTER_APPLICATION_KEY_AES_DEFAULT, "master", KeyType.AES);
+                changeMasterApplicationKey("change the AES key number 0x00 = master application key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, MASTER_APPLICATION_KEY_AES_DEFAULT, "master", KeyType.AES);
             }
         });
 
@@ -3169,7 +3169,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = application master key
-                changeKey("change the AES key number 0x00 = application master key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x00 = application master key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
             }
         });
 
@@ -3177,7 +3177,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x01 = read & write access key
-                changeKey("change the AES key number 0x01 = read & write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x01 = read & write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
             }
         });
 
@@ -3185,7 +3185,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x02 = change access key
-                changeKey("change the AES key number 0x02 = change access key from DEFAULT to CHANGED", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x02 = change access key from DEFAULT to CHANGED", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
             }
         });
 
@@ -3193,7 +3193,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x03 = read access key
-                changeKey("change the AES key number 0x03 = read  access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x03 = read  access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
             }
         });
 
@@ -3201,7 +3201,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = read & write access key
-                changeKey("change the AES key number 0x04 = write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x04 = write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
             }
         });
 
@@ -3213,7 +3213,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = master application key
-                changeKey("change the DES key number 0x00 = master application key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
+                changeMasterApplicationKey("change the DES key number 0x00 = master application key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
             }
         });
 
@@ -3221,7 +3221,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = application master key
-                changeKey("change the DES key number 0x00 = application master key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_MASTER_DES, "master", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x00 = application master key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_MASTER_DES, "master", KeyType.DES);
             }
         });
 
@@ -3229,7 +3229,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x01 = read & write access key
-                changeKey("change the DES key number 0x01 = read & write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, APPLICATION_KEY_RW_DES, "read&write", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x01 = read & write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, APPLICATION_KEY_RW_DES, "read&write", KeyType.DES);
             }
         });
 
@@ -3237,7 +3237,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x02 = change access key
-                changeKey("change the DES key number 0x02 = change access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, APPLICATION_KEY_CAR_DES, "change", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x02 = change access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, APPLICATION_KEY_CAR_DES, "change", KeyType.DES);
             }
         });
 
@@ -3245,7 +3245,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x03 = read access key
-                changeKey("change the DES key number 0x03 = read  access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, APPLICATION_KEY_R_DES, "read", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x03 = read  access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, APPLICATION_KEY_R_DES, "read", KeyType.DES);
             }
         });
 
@@ -3253,7 +3253,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = read & write access key
-                changeKey("change the DES key number 0x04 = write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, APPLICATION_KEY_W_DES, "write", KeyType.DES);
+                changeApplicationKey("change the DES key number 0x04 = write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, APPLICATION_KEY_W_DES, "write", KeyType.DES);
             }
         });
 
@@ -3261,7 +3261,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = master application key
-                changeKey("change the AES key number 0x00 = master application key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
+                changeMasterApplicationKey("change the AES key number 0x00 = master application key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
             }
         });
 
@@ -3269,7 +3269,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = application master key
-                changeKey("change the AES key number 0x00 = application master key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_MASTER_AES, "master", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x00 = application master key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_MASTER_AES, "master", KeyType.AES);
             }
         });
 
@@ -3277,7 +3277,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x01 = read & write access key
-                changeKey("change the AES key number 0x01 = read & write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, APPLICATION_KEY_RW_AES, "read&write", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x01 = read & write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, APPLICATION_KEY_RW_AES, "read&write", KeyType.AES);
             }
         });
 
@@ -3285,7 +3285,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x02 = change access key
-                changeKey("change the AES key number 0x02 = change access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, APPLICATION_KEY_CAR_AES, "change", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x02 = change access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, APPLICATION_KEY_CAR_AES, "change", KeyType.AES);
             }
         });
 
@@ -3293,7 +3293,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x03 = read access key
-                changeKey("change the AES key number 0x03 = read  access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, APPLICATION_KEY_R_AES, "read", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x03 = read  access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, APPLICATION_KEY_R_AES, "read", KeyType.AES);
             }
         });
 
@@ -3301,7 +3301,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             @Override
             public void onClick(View view) {
                 // change key number 0x00 = read & write access key
-                changeKey("change the AES key number 0x04 = write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, APPLICATION_KEY_W_AES, "write", KeyType.AES);
+                changeApplicationKey("change the AES key number 0x04 = write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, APPLICATION_KEY_W_AES, "write", KeyType.AES);
             }
         });
 
@@ -3649,8 +3649,7 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
         writeToUiAppend(output, logString + " success: " + success);
         scrollView.smoothScrollTo(0, 0);
     }
-
-    private void changeKey(String logString, byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
+    private void changeApplicationKey(String logString, byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
         // change key number 0x00 = master application key
         clearOutputFields();
         writeToUiAppend(output, logString);
@@ -3659,9 +3658,21 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             scrollView.smoothScrollTo(0, 0);
             return;
         }
+        boolean success = changeApplicationKey(authenticationKeyNumber, authenticationKey, changeKeyNumber, changeKeyNew, changeKeyOld, changeKeyName, keyType);
+        writeToUiAppend(output, logString + " run successfully: " + success);
+        writeToUiAppend(output, "");
+        scrollView.smoothScrollTo(0, 0);
+    }
 
-        // todo work on this
-        /*
+    private void changeMasterApplicationKey(String logString, byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
+        // change key number 0x00 = master application key
+        clearOutputFields();
+        writeToUiAppend(output, logString);
+        if (selectedApplicationId == null) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+            scrollView.smoothScrollTo(0, 0);
+            return;
+        }
         byte[] selectedAid = selectedApplicationId.clone();
         // this method should run with selected Master Application (master AID) only
         if (!Arrays.equals(selectedAid, new byte[3])) {
@@ -3669,15 +3680,16 @@ public class MainActivityFull extends AppCompatActivity implements NfcAdapter.Re
             scrollView.smoothScrollTo(0, 0);
             return;
         }
-
-         */
+        if ((authenticationKeyNumber != (byte) 0x00) || (changeKeyNumber != (byte) 0x00)) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "only key number 00 allowed here", COLOR_RED);
+            scrollView.smoothScrollTo(0, 0);
+            return;
+        }
         boolean success = changeApplicationKey(authenticationKeyNumber, authenticationKey, changeKeyNumber, changeKeyNew, changeKeyOld, changeKeyName, keyType);
         writeToUiAppend(output, logString + " run successfully: " + success);
         writeToUiAppend(output, "");
         scrollView.smoothScrollTo(0, 0);
     }
-
-    ;
 
 
     /**

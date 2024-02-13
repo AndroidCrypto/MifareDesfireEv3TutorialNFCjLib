@@ -2295,7 +2295,22 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         scrollView.smoothScrollTo(0, 0);
     }
 
-    private void changeKey(String logString, byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
+    private void changeApplicationKey(String logString, byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
+        // change key number 0x00 = master application key
+        clearOutputFields();
+        writeToUiAppend(output, logString);
+        if (selectedApplicationId == null) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
+            scrollView.smoothScrollTo(0, 0);
+            return;
+        }
+        boolean success = changeApplicationKey(authenticationKeyNumber, authenticationKey, changeKeyNumber, changeKeyNew, changeKeyOld, changeKeyName, keyType);
+        writeToUiAppend(output, logString + " run successfully: " + success);
+        writeToUiAppend(output, "");
+        scrollView.smoothScrollTo(0, 0);
+    }
+
+    private void changeMasterApplicationKey(String logString, byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
         // change key number 0x00 = master application key
         clearOutputFields();
         writeToUiAppend(output, logString);
@@ -2311,13 +2326,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             scrollView.smoothScrollTo(0, 0);
             return;
         }
+        if ((authenticationKeyNumber != (byte) 0x00) || (changeKeyNumber != (byte) 0x00)) {
+            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "only key number 00 allowed here", COLOR_RED);
+            scrollView.smoothScrollTo(0, 0);
+            return;
+        }
         boolean success = changeApplicationKey(authenticationKeyNumber, authenticationKey, changeKeyNumber, changeKeyNew, changeKeyOld, changeKeyName, keyType);
         writeToUiAppend(output, logString + " run successfully: " + success);
         writeToUiAppend(output, "");
         scrollView.smoothScrollTo(0, 0);
     }
-
-    ;
 
 
     /**
