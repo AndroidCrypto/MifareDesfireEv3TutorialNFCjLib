@@ -2963,6 +2963,24 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 desfire = new DESFireEV1();
                 desfire.setAdapter(desFireAdapter);
 
+                // try to read the version info, if this fails it might be a hce emulated desfire tag
+                try {
+                    VersionInfo versionInfo = desfire.getVersion();
+                    System.out.println(versionInfo.dump());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    String eMessage = e.getMessage();
+                    Log.i(TAG, "Exception: " + eMessage);
+                    if (eMessage.equals("Invalid response 69")) {
+                        // try to select the tag by it's DF name
+                        String selectHceStringDesfire = "00A4040007D2760000850100";
+                        byte[] selectHce = Utils.hexStringToByteArray(selectHceStringDesfire);
+                        Log.i(TAG, "selectHce: " + com.github.skjolber.desfire.ev1.model.command.Utils.getHexString(selectHce));
+                        byte[] response;
+                        response = isoDep.transceive(selectHce);
+                        Log.i(TAG, "response after selectHce: " + com.github.skjolber.desfire.ev1.model.command.Utils.getHexString(response));
+                    }
+                }
             }
 
         } catch (IOException e) {
@@ -2989,10 +3007,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             mNfcAdapter.enableReaderMode(this,
                     this,
                     NfcAdapter.FLAG_READER_NFC_A |
-                            NfcAdapter.FLAG_READER_NFC_B |
-                            NfcAdapter.FLAG_READER_NFC_F |
-                            NfcAdapter.FLAG_READER_NFC_V |
-                            NfcAdapter.FLAG_READER_NFC_BARCODE |
+                            NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK |
                             NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS,
                     options);
         }
