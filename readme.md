@@ -22,6 +22,9 @@ https://neteril.org/files/M075031_desfire.pdf.
 Another fine piece of information is the **NXP MIFARE DESFire EV1 Protocol** available here: https://github.com/revk/DESFireAES/blob/master/DESFire.pdf. 
 This is a short overview about most of the DESFire EV1 commands and error codes.
 
+If you need some basic information I recommend this document, written by Daniel Andrade (and others) whro wrote the NFCjLib: 
+https://github.com/andrade/notes-about-desfire/blob/master/nfc-0.4.pdf
+
 All mentioned documents are stored in the docs folder of this repository (please beware they could be outdated, so please use the official download links).
 
 ## About this app:
