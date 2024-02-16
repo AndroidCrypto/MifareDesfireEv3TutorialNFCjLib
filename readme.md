@@ -1,4 +1,4 @@
-# Mifare DESFire EV1/2/3 Examples (DES keys) using NFCjLib
+# Mifare DESFire EV1/2/3 Examples using NFCjLib
 
 This app is using the NFCjLib library from **Desfire Tools for Android** available on GitHub here:
 https://github.com/skjolber/desfire-tools-for-android.
