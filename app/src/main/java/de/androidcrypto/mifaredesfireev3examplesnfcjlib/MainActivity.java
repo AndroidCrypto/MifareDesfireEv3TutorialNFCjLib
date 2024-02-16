@@ -55,10 +55,6 @@ import java.util.UUID;
 import nfcjlib.core.DESFireAdapter;
 import nfcjlib.core.DESFireEV1;
 import nfcjlib.core.KeyType;
-import nfcjlib.core.util.CMAC;
-import nfcjlib.core.util.CRC16;
-import nfcjlib.core.util.CRC32;
-import nfcjlib.core.util.TripleDES;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
 
@@ -70,18 +66,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private TextView noTagInformation;
 
     /**
-     * section for temporary actions
-     */
-
-    private Button getFileSettingsDesfire;
-
-    /**
      * section for general workflow
      */
 
     private LinearLayout llGeneralWorkflow;
     private Button tagVersion, keySettings, freeMemory, formatPicc, selectMasterApplication;
-
+    private Button getFileSettingsDesfire;
     private Button getCardUid; // get cardUID * encrypted
 
     /**
@@ -123,66 +113,32 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     private LinearLayout llAuthentication2;
     private Button authDM0D, authD0D, authD1D, authD2D, authD3D, authD4D; // auth with default DES keys
     private Button authDM0A, authD0A, authD1A, authD2A, authD3A, authD4A; // auth with default AES keys
-/*
-    private Button authDM0DC, authD0DC, authD1DC, authD2DC, authD3DC, authD4DC; // auth with changed DES keys
-    private Button authDM0AC, authD0AC, authD1AC, authD2AC, authD3AC, authD4AC; // auth with changed AES keys
-    private Button authCheckAllKeysD, authCheckAllKeysA; // check all auth keys (default and changed) for DES and AES
-*/
-    /**
-     * section for key handling
-     */
-/*
-    private Button changeKeyDM0D, changeKeyD0D, changeKeyD1D, changeKeyD2D, changeKeyD3D, changeKeyD4D;
-    private Button changeKeyDM0A, changeKeyD0A, changeKeyD1A, changeKeyD2A, changeKeyD3A, changeKeyD4A;
-    private Button changeKeyDM0DC, changeKeyD0DC, changeKeyD1DC, changeKeyD2DC, changeKeyD3DC, changeKeyD4DC;
-    private Button changeKeyDM0AC, changeKeyD0AC, changeKeyD1AC, changeKeyD2AC, changeKeyD3AC, changeKeyD4AC;
 
-    // change all keys from DEFAULT to CHANGED
-    private Button changeAllKeysWithDefaultMasterKeyD, changeAllKeysWithDefaultMasterKeyA;
-    private Button changeAllKeysWithChangedMasterKeyD, changeAllKeysWithChangedMasterKeyA;
-
-    // change all keys from CHANGED to DEFAULT
-    private Button changeAllKeysWithDefaultMasterKeyDC, changeAllKeysWithDefaultMasterKeyAC;
-*/
     // constants
     private String lineSeparator = "----------";
     private final byte[] MASTER_APPLICATION_IDENTIFIER = new byte[3]; // '00 00 00'
     private final byte[] MASTER_APPLICATION_KEY_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000");
     private final byte[] MASTER_APPLICATION_KEY_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
-    private final byte[] MASTER_APPLICATION_KEY_DES = Utils.hexStringToByteArray("DD00000000000000");
-    private final byte[] MASTER_APPLICATION_KEY_AES = Utils.hexStringToByteArray("AA000000000000000000000000000000");
     private final byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-    private final byte[] APPLICATION_ID_DES = Utils.hexStringToByteArray("A1A2A3");
     private final byte[] APPLICATION_KEY_MASTER_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
     private final byte[] APPLICATION_KEY_MASTER_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000"); // default AES key with 16 nulls
-    private final byte[] APPLICATION_KEY_MASTER_DES = Utils.hexStringToByteArray("D000000000000000");
-    private final byte[] APPLICATION_KEY_MASTER_AES = Utils.hexStringToByteArray("A0000000000000000000000000000000");
     private final byte APPLICATION_KEY_MASTER_NUMBER = (byte) 0x00;
     private final byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks
     private final byte[] APPLICATION_KEY_RW_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
     private final byte[] APPLICATION_KEY_RW_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
-    private final byte[] APPLICATION_KEY_RW_DES = Utils.hexStringToByteArray("D100000000000000");
-    private final byte[] APPLICATION_KEY_RW_AES = Utils.hexStringToByteArray("A1000000000000000000000000000000");
     private final byte APPLICATION_KEY_RW_NUMBER = (byte) 0x01;
     private final byte[] APPLICATION_KEY_CAR_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
     private final byte[] APPLICATION_KEY_CAR_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
-    private final byte[] APPLICATION_KEY_CAR_DES = Utils.hexStringToByteArray("D200000000000000");
-    private final byte[] APPLICATION_KEY_CAR_AES = Utils.hexStringToByteArray("A2000000000000000000000000000000");
     private final byte APPLICATION_KEY_CAR_NUMBER = (byte) 0x02;
 
     private final byte[] APPLICATION_KEY_R_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
     private final byte[] APPLICATION_KEY_R_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
-    private final byte[] APPLICATION_KEY_R_DES = Utils.hexStringToByteArray("D300000000000000");
-    private final byte[] APPLICATION_KEY_R_AES = Utils.hexStringToByteArray("A3000000000000000000000000000000");
     private final byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
 
     private final byte[] APPLICATION_KEY_W_DES_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
     private final byte[] APPLICATION_KEY_W_AES_DEFAULT = Utils.hexStringToByteArray("00000000000000000000000000000000");
-    private final byte[] APPLICATION_KEY_W_DES = Utils.hexStringToByteArray("D400000000000000");
-    private final byte[] APPLICATION_KEY_W_AES = Utils.hexStringToByteArray("A4000000000000000000000000000000");
     private final byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
 
-    private final byte STANDARD_FILE_NUMBER = (byte) 0x01;
 
     private final int COLOR_GREEN = Color.rgb(0, 255, 0);
     private final int COLOR_RED = Color.rgb(255, 0, 0);
@@ -251,38 +207,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         fileSize = findViewById(R.id.etFileStandardSize);
         fileData = findViewById(R.id.etFileStandardData);
         fileSelected = findViewById(R.id.etSelectedFileId);
-/*
-        // value file handling
-        llValueFile = findViewById(R.id.llValueFile);
-        fileValueCreate = findViewById(R.id.btnCreateValueFile);
-        fileValueRead = findViewById(R.id.btnReadValueFile);
-        fileValueCredit = findViewById(R.id.btnCreditValueFile);
-        fileValueDebit = findViewById(R.id.btnDebitValueFile);
-        npValueFileId = findViewById(R.id.npValueFileId);
-        rbFileValuePlainCommunication = findViewById(R.id.rbFileValuePlainCommunication);
-        rbFileValueMacedCommunication = findViewById(R.id.rbFileValueMacedCommunication);
-        rbFileValueEncryptedCommunication = findViewById(R.id.rbFileValueEncryptedCommunication);
-        lowerLimitValue = findViewById(R.id.etValueLowerLimit);
-        upperLimitValue = findViewById(R.id.etValueUpperLimit);
-        initialValueValue = findViewById(R.id.etValueInitialValue);
-        creditDebitValue = findViewById(R.id.etValueCreditDebitValue);
 
-        // record file handling
-        llRecordFile = findViewById(R.id.llRecordFile);
-        fileRecordCreate = findViewById(R.id.btnCreateRecordFile);
-        fileRecordRead = findViewById(R.id.btnReadRecordFile);
-        fileRecordWrite = findViewById(R.id.btnWriteRecordFile);
-        fileRecordWriteTimestamp = findViewById(R.id.btnWriteRecordFileTimestamp);
-        npRecordFileId = findViewById(R.id.npRecordFileId);
-        rbFileRecordPlainCommunication = findViewById(R.id.rbFileRecordPlainCommunication);
-        rbFileRecordMacedCommunication = findViewById(R.id.rbFileRecordMacedCommunication);
-        rbFileRecordEncryptedCommunication = findViewById(R.id.rbFileRecordEncryptedCommunication);
-        fileRecordSize = findViewById(R.id.etRecordFileSize);
-        fileRecordNumberOfRecords = findViewById(R.id.etRecordFileNumberRecords);
-        fileRecordData = findViewById(R.id.etRecordFileData);
-        rbLinearRecordFile = findViewById(R.id.rbLinearRecordFile);
-        rbCyclicRecordFile = findViewById(R.id.rbCyclicRecordFile);
-*/
         // authentication handling DES default keys
         llAuthentication2 = findViewById(R.id.llAuthentication2);
         authDM0D = findViewById(R.id.btnAuthDM0D);
@@ -299,68 +224,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         authD2A = findViewById(R.id.btnAuthD2A);
         authD3A = findViewById(R.id.btnAuthD3A);
         authD4A = findViewById(R.id.btnAuthD4A);
-/*
-        // authentication handling DES changed keys
-        authDM0DC = findViewById(R.id.btnAuthDM0DC);
-        authD0DC = findViewById(R.id.btnAuthD0DC);
-        authD1DC = findViewById(R.id.btnAuthD1DC);
-        authD2DC = findViewById(R.id.btnAuthD2DC);
-        authD3DC = findViewById(R.id.btnAuthD3DC);
-        authD4DC = findViewById(R.id.btnAuthD4DC);
 
-        // authentication handling AES changed keys
-        authDM0AC = findViewById(R.id.btnAuthDM0AC);
-        authD0AC = findViewById(R.id.btnAuthD0AC);
-        authD1AC = findViewById(R.id.btnAuthD1AC);
-        authD2AC = findViewById(R.id.btnAuthD2AC);
-        authD3AC = findViewById(R.id.btnAuthD3AC);
-        authD4AC = findViewById(R.id.btnAuthD4AC);
-
-        // check all auth keys
-        authCheckAllKeysD = findViewById(R.id.btnCheckAllKeysD);
-        authCheckAllKeysA = findViewById(R.id.btnCheckAllKeysA);
-
-        // change keys handling DES from DEFAULT to CHANGED
-        changeKeyDM0D = findViewById(R.id.btnChangeKeyDM0D);
-        changeKeyD0D = findViewById(R.id.btnChangeKeyD0D);
-        changeKeyD1D = findViewById(R.id.btnChangeKeyD1D);
-        changeKeyD2D = findViewById(R.id.btnChangeKeyD2D);
-        changeKeyD3D = findViewById(R.id.btnChangeKeyD3D);
-        changeKeyD4D = findViewById(R.id.btnChangeKeyD4D);
-
-        // change keys handling AES from CHANGED to DEFAULT
-        changeKeyDM0A = findViewById(R.id.btnChangeKeyDM0A);
-        changeKeyD0A = findViewById(R.id.btnChangeKeyD0A);
-        changeKeyD1A = findViewById(R.id.btnChangeKeyD1A);
-        changeKeyD2A = findViewById(R.id.btnChangeKeyD2A);
-        changeKeyD3A = findViewById(R.id.btnChangeKeyD3A);
-        changeKeyD4A = findViewById(R.id.btnChangeKeyD4A);
-
-        // change keys handling DES from CHANGED to DEFAULT
-        changeKeyDM0DC = findViewById(R.id.btnChangeKeyDM0DC);
-        changeKeyD0DC = findViewById(R.id.btnChangeKeyD0DC);
-        changeKeyD1DC = findViewById(R.id.btnChangeKeyD1DC);
-        changeKeyD2DC = findViewById(R.id.btnChangeKeyD2DC);
-        changeKeyD3DC = findViewById(R.id.btnChangeKeyD3DC);
-        changeKeyD4DC = findViewById(R.id.btnChangeKeyD4DC);
-
-        // change keys handling AES from CHANGED to DEFAULT
-        changeKeyDM0AC = findViewById(R.id.btnChangeKeyDM0AC);
-        changeKeyD0AC = findViewById(R.id.btnChangeKeyD0AC);
-        changeKeyD1AC = findViewById(R.id.btnChangeKeyD1AC);
-        changeKeyD2AC = findViewById(R.id.btnChangeKeyD2AC);
-        changeKeyD3AC = findViewById(R.id.btnChangeKeyD3AC);
-        changeKeyD4AC = findViewById(R.id.btnChangeKeyD4AC);
-
-        // change all application keys DES from Default to Changed with Default Master Key
-        changeAllKeysWithDefaultMasterKeyD = findViewById(R.id.btnChangeKeysAllMasterDefaultD);
-        // change all application keys AES from Default to Changed with Default Master Key
-        changeAllKeysWithDefaultMasterKeyA = findViewById(R.id.btnChangeKeysAllMasterDefaultA);
-        // change all application keys DES from Default to Changed with Changed Master Key
-        changeAllKeysWithChangedMasterKeyD = findViewById(R.id.btnChangeKeysAllMasterChangedD);
-        // change all application keys AES from Default to Changed with Changed Master Key
-        changeAllKeysWithChangedMasterKeyA = findViewById(R.id.btnChangeKeysAllMasterChangedA);
-*/
         //allLayoutsInvisible(); // default
 
         // hide soft keyboard from showing up on startup
@@ -369,122 +233,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         allLayoutsVisibility(false);
-
-        /**
-         * section for temporary workflow
-         */
-
-/*
-        standardWriteReadDefaultKeys.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // write to a standard file and read from a standard file
-                writeToUiAppend(output, "write to a standard file and read from a standard file using default keys");
-                try {
-
-                    // select master application
-                    boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
-
-                    // authenticate with MasterApplicationKey
-                    //byte[] MASTER_APPLICATION_KEY = new byte[8];
-                    //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-                    boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
-
-                    //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
-                    //byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
-                    //byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
-
-                    //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
-                    //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
-
-                    boolean dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
-
-                    // we do need an authentication to write to a file
-                    //byte[] APPLICATION_KEY_W_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-                    //byte APPLICATION_KEY_W_NUMBER = (byte) 0x04;
-                    // authenticate with ApplicationWriteKey
-                    boolean dfAuthApp = desfire.authenticate(APPLICATION_KEY_W_DEFAULT, APPLICATION_KEY_W_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthApp);
-
-                    // get a random payload with 32 bytes
-                    UUID uuid = UUID.randomUUID(); // this is 36 characters long
-                    byte[] dataToWrite = Arrays.copyOf(uuid.toString().getBytes(StandardCharsets.UTF_8), 32); // this 32 bytes long
-
-                    byte[] offset = new byte[]{(byte) 0x00, (byte) 0xf00, (byte) 0x00}; // write at the beginning
-                    byte lengthOfData = (byte) (dataToWrite.length & 0xFF);
-                    byte[] payloadWriteData = new byte[7 + dataToWrite.length]; // 7 + length of data
-                    payloadWriteData[0] = STANDARD_FILE_NUMBER; // fileNumber
-                    System.arraycopy(offset, 0, payloadWriteData, 1, 3);
-                    payloadWriteData[4] = lengthOfData; // lsb
-                    //payloadStandardFile[5] = 0; // is 0x00 // lsb
-                    //payloadStandardFile[6] = 0; // is 0x00 // lsb
-                    System.arraycopy(dataToWrite, 0, payloadWriteData, 7, dataToWrite.length);
-                    writeToUiAppend(output, printData("payloadWriteData", payloadWriteData));
-                    boolean dfWriteStandard = desfire.writeData(payloadWriteData);
-
-                    writeToUiAppend(output, "dfWriteStandardResult: " + dfWriteStandard);
-                    writeToUiAppend(output, "dfWriteStandardResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-
-                    writeToUiAppend(output, "");
-                    writeToUiAppend(output, "now we are reading the content of the file");
-
-                    // select master application
-                    dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-                    writeToUiAppend(output, "dfSelectMResult: " + dfSelectM);
-
-                    // authenticate with MasterApplicationKey
-                    //byte[] MASTER_APPLICATION_KEY = new byte[8];
-                    //byte MASTER_APPLICATION_KEY_NUMBER = (byte) 0x00;
-                    dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthMReadResult: " + dfAuthM);
-
-                    //byte[] AID_DES = Utils.hexStringToByteArray("B3B2B1");
-                    //byte APPLICATION_MASTER_KEY_SETTINGS = (byte) 0x0f; // amks, see M075031_desfire.pdf pages 33 ff
-                    //byte NUMBER_OF_KEYS = (byte) 0x05; // key numbers 0..4
-
-                    //boolean dfCreateApplication = desfire.createApplication(AID_DES, APPLICATION_MASTER_KEY_SETTINGS, KeyType.DES, NUMBER_OF_KEYS);
-                    //writeToUiAppend(output, "dfCreateApplicationResult: " + dfCreateApplication);
-
-                    dfSelectApplication = desfire.selectApplication(AID_DES);
-                    writeToUiAppend(output, "dfSelectApplicationResult: " + dfSelectApplication);
-
-                    // we do need an authentication to read from a file
-                    byte[] APPLICATION_KEY_R_DEFAULT = Utils.hexStringToByteArray("0000000000000000"); // default DES key with 8 nulls
-                    byte APPLICATION_KEY_R_NUMBER = (byte) 0x03;
-                    // authenticate with ApplicationWReadKey
-                    boolean dfAuthAppRead = desfire.authenticate(APPLICATION_KEY_R_DEFAULT, APPLICATION_KEY_R_NUMBER, KeyType.DES);
-                    writeToUiAppend(output, "dfAuthApplicationResult: " + dfAuthAppRead);
-
-
-                    // todo get the maximal length from getFileSettings
-                    DesfireFile fileSettings = desfire.getFileSettings(STANDARD_FILE_NUMBER);
-                    // todo check that it is a standard file !
-                    StandardDesfireFile standardDesfireFile = (StandardDesfireFile) fileSettings;
-                    int fileSize = standardDesfireFile.getFileSize();
-                    writeToUiAppend(output, "fileSize: " + fileSize);
-
-                    byte[] readStandard = desfire.readData(STANDARD_FILE_NUMBER, 0, fileSize);
-                    writeToUiAppend(output, printData("readStandard", readStandard));
-                    if (readStandard != null) {
-                        writeToUiAppend(output, new String(readStandard, StandardCharsets.UTF_8));
-                    }
-
-                    writeToUiAppend(output, "finished");
-                    writeToUiAppend(output, "");
-
-                } catch (IOException e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        });
-*/
 
         /**
          * section for general workflow
@@ -1049,9 +797,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     fileIdList.add(fileIds[i]);
                     fileIdInformationList.add(getFileInformationType((int) fileIds[i]));
                 }
-                //byte[] responseData = new byte[2];
-                //List<Byte> fileIdList = fileIds.t getFileIdsList(output, responseData);
-                //writeToUiAppend(errorCode, "getFileIdsList: " + Ev3.getErrorCode(responseData));
 
                 for (int i = 0; i < fileIdList.size(); i++) {
                     writeToUiAppend(output, "entry " + i + " file id : " + fileIdList.get(i) + (" (") + Utils.byteToHex(fileIdList.get(i)) + ")"
@@ -1077,9 +822,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         selectedFileIdInt = Integer.parseInt(selectedFileId);
                         // now we run the command to select the application
                         byte[] responseData = new byte[2];
-                        //boolean result = selectDes(output, selectedApplicationId, responseData);
-                        //writeToUiAppend(output, "result of selectApplicationDes: " + result);
-                        //writeToUiAppend(errorCode, "selectApplicationDes: " + Ev3.getErrorCode(responseData));
 
                         // here we are reading the fileSettings
                         DesfireFile desfireFile;
@@ -1100,18 +842,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         String csDescription = desfireFile.getCommunicationSettings().getDescription();
                         System.out.println("read: " + readAccessKey + " write " + writeAccessKey + " comm: " + csDescription);
 
-                        /*
-                        String outputString = fileList[which] + " ";
-                        byte fileIdByte = Byte.parseByte(selectedFileId);
-                        byte[] fileSettingsBytes = getFileSettings(output, fileIdByte, responseData);
-                        if ((fileSettingsBytes != null) & (fileSettingsBytes.length >= 7)) {
-                            selectedFileSettings = new FileSettings(fileIdByte, fileSettingsBytes);
-                            outputString += "(" + selectedFileSettings.getFileTypeName();
-                            selectedFileSize = selectedFileSettings.getFileSizeInt();
-                            outputString += " size: " + selectedFileSize + ")";
-                            writeToUiAppend(output, outputString);
-                        }
-                        */
                         fileSelected.setText(fileList[which]);
                         writeToUiAppendBorderColor(errorCode, errorCodeLayout, "file selected", COLOR_GREEN);
                         scrollView.smoothScrollTo(0, 0);
@@ -1249,12 +979,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     scrollView.smoothScrollTo(0, 0);
                     return;
                 }
-                /*
-                if (fileSizeInt != 32) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you entered a wrong file size, 32 bytes allowed only", COLOR_RED);
-                    return;
-                }
-                 */
+
                 // new for communication setting choice
                 PayloadBuilder.CommunicationSetting communicationSetting;
                 if (rbFileStandardPlainCommunication.isChecked()) {
@@ -1598,598 +1323,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         });
 
         /**
-         * section for authentication with changed keys
-         */
-/*
-        authDM0DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the master application key = 00...
-                authenticate("authenticate with CHANGED DES key number 0x00 = master application key", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
-            }
-        });
-
-
-        authD0DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the application master key = 00...
-                authenticate("authenticate with CHANGED DES key number 0x00 = application master key", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, "app master", KeyType.DES);
-            }
-        });
-
-        authD1DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the read&write access key = 01...
-                authenticate("authenticate with CHANGED DES key number 0x01 = read & write access key", APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, "read & write", KeyType.DES);
-            }
-        });
-
-        authD2DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the change access rights key = 02...
-                authenticate("authenticate with CHANGED DES key number 0x02 = change access rights key", APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, "change access rights", KeyType.DES);
-            }
-        });
-
-        authD3DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the read access key = 03...
-                authenticate("authenticate with CHANGED DES key number 0x03 = read access key", APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, "read", KeyType.DES);
-            }
-        });
-
-        authD4DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the read&write access key = 01...
-                authenticate("authenticate with CHANGED DES key number 0x04 = write access key", APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, "write", KeyType.DES);
-            }
-        });
-
-        // AES keys
-
-        authDM0AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the master application key = 00...
-                authenticate("authenticate with CHANGED AES key number 0x00 = master application key", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
-            }
-        });
-
-
-        authD0AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the application master key = 00...
-                authenticate("authenticate with CHANGED AES key number 0x00 = application master key", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, "app master", KeyType.AES);
-            }
-        });
-
-        authD1AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the read&write access key = 01...
-                authenticate("authenticate with CHANGED AES key number 0x01 = read & write access key", APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, "read & write", KeyType.AES);
-            }
-        });
-
-        authD2AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the change access rights key = 02...
-                authenticate("authenticate with CHANGED AES key number 0x02 = change access rights key", APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, "change access rights", KeyType.AES);
-            }
-        });
-
-        authD3AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the read access key = 03...
-                authenticate("authenticate with CHANGED AES key number 0x03 = read access key", APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, "read", KeyType.AES);
-            }
-        });
-
-        authD4AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // authenticate with the write access key = 04...
-                authenticate("authenticate with CHANGED AES key number 0x04 = write access key", APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, "write", KeyType.AES);
-            }
-        });
-*/
-        /**
-         * section for checking all auth keys
-         */
-/*
-        authCheckAllKeysD.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // check the authentication with all access keys
-                clearOutputFields();
-                String logString = "check all DES authentication keys";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                boolean success0 = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
-                boolean success0C = false;
-                if (!success0) {
-                    success0C = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, "master", KeyType.DES);
-                }
-                boolean success1 = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
-                boolean success1C = false;
-                if (!success1) {
-                    success1C = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, "read&write", KeyType.DES);
-                }
-                boolean success2 = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
-                boolean success2C = false;
-                if (!success2) {
-                    success2C = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, "change", KeyType.DES);
-                }
-                boolean success3 = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
-                boolean success3C = false;
-                if (!success3) {
-                    success3C = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, "read", KeyType.DES);
-                }
-                boolean success4 = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
-                boolean success4C = false;
-                if (!success4) {
-                    success4C = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, "write", KeyType.DES);
-                }
-                StringBuilder sb = new StringBuilder();
-                sb.append("check of all DES auth keys:").append("\n");
-                sb.append("key 0 master default: ").append(success0).append("\n");
-                sb.append("key 0 master changed: ").append(success0C).append("\n");
-                sb.append("key 1 read&write default: ").append(success1).append("\n");
-                sb.append("key 1 read&write changed: ").append(success1C).append("\n");
-                sb.append("key 2 CAR default: ").append(success2).append("\n");
-                sb.append("key 2 CAR changed: ").append(success2C).append("\n");
-                sb.append("key 3 read default: ").append(success3).append("\n");
-                sb.append("key 3 read changed: ").append(success3C).append("\n");
-                sb.append("key 4 write default: ").append(success4).append("\n");
-                sb.append("key 4 write changed: ").append(success4C).append("\n");
-                writeToUiAppend(output, sb.toString());
-                writeToUiAppend(errorCode, "see above result");
-                scrollView.smoothScrollTo(0, 0);
-            }
-        });
-
-        authCheckAllKeysA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // check the authentication with all access keys
-                clearOutputFields();
-                String logString = "check all AES authentication keys";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                boolean success0 = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
-                boolean success0C = false;
-                if (!success0) {
-                    success0C = authenticateApplication(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, "master", KeyType.AES);
-                }
-                boolean success1 = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
-                boolean success1C = false;
-                if (!success1) {
-                    success1C = authenticateApplication(APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, "read&write", KeyType.AES);
-                }
-                boolean success2 = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
-                boolean success2C = false;
-                if (!success2) {
-                    success2C = authenticateApplication(APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, "change", KeyType.AES);
-                }
-                boolean success3 = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
-                boolean success3C = false;
-                if (!success3) {
-                    success3C = authenticateApplication(APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, "read", KeyType.AES);
-                }
-                boolean success4 = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
-                boolean success4C = false;
-                if (!success4) {
-                    success4C = authenticateApplication(APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, "write", KeyType.AES);
-                }
-                StringBuilder sb = new StringBuilder();
-                sb.append("check of all AES auth keys:").append("\n");
-                sb.append("key 0 master default: ").append(success0).append("\n");
-                sb.append("key 0 master changed: ").append(success0C).append("\n");
-                sb.append("key 1 read&write default: ").append(success1).append("\n");
-                sb.append("key 1 read&write changed: ").append(success1C).append("\n");
-                sb.append("key 2 CAR default: ").append(success2).append("\n");
-                sb.append("key 2 CAR changed: ").append(success2C).append("\n");
-                sb.append("key 3 read default: ").append(success3).append("\n");
-                sb.append("key 3 read changed: ").append(success3C).append("\n");
-                sb.append("key 4 write default: ").append(success4).append("\n");
-                sb.append("key 4 write changed: ").append(success4C).append("\n");
-                writeToUiAppend(output, sb.toString());
-                writeToUiAppend(errorCode, "see above result");
-                scrollView.smoothScrollTo(0, 0);
-            }
-        });
-
-*/
-        /**
-         * section for key handling (default keys)
-         */
-/*
-        changeKeyDM0D.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = master application key
-                changeKey("change the DES key number 0x00 = master application key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_DES_DEFAULT, "master", KeyType.DES);
-            }
-        });
-
-        changeKeyD0D.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = application master key
-                changeKey("change the DES key number 0x00 = application master key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
-            }
-        });
-
-        changeKeyD1D.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x01 = read & write access key
-                changeKey("change the DES key number 0x01 = read & write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
-            }
-        });
-
-        changeKeyD2D.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x02 = change access key
-                changeKey("change the DES key number 0x02 = change access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
-            }
-        });
-
-        changeKeyD3D.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x03 = read access key
-                changeKey("change the DES key number 0x03 = read  access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
-            }
-        });
-
-        changeKeyD4D.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = read & write access key
-                changeKey("change the DES key number 0x04 = write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
-            }
-        });
-
-        changeKeyDM0A.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = master application key
-                changeKey("change the AES key number 0x00 = master application key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, MASTER_APPLICATION_KEY_AES_DEFAULT, "master", KeyType.AES);
-            }
-        });
-
-        changeKeyD0A.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = application master key
-                changeKey("change the AES key number 0x00 = application master key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
-            }
-        });
-
-        changeKeyD1A.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x01 = read & write access key
-                changeKey("change the AES key number 0x01 = read & write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
-            }
-        });
-
-        changeKeyD2A.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x02 = change access key
-                changeKey("change the AES key number 0x02 = change access key from DEFAULT to CHANGED", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
-            }
-        });
-
-        changeKeyD3A.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x03 = read access key
-                changeKey("change the AES key number 0x03 = read  access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
-            }
-        });
-
-        changeKeyD4A.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = read & write access key
-                changeKey("change the AES key number 0x04 = write access key from DEFAULT to CHANGED", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
-            }
-        });
-*/
-        /**
-         * section for key handling (changed keys)
-         */
-/*
-        changeKeyDM0DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = master application key
-                changeKey("change the DES key number 0x00 = master application key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, MASTER_APPLICATION_KEY_DES, "master", KeyType.DES);
-            }
-        });
-
-        changeKeyD0DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = application master key
-                changeKey("change the DES key number 0x00 = application master key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_MASTER_DES, "master", KeyType.DES);
-            }
-        });
-
-        changeKeyD1DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x01 = read & write access key
-                changeKey("change the DES key number 0x01 = read & write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES_DEFAULT, APPLICATION_KEY_RW_DES, "read&write", KeyType.DES);
-            }
-        });
-
-        changeKeyD2DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x02 = change access key
-                changeKey("change the DES key number 0x02 = change access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES_DEFAULT, APPLICATION_KEY_CAR_DES, "change", KeyType.DES);
-            }
-        });
-
-        changeKeyD3DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x03 = read access key
-                changeKey("change the DES key number 0x03 = read  access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES_DEFAULT, APPLICATION_KEY_R_DES, "read", KeyType.DES);
-            }
-        });
-
-        changeKeyD4DC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = read & write access key
-                changeKey("change the DES key number 0x04 = write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES_DEFAULT, APPLICATION_KEY_W_DES, "write", KeyType.DES);
-            }
-        });
-
-        changeKeyDM0AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = master application key
-                changeKey("change the AES key number 0x00 = master application key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES, MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, MASTER_APPLICATION_KEY_AES, "master", KeyType.AES);
-            }
-        });
-
-        changeKeyD0AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = application master key
-                changeKey("change the AES key number 0x00 = application master key from CHANGED to DEFAULT", MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_MASTER_AES, "master", KeyType.AES);
-            }
-        });
-
-        changeKeyD1AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x01 = read & write access key
-                changeKey("change the AES key number 0x01 = read & write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES_DEFAULT, APPLICATION_KEY_RW_AES, "read&write", KeyType.AES);
-            }
-        });
-
-        changeKeyD2AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x02 = change access key
-                changeKey("change the AES key number 0x02 = change access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES_DEFAULT, APPLICATION_KEY_CAR_AES, "change", KeyType.AES);
-            }
-        });
-
-        changeKeyD3AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x03 = read access key
-                changeKey("change the AES key number 0x03 = read  access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES_DEFAULT, APPLICATION_KEY_R_AES, "read", KeyType.AES);
-            }
-        });
-
-        changeKeyD4AC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change key number 0x00 = read & write access key
-                changeKey("change the AES key number 0x04 = write access key from CHANGED to DEFAULT", APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES_DEFAULT, APPLICATION_KEY_W_AES, "write", KeyType.AES);
-            }
-        });
-*/
-        /**
-         * section for changing all application keys from Default To Changed (personalization)
-         * there are each 2 methods for DES and AES using the Default and Changed Master Application Key
-         */
-/*
-        changeAllKeysWithDefaultMasterKeyD.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change all application keys to changed with default master application key
-                clearOutputFields();
-                String logString = "DES change the all application keys to CHANGED with DEFAULT Master Key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
-                boolean success1 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
-                boolean success2 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
-                boolean success3 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
-                boolean success4 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_RW_NUMBER + " result: " + success1);
-                writeToUiAppend(output, "chagne key " + APPLICATION_KEY_CAR_NUMBER + " result: " + success2);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_R_NUMBER + " result: " + success3);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_W_NUMBER + " result: " + success4);
-                // proceed only when all changes are successfully
-                if ((!success1) || (!success2) || (!success3) || (!success4)) {
-                    writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
-                if (!success0) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                writeToUiAppend(output, logString + " SUCCESS");
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
-                writeToUiAppend(output, "");
-                scrollView.smoothScrollTo(0, 0);
-            }
-        });
-
-        changeAllKeysWithDefaultMasterKeyA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change all application keys to changed with default master application key
-                clearOutputFields();
-                String logString = "AES change the all application keys to CHANGED with DEFAULT Master Key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
-                boolean success1 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
-                boolean success2 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
-                boolean success3 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
-                boolean success4 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES_DEFAULT, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_RW_NUMBER + " result: " + success1);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_CAR_NUMBER + " result: " + success2);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_R_NUMBER + " result: " + success3);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_W_NUMBER + " result: " + success4);
-                // proceed only when all changes are successfully
-                if ((!success1) || (!success2) || (!success3) || (!success4)) {
-                    writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
-                if (!success0) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                writeToUiAppend(output, logString + " SUCCESS");
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
-                writeToUiAppend(output, "");
-                scrollView.smoothScrollTo(0, 0);
-            }
-        });
-
-        changeAllKeysWithChangedMasterKeyD.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change all application keys to changed with changed master application key
-                clearOutputFields();
-                String logString = "DES change the all application keys to CHANGED with CHANGED Master Key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
-                boolean success1 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_DES, APPLICATION_KEY_RW_DES_DEFAULT, "read&write", KeyType.DES);
-                boolean success2 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_DES, APPLICATION_KEY_CAR_DES_DEFAULT, "change", KeyType.DES);
-                boolean success3 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_DES, APPLICATION_KEY_R_DES_DEFAULT, "read", KeyType.DES);
-                boolean success4 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_DES, APPLICATION_KEY_W_DES_DEFAULT, "write", KeyType.DES);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_RW_NUMBER + " result: " + success1);
-                writeToUiAppend(output, "chagne key " + APPLICATION_KEY_CAR_NUMBER + " result: " + success2);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_R_NUMBER + " result: " + success3);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_W_NUMBER + " result: " + success4);
-                // proceed only when all changes are successfully
-                if ((!success1) || (!success2) || (!success3) || (!success4)) {
-                    writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_DES, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_DES, APPLICATION_KEY_MASTER_DES_DEFAULT, "master", KeyType.DES);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
-                if (!success0) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                writeToUiAppend(output, logString + " SUCCESS");
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
-                writeToUiAppend(output, "");
-                scrollView.smoothScrollTo(0, 0);
-            }
-        });
-
-        changeAllKeysWithChangedMasterKeyA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change all application keys to changed with changed master application key
-                clearOutputFields();
-                String logString = "AES change the all application keys to CHANGED with CHANGED Master Key";
-                writeToUiAppend(output, logString);
-                if (selectedApplicationId == null) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                // change keys 1 to 4 first to CHANGED, authenticate with DEFAULT Application Master Key
-                boolean success1 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_RW_NUMBER, APPLICATION_KEY_RW_AES, APPLICATION_KEY_RW_AES_DEFAULT, "read&write", KeyType.AES);
-                boolean success2 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_CAR_NUMBER, APPLICATION_KEY_CAR_AES, APPLICATION_KEY_CAR_AES_DEFAULT, "change", KeyType.AES);
-                boolean success3 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_R_NUMBER, APPLICATION_KEY_R_AES, APPLICATION_KEY_R_AES_DEFAULT, "read", KeyType.AES);
-                boolean success4 = changeApplicationKey(APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_W_NUMBER, APPLICATION_KEY_W_AES, APPLICATION_KEY_W_AES_DEFAULT, "write", KeyType.AES);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_RW_NUMBER + " result: " + success1);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_CAR_NUMBER + " result: " + success2);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_R_NUMBER + " result: " + success3);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_W_NUMBER + " result: " + success4);
-                // proceed only when all changes are successfully
-                if ((!success1) || (!success2) || (!success3) || (!success4)) {
-                    writeToUiAppend(output, "not all key changes were successfully, change of Application Master Key aborted");
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of all application keys FAILURE", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                boolean success0 = changeApplicationKey(MASTER_APPLICATION_KEY_NUMBER, MASTER_APPLICATION_KEY_AES_DEFAULT, APPLICATION_KEY_MASTER_NUMBER, APPLICATION_KEY_MASTER_AES, APPLICATION_KEY_MASTER_AES_DEFAULT, "master", KeyType.AES);
-                writeToUiAppend(output, "change key " + APPLICATION_KEY_MASTER_NUMBER + " result: " + success0);
-                if (!success0) {
-                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "change of application master key FAILURE", COLOR_RED);
-                    scrollView.smoothScrollTo(0, 0);
-                    return;
-                }
-                writeToUiAppend(output, logString + " SUCCESS");
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, logString + " SUCCESS", COLOR_GREEN);
-                writeToUiAppend(output, "");
-                scrollView.smoothScrollTo(0, 0);
-            }
-        });
-*/
-        /**
          * section for service methods
          */
 
@@ -2295,92 +1428,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         scrollView.smoothScrollTo(0, 0);
     }
 
-    private void changeApplicationKey(String logString, byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
-        // change key number 0x00 = master application key
-        clearOutputFields();
-        writeToUiAppend(output, logString);
-        if (selectedApplicationId == null) {
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-            scrollView.smoothScrollTo(0, 0);
-            return;
-        }
-        boolean success = changeApplicationKey(authenticationKeyNumber, authenticationKey, changeKeyNumber, changeKeyNew, changeKeyOld, changeKeyName, keyType);
-        writeToUiAppend(output, logString + " run successfully: " + success);
-        writeToUiAppend(output, "");
-        scrollView.smoothScrollTo(0, 0);
-    }
-
-    private void changeMasterApplicationKey(String logString, byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
-        // change key number 0x00 = master application key
-        clearOutputFields();
-        writeToUiAppend(output, logString);
-        if (selectedApplicationId == null) {
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select an application first", COLOR_RED);
-            scrollView.smoothScrollTo(0, 0);
-            return;
-        }
-        byte[] selectedAid = selectedApplicationId.clone();
-        // this method should run with selected Master Application (master AID) only
-        if (!Arrays.equals(selectedAid, new byte[3])) {
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "you need to select the master application first", COLOR_RED);
-            scrollView.smoothScrollTo(0, 0);
-            return;
-        }
-        if ((authenticationKeyNumber != (byte) 0x00) || (changeKeyNumber != (byte) 0x00)) {
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "only key number 00 allowed here", COLOR_RED);
-            scrollView.smoothScrollTo(0, 0);
-            return;
-        }
-        boolean success = changeApplicationKey(authenticationKeyNumber, authenticationKey, changeKeyNumber, changeKeyNew, changeKeyOld, changeKeyName, keyType);
-        writeToUiAppend(output, logString + " run successfully: " + success);
-        writeToUiAppend(output, "");
-        scrollView.smoothScrollTo(0, 0);
-    }
-
-
-    /**
-     * section for test methods
-     */
-
-    /**
-     * copied from DESFireEV1.java class
-     * necessary for calculation the  new IV for decryption of getCardUid
-     *
-     * @param apdu
-     * @param sessionKey
-     * @param iv
-     * @return Note: fixed to AES
-     */
-    private byte[] calculateApduCMAC(byte[] apdu, byte[] sessionKey, byte[] iv) {
-        Log.d(TAG, "calculateApduCMAC" + printData(" apdu", apdu) +
-                printData(" sessionKey", sessionKey) + printData(" iv", iv));
-        byte[] block;
-
-        if (apdu.length == 5) {
-            block = new byte[apdu.length - 4];
-        } else {
-            // trailing 00h exists
-            block = new byte[apdu.length - 5];
-            System.arraycopy(apdu, 5, block, 1, apdu.length - 6);
-        }
-        block[0] = apdu[1];
-        Log.d(TAG, "calculateApduCMAC" + printData(" block", block));
-        //byte[] newIv = desfireAuthenticateProximity.calculateDiverseKey(sessionKey, iv);
-        //return newIv;
-        byte[] cmacIv = CMAC.get(CMAC.Type.AES, sessionKey, block, iv);
-        Log.d(TAG, "calculateApduCMAC" + printData(" cmacIv", cmacIv));
-        return cmacIv;
-    }
-
-    private static byte[] calculateApduCRC32R(byte[] apdu, int length) {
-        byte[] data = new byte[length + 1];
-        System.arraycopy(apdu, 0, data, 0, length);// response code is at the end
-        return CRC32.get(data);
-    }
-
-    /**
-     * section for test methods END
-     */
 
     private String getFileInformationType(int fileNumber) {
         String fileType;
@@ -2407,83 +1454,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             commType = "Encrypted";
         }
         return fileType + " | " + commType;
-    }
-
-    /**
-     * experimental DES encryption
-     */
-
-
-
-    /* Only data is encrypted. Headers are left out (e.g. keyNo for credit). */
-    private static byte[] encryptApduDes(byte[] apdu, int offset, byte[] sessionKey) {
-        int blockSize = 8;
-        int payloadLen = apdu.length - 6;
-        byte[] crc = null;
-        crc = calculateApduCRC16C(apdu, offset);
-
-        int padding = 0;  // padding=0 if block length is adequate
-        if ((payloadLen - offset + crc.length) % blockSize != 0)
-            padding = blockSize - (payloadLen - offset + crc.length) % blockSize;
-        int ciphertextLen = payloadLen - offset + crc.length + padding;
-        byte[] plaintext = new byte[ciphertextLen];
-        System.arraycopy(apdu, 5 + offset, plaintext, 0, payloadLen - offset);
-        System.arraycopy(crc, 0, plaintext, payloadLen - offset, crc.length);
-        return sendDes(sessionKey, plaintext);
-    }
-
-    private static byte[] sendDes(byte[] key, byte[] data) {
-        return decryptDes(key, data);
-    }
-
-    // CRC16 calculated only over data
-    private static byte[] calculateApduCRC16C(byte[] apdu, int offset) {
-        if (apdu.length == 5) {
-            return CRC16.get(new byte[0]);
-        } else {
-            return CRC16.get(apdu, 5 + offset, apdu.length - 5 - offset - 1);
-        }
-    }
-
-    // DES/3DES decryption: CBC send mode and CBC receive mode
-    // here fixed to SEND_MODE = decrypt
-    private static byte[] decryptDes(byte[] key, byte[] data) {
-
-        /* this method
-        plaintext before encryption length: 24 data: d400000000000000d4000000000000007f917f9100000000
-        ciphertext after encryption length: 24 data: 3b93de449348de6a16c92664a51d152d5d07194befeaa71d
-         */
-        /* method from DESFireEV1.java
-        plaintext before encryption: d400000000000000d4000000000000007f917f9100000000
-        ciphertext after encryption: 2c1ba72be0074ee529f8b450bfe42a465196116967b8272f
-         */
-
-        byte[] modifiedKey = new byte[24];
-        System.arraycopy(key, 0, modifiedKey, 16, 8);
-        System.arraycopy(key, 0, modifiedKey, 8, 8);
-        System.arraycopy(key, 0, modifiedKey, 0, key.length);
-
-        /* MF3ICD40, which only supports DES/3DES, has two cryptographic
-         * modes of operation (CBC): send mode and receive mode. In send mode,
-         * data is first XORed with the IV and then decrypted. In receive
-         * mode, data is first decrypted and then XORed with the IV. The PCD
-         * always decrypts. The initial IV, reset in all operations, is all zeros
-         * and the subsequent IVs are the last decrypted/plain block according with mode.
-         *
-         * MDF EV1 supports 3K3DES/AES and remains compatible with MF3ICD40.
-         */
-        byte[] ciphertext = new byte[data.length];
-        byte[] cipheredBlock = new byte[8];
-
-        // XOR w/ previous ciphered block --> decrypt
-        for (int i = 0; i < data.length; i += 8) {
-            for (int j = 0; j < 8; j++) {
-                data[i + j] ^= cipheredBlock[j];
-            }
-            cipheredBlock = TripleDES.decrypt(modifiedKey, data, i, 8);
-            System.arraycopy(cipheredBlock, 0, ciphertext, i, 8);
-        }
-        return ciphertext;
     }
 
     /**
@@ -2516,402 +1486,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             e.printStackTrace();
             return false;
         }
-    }
-
-    /**
-     * section for change key handling
-     */
-
-    private boolean changeApplicationKey(byte authenticationKeyNumber, byte[] authenticationKey, byte changeKeyNumber,
-                                         byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName, KeyType keyType) {
-
-        // change key name e.g. master, read&write, car, read, write
-        boolean result = false;
-        try {
-            writeToUiAppend(output, "changing the key number " +
-                    String.format("0x%02X", changeKeyNumber) +
-                    " (= " + changeKeyName + " access key)" +
-                    " keyType " + keyType.toString());
-            // step 1 authenticate with the master application key (for master application) or application master key
-            boolean authApp = desfire.authenticate(authenticationKey, authenticationKeyNumber, keyType);
-            writeToUiAppend(output, "master key authResult: " + authApp);
-            if (!authApp) {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on authenticate application, aborted", COLOR_RED);
-                return false;
-            }
-            // step 2 change the key
-            if (Arrays.equals(selectedApplicationId, new byte[3])) {
-                if (changeKeyNumber != 0) {
-                    writeToUiAppend(output, "you selected the Master Application but there are no key numbers > 0 available, aborted");
-                    return false;
-                }
-            }
-            // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-            boolean changeKey = desfire.changeKey(changeKeyNumber, keyType, changeKeyNew, changeKeyOld);
-            writeToUiAppend(output, "changeKeyResult: " + changeKey);
-            writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-            if (changeKey) {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey " + changeKeyNumber + " SUCCESS", COLOR_GREEN);
-                return true;
-            } else {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey " + changeKeyNumber + " NOT SUCCESS", COLOR_RED);
-                writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-                return false;
-            }
-        } catch (IOException e) {
-            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-            e.printStackTrace();
-        } catch (Exception e) {
-            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private boolean changeApplicationKeyDes(byte applicationMasterKeyNumber,
-                                            byte[] applicationMasterKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName) {
-
-        // change key name e.g. master, read&write, car, read, write
-        boolean result = false;
-        try {
-            /*
-            // select master application
-            boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-            writeToUiAppend(output, "selectMasterApplicationResult: " + dfSelectM);
-
-            // authenticate with MasterApplicationKey
-            boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-            writeToUiAppend(output, "authMasterApplicationResult: " + dfAuthM);
-            */
-            writeToUiAppend(output, "changing the key number " + String.format("0x%02X", changeKeyNumber) + "(= " + changeKeyName + "access key)");
-            // step 1 select the target application
-            /*
-            boolean selectApplication = desfire.selectApplication(applicationId);
-            writeToUiAppend(output, "selectApplicationResult: " + selectApplication);
-            if (!selectApplication) {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on select application, aborted", COLOR_RED);
-                return false;
-            }
-             */
-            // step 2 authenticate with the application master key
-            // we do need an authentication to change a key with the application master key = 0x00
-            boolean authApp = desfire.authenticate(applicationMasterKey, applicationMasterKeyNumber, KeyType.DES);
-            writeToUiAppend(output, "authApplicationResult: " + authApp);
-            if (!authApp) {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on authenticate application, aborted", COLOR_RED);
-                return false;
-            }
-            // step 3 change the key
-            // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-            boolean changeKey = desfire.changeKey(changeKeyNumber, KeyType.DES, changeKeyNew, changeKeyOld);
-            writeToUiAppend(output, "changeKeyResult: " + changeKey);
-            writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-            writeToUiAppend(output, "finished");
-            writeToUiAppend(output, "");
-            if (changeKey) {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey SUCCESS", COLOR_GREEN);
-                return true;
-            } else {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey NOT SUCCESS", COLOR_RED);
-                writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-                return false;
-            }
-        } catch (IOException e) {
-            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-            e.printStackTrace();
-        } catch (Exception e) {
-            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private boolean changeApplicationKeyAes(byte applicationMasterKeyNumber,
-                                            byte[] applicationMasterKey, byte changeKeyNumber, byte[] changeKeyNew, byte[] changeKeyOld, String changeKeyName) {
-        writeToUiAppend(output, "changeApplicationKeyAes: " + "for key number " + changeKeyNumber);
-        // change key name e.g. master, read&write, car, read, write
-        boolean result = false;
-        try {
-            /*
-            // select master application
-            boolean dfSelectM = desfire.selectApplication(MASTER_APPLICATION_IDENTIFIER);
-            writeToUiAppend(output, "selectMasterApplicationResult: " + dfSelectM);
-
-            // authenticate with MasterApplicationKey
-            boolean dfAuthM = desfire.authenticate(MASTER_APPLICATION_KEY, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-            writeToUiAppend(output, "authMasterApplicationResult: " + dfAuthM);
-            */
-            writeToUiAppend(output, "changing the key number " + String.format("0x%02X", changeKeyNumber) + " (= " + changeKeyName + "access key)");
-            // step 1 select the target application
-            /*
-            boolean selectApplication = desfire.selectApplication(applicationId);
-            writeToUiAppend(output, "selectApplicationResult: " + selectApplication);
-            if (!selectApplication) {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on select application, aborted", COLOR_RED);
-                return false;
-            }
-             */
-            // step 2 authenticate with the application master key
-            // we do need an authentication to change a key with the application master key = 0x00
-            // todo change back because misconfiguration
-            /*
-            boolean authApp = desfire.authenticate(MASTER_APPLICATION_KEY_DEFAULT, MASTER_APPLICATION_KEY_NUMBER, KeyType.DES);
-            writeToUiAppend(output, "authApplicationResult: " + authApp);
-            if (!authApp) {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "error on authenticate application, aborted", COLOR_RED);
-                return false;
-            } else {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "authenticate application SUCCESS", COLOR_GREEN);
-            }
-
-             */
-            // step 3 change the key
-            // this is the real key used without any keyVersion bits. The new key is automatically stripped off the version bytes but not the old key
-            boolean changeKey = desfire.changeKeyNoCheck(changeKeyNumber, KeyType.AES, changeKeyNew, changeKeyOld);
-            writeToUiAppend(output, "changeKeyResult: " + changeKey);
-            writeToUiAppend(output, "changeKeyResultCode: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-            writeToUiAppend(output, "finished");
-            writeToUiAppend(output, "");
-            if (changeKey) {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey SUCCESS", COLOR_GREEN);
-                return true;
-            } else {
-                writeToUiAppendBorderColor(errorCode, errorCodeLayout, "changeKey NOT SUCCESS", COLOR_RED);
-                writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-                return false;
-            }
-        } catch (IOException e) {
-            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-            e.printStackTrace();
-        } catch (Exception e) {
-            writeToUiAppend(output, "Error with DESFireEV1 + " + e.getMessage());
-            writeToUiAppendBorderColor(errorCode, errorCodeLayout, "Exception: " + e.getMessage(), COLOR_RED);
-            writeToUiAppend(errorCode, "did you forget to authenticate with a master access key ?");
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
-     * section for general workflow
-     */
-
-    public String dumpVersionInfo(VersionInfoTest vi) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("hardwareVendorId: ").append(vi.getHardwareVendorId()).append("\n");
-        sb.append("hardwareType: ").append(vi.getHardwareType()).append("\n");
-        sb.append("hardwareSubtype: ").append(vi.getHardwareSubtype()).append("\n");
-        sb.append("hardwareVersionMajor: ").append(vi.getHardwareVersionMajor()).append("\n");
-        sb.append("hardwareVersionMinor: ").append(vi.getHardwareVersionMinor()).append("\n");
-        sb.append("hardwareStorageSize: ").append(vi.getHardwareStorageSize()).append("\n");
-
-        sb.append("hardwareProtocol: ").append(vi.getHardwareProtocol()).append("\n");
-        sb.append("softwareVendorId: ").append(vi.getSoftwareVendorId()).append("\n");
-        sb.append("softwareType: ").append(vi.getSoftwareType()).append("\n");
-        sb.append("softwareSubtype: ").append(vi.getSoftwareSubtype()).append("\n");
-
-        sb.append("softwareVersionMajor: ").append(vi.getSoftwareVersionMajor()).append("\n");
-        sb.append("softwareVersionMinor: ").append(vi.getSoftwareVersionMinor()).append("\n");
-        sb.append("softwareStorageSize: ").append(vi.getSoftwareStorageSize()).append("\n");
-
-        sb.append("softwareProtocol: ").append(vi.getSoftwareProtocol()).append("\n");
-        sb.append("Uid: ").append(Utils.bytesToHex(vi.getUid())).append("\n");
-        sb.append("batchNumber: ").append(Utils.bytesToHex(vi.getBatchNumber())).append("\n");
-        sb.append("productionWeek: ").append(vi.getProductionWeek()).append("\n");
-        sb.append("productionYear: ").append(vi.getProductionYear()).append("\n");
-        sb.append("*** dump ended ***").append("\n");
-        return sb.toString();
-    }
-
-    /**
-     * section for application handling
-     */
-
-    private List<byte[]> getApplicationIdsList(TextView logTextView, byte[] response) {
-        // get application ids
-        List<byte[]> applicationIdList = new ArrayList<>();
-        byte getApplicationIdsCommand = (byte) 0x6a;
-        byte[] getApplicationIdsResponse = new byte[0];
-        try {
-            getApplicationIdsResponse = isoDep.transceive(wrapMessage(getApplicationIdsCommand, null));
-        } catch (Exception e) {
-            //throw new RuntimeException(e);
-            writeToUiAppend(logTextView, "transceive failed: " + e.getMessage());
-            return null;
-        }
-        writeToUiAppend(logTextView, printData("getApplicationIdsResponse", getApplicationIdsResponse));
-        // getApplicationIdsResponse length: 2 data: 9100 = no applications on card
-        // getApplicationIdsResponse length: 5 data: a1a2a3 9100
-        // there might be more application on the card that fit into one frame:
-        // getApplicationIdsResponse length: 5 data: a1a2a3 91AF
-        // AF at the end is indicating more data
-
-        // check that result if 0x9100 (success) or 0x91AF (success but more data)
-        if ((!checkResponse(getApplicationIdsResponse)) && (!checkResponseMoreData(getApplicationIdsResponse))) {
-            // something got wrong (e.g. missing authentication ?)
-            writeToUiAppend(logTextView, "there was an unexpected response");
-            return null;
-        }
-        // if the read result is success 9100 we return the data received so far
-        if (checkResponse(getApplicationIdsResponse)) {
-            System.arraycopy(returnStatusBytes(getApplicationIdsResponse), 0, response, 0, 2);
-            byte[] applicationListBytes = Arrays.copyOf(getApplicationIdsResponse, getApplicationIdsResponse.length - 2);
-            applicationIdList = divideArray(applicationListBytes, 3);
-            return applicationIdList;
-        }
-        if (checkResponseMoreData(getApplicationIdsResponse)) {
-            writeToUiAppend(logTextView, "getApplicationIdsList: we are asked to grab more data from the card");
-            byte[] applicationListBytes = Arrays.copyOf(getApplicationIdsResponse, getApplicationIdsResponse.length - 2);
-            applicationIdList = divideArray(applicationListBytes, 3);
-            byte getMoreDataCommand = (byte) 0xaf;
-            boolean readMoreData = true;
-            try {
-                while (readMoreData) {
-                    try {
-                        getApplicationIdsResponse = isoDep.transceive(wrapMessage(getMoreDataCommand, null));
-                    } catch (Exception e) {
-                        //throw new RuntimeException(e);
-                        writeToUiAppend(logTextView, "transceive failed: " + e.getMessage());
-                        return null;
-                    }
-                    writeToUiAppend(logTextView, printData("getApplicationIdsResponse", getApplicationIdsResponse));
-                    if (checkResponse(getApplicationIdsResponse)) {
-                        // now we have received all data
-                        List<byte[]> applicationIdListTemp = new ArrayList<>();
-                        System.arraycopy(returnStatusBytes(getApplicationIdsResponse), 0, response, 0, 2);
-                        applicationListBytes = Arrays.copyOf(getApplicationIdsResponse, getApplicationIdsResponse.length - 2);
-                        applicationIdListTemp = divideArray(applicationListBytes, 3);
-                        readMoreData = false; // end the loop
-                        applicationIdList.addAll(applicationIdListTemp);
-                        return applicationIdList;
-                    }
-                    if (checkResponseMoreData(getApplicationIdsResponse)) {
-                        // some more data will follow, store temp data
-                        List<byte[]> applicationIdListTemp = new ArrayList<>();
-                        applicationListBytes = Arrays.copyOf(getApplicationIdsResponse, getApplicationIdsResponse.length - 2);
-                        applicationIdListTemp = divideArray(applicationListBytes, 3);
-                        applicationIdList.addAll(applicationIdListTemp);
-                        readMoreData = true;
-                    }
-                } // while (readMoreData) {
-            } catch (Exception e) {
-                writeToUiAppend(logTextView, "Exception failure: " + e.getMessage());
-            } // try
-        }
-        return null;
-    }
-
-    /**
-     * section for command and response handling
-     */
-
-    private byte[] wrapMessage(byte command, byte[] parameters) throws Exception {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        stream.write((byte) 0x90);
-        stream.write(command);
-        stream.write((byte) 0x00);
-        stream.write((byte) 0x00);
-        if (parameters != null) {
-            stream.write((byte) parameters.length);
-            stream.write(parameters);
-        }
-        stream.write((byte) 0x00);
-        return stream.toByteArray();
-    }
-
-    private byte[] returnStatusBytes(byte[] data) {
-        return Arrays.copyOfRange(data, (data.length - 2), data.length);
-    }
-
-    /**
-     * checks if the response has an 0x'9100' at the end means success
-     * and the method returns the data without 0x'9100' at the end
-     * if any other trailing bytes show up the method returns false
-     *
-     * @param data
-     * @return
-     */
-    private boolean checkResponse(@NonNull byte[] data) {
-        // simple sanity check
-        if (data.length < 2) {
-            return false;
-        } // not ok
-        int status = ((0xff & data[data.length - 2]) << 8) | (0xff & data[data.length - 1]);
-        if (status == 0x9100) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * checks if the response has an 0x'91AF' at the end means success
-     * but there are more data frames available
-     * if any other trailing bytes show up the method returns false
-     *
-     * @param data
-     * @return
-     */
-    private boolean checkResponseMoreData(@NonNull byte[] data) {
-        // simple sanity check
-        if (data.length < 2) {
-            return false;
-        } // not ok
-        int status = ((0xff & data[data.length - 2]) << 8) | (0xff & data[data.length - 1]);
-        if (status == 0x91AF) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * checks if the response has an 0x'91de' at the end means the data
-     * element is already existing
-     * if any other trailing bytes show up the method returns false
-     *
-     * @param data
-     * @return true is code is 91DE
-     */
-    private boolean checkDuplicateError(@NonNull byte[] data) {
-        // simple sanity check
-        if (data.length < 2) {
-            return false;
-        } // not ok
-        int status = ((0xff & data[data.length - 2]) << 8) | (0xff & data[data.length - 1]);
-        if (status != 0x91DE) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * splits a byte array in chunks
-     *
-     * @param source
-     * @param chunksize
-     * @return a List<byte[]> with sets of chunksize
-     */
-    private static List<byte[]> divideArray(byte[] source, int chunksize) {
-        List<byte[]> result = new ArrayList<byte[]>();
-        int start = 0;
-        while (start < source.length) {
-            int end = Math.min(source.length, start + chunksize);
-            result.add(Arrays.copyOfRange(source, start, end));
-            start += chunksize;
-        }
-        return result;
     }
 
     /**
@@ -2948,9 +1522,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 runOnUiThread(() -> {
                     allLayoutsVisibility(true);
                     output.setText("");
-                    //output.setBackgroundColor(getResources().getColor(R.color.light_background_green));
                     errorCode.setText("");
-                    //errorCode.setBackgroundColor(getResources().getColor(R.color.light_background_green));
                 });
                 isoDep.connect();
                 // get tag ID
@@ -3025,27 +1597,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
      */
 
     private void allLayoutsVisibility(boolean isVisible) {
-/*
-        llApplicationHandling.setEnabled(isVisible ? true : false);
-        llFiles.setEnabled(isVisible ? true : false);
-        llStandardFile.setEnabled(isVisible ? true : false);
-        llAuthentication2.setEnabled(isVisible ? true : false);
-        llGeneralWorkflow.setEnabled(isVisible ? true : false);
-
- */
-
         llApplicationHandling.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
         llFiles.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
         llStandardFile.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
         llAuthentication2.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
         llGeneralWorkflow.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
         noTagInformation.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-    }
-
-    private void allLayoutsInvisible() {
-        // todo change this
-        //llApplicationHandling.setVisibility(View.GONE);
-        //llStandardFile.setVisibility(View.GONE);
     }
 
     /**
@@ -3150,31 +1707,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
 
-        MenuItem mMain2 = menu.findItem(R.id.action_main2);
-        mMain2.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(MainActivity.this, MainActivityFull.class);
-                startActivity(intent);
-                return false;
-            }
-        });
-
-        MenuItem mMainHce = menu.findItem(R.id.action_mainHce);
-        mMainHce.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(MainActivity.this, MainActivityHce.class);
-                startActivity(intent);
-                return false;
-            }
-        });
 
         MenuItem mApplications = menu.findItem(R.id.action_applications);
         mApplications.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                allLayoutsInvisible();
                 llApplicationHandling.setVisibility(View.VISIBLE);
                 return false;
             }
@@ -3184,7 +1721,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         mStandardFile.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                allLayoutsInvisible();
                 llStandardFile.setVisibility(View.VISIBLE);
                 return false;
             }
