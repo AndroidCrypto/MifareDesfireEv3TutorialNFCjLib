@@ -309,43 +309,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
                                 boolean success;
-
-                                /*
-                                try {
-
-                                    success = desfire.formatPICC();
-                                    writeToUiAppend(output, "formatPiccSuccess: " + success);
-                                    if (!success) {
-                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "formatPicc NOT Success, aborted", COLOR_RED);
-                                        writeToUiAppend(errorCode, "formatPicc NOT Success: " + desfire.getCode() + ":" + String.format("0x%02X", desfire.getCode()) + ":" + desfire.getCodeDesc());
-                                        writeToUiAppend(errorCode, "Did you forget to authenticate with the Master Key first ?");
-                                        return;
-                                    } else {
-                                        writeToUiAppendBorderColor(errorCode, errorCodeLayout, "formatPicc success", COLOR_GREEN);
-                                        selectedFileId = "";
-                                        fileSelected.setText("");
-                                        selectedApplicationId = null;
-                                        applicationSelected.setText("");
-                                    }
-                                } catch (IOException e) {
-                                    writeToUiAppendBorderColor(errorCode, errorCodeLayout, "IOException: " + e.getMessage(), COLOR_RED);
-                                    writeToUiAppend(errorCode, "Stack: " + Arrays.toString(e.getStackTrace()));
-                                    //writeToUiAppend(output, "IOException: " + e.getMessage());
-                                    e.printStackTrace();
-                                    return;
-                                }
-
-                                 */
                                 break;
                             case DialogInterface.BUTTON_NEGATIVE:
                                 //No button clicked
                                 // nothing to do
-                                writeToUiAppend(output, "format of the PICC aborted");
                                 break;
                         }
                     }
                 };
-                //final String selectedFolderString = "You are going to format the PICC " + "\n\n" + "Do you want to proceed ?";
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
@@ -385,18 +357,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                     accessTypeDescription = "data not available in Master Application";
                 }
                 keySettingsCarKey.setText(accessTypeDescription);
-                //keySettingsCarKey.setText(keySettings.getChangeKeyAccessRights());
 
                 builder
                         //.setMessage(selectedFolderString)
                         .setPositiveButton(android.R.string.yes, dialogClickListener)
-                        //.setNegativeButton(android.R.string.no, dialogClickListener)
                         .setTitle("Application key settings")
-                        //.setView(R.layout.application_key_settings)
                         .show();
-
                 scrollView.smoothScrollTo(0, 0);
-
             }
         });
 

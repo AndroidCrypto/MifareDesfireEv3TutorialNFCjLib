@@ -72,6 +72,7 @@ public class DESFireEV1 {
 	private DESFireAdapter adapter;
 	private RandomSource randomSource = new DefaultRandomSource();
 	private boolean print;
+	private boolean debug = false; // if set to true it will print a lot more messages on the console
 
 	// cached file settings
 	private DesfireFile[] fileSettings = new DesfireFile[MAX_FILE_COUNT];
@@ -199,10 +200,10 @@ public class DESFireEV1 {
 
 		// step 6
 		byte[] skey = generateSessionKey(randA, randB, type);
-		Log.d(TAG, "The random A is " + Dump.hex(randA));
-		Log.d(TAG, "The random B is " + Dump.hex(randB));
-		Log.d(TAG, "The skey     is " + Dump.hex(skey));
-		Log.d(TAG, "The iv0      is " + Dump.hex(iv0));
+		if (debug) Log.d(TAG, "The random A is " + Dump.hex(randA));
+		if (debug) Log.d(TAG, "The random B is " + Dump.hex(randB));
+		if (debug) Log.d(TAG, "The skey     is " + Dump.hex(skey));
+		if (debug) Log.d(TAG, "The iv0      is " + Dump.hex(iv0));
 		this.ktype = type;
 		this.kno = keyNo;
 		this.iv = iv0;
@@ -386,9 +387,9 @@ public class DESFireEV1 {
 					crc = CRC16.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 2, 2);
 				}
-				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
+				if (debug) System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, null);
-				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
+				if (debug) System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				break;
 			case TKTDES:
 			case AES:
@@ -403,9 +404,9 @@ public class DESFireEV1 {
 					crc = CRC32.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 4, crc.length);
 				}
-				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
+				if (debug) System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, iv);
-				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
+				if (debug) System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				iv = Arrays.copyOfRange(ciphertext, ciphertext.length - iv.length, ciphertext.length);
 				break;
 			default:
@@ -550,7 +551,7 @@ public class DESFireEV1 {
 				reset();
 			return true;
 		}
-		Log.d(TAG, "ret is NOT null");
+		if (debug) Log.d(TAG, "ret is NOT null");
 		return false;
 	}
 
@@ -599,7 +600,7 @@ public class DESFireEV1 {
 		byte[] responseAPDU = transmit(apdu);
 
 		// todo remove debug print
-		System.out.println(de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("freeMemory response", responseAPDU));
+		if (debug) System.out.println(de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("freeMemory response", responseAPDU));
 
 		code = getSW2(responseAPDU);
 
@@ -661,17 +662,17 @@ public class DESFireEV1 {
 
 	public void readFile(final DesfireFile desfireFile) {
 
-		Log.d(TAG, "Read file access");
+		if (debug) Log.d(TAG, "Read file access");
 		if(desfireFile instanceof StandardDesfireFile) {
 			try {
 				StandardDesfireFile standardDesfireFile = (StandardDesfireFile)desfireFile;
 
 				if(!standardDesfireFile.isData()) {
-					Log.d(TAG, "Read data from file " + Integer.toHexString(desfireFile.getId()));
+					if (debug) Log.d(TAG, "Read data from file " + Integer.toHexString(desfireFile.getId()));
 
 					byte[] data = readData((byte)desfireFile.getId(), 0, 0);
 
-					Log.d(TAG, "Read data length " + data.length);
+					if (debug) Log.d(TAG, "Read data length " + data.length);
 
 					standardDesfireFile.setData(data);
 				}
@@ -683,11 +684,11 @@ public class DESFireEV1 {
 				ValueDesfireFile valueDesfireFile = (ValueDesfireFile)desfireFile;
 
 				if(!valueDesfireFile.isValue()) {
-					Log.d(TAG, "Read value from file " + Integer.toHexString(desfireFile.getId()));
+					if (debug) Log.d(TAG, "Read value from file " + Integer.toHexString(desfireFile.getId()));
 
 					Integer value = getValue((byte)desfireFile.getId());
 
-					Log.d(TAG, "Read value " + value);
+					if (debug) Log.d(TAG, "Read value " + value);
 
 					valueDesfireFile.setValue(value);
 				}
@@ -699,11 +700,11 @@ public class DESFireEV1 {
 				RecordDesfireFile recordDesfireFile = (RecordDesfireFile)desfireFile;
 
 				if(!recordDesfireFile.isRecords()) {
-					Log.d(TAG, "Read records from file " + Integer.toHexString(desfireFile.getId()));
+					if (debug) Log.d(TAG, "Read records from file " + Integer.toHexString(desfireFile.getId()));
 
 					byte[] records = readRecords((byte)desfireFile.getId(), 0, recordDesfireFile.getCurrentRecords());
 
-					Log.d(TAG, "Read " + recordDesfireFile.getCurrentRecords() + " records " + Utils.getHexString(records));
+					if (debug) Log.d(TAG, "Read " + recordDesfireFile.getCurrentRecords() + " records " + Utils.getHexString(records));
 
 					recordDesfireFile.setRecords(records);
 				}
@@ -922,12 +923,12 @@ public class DESFireEV1 {
 		apdu[6] = commSett;
 		apdu[7] = ar1;
 		apdu[8] = ar2;
-		Log.d(TAG, "changeFileSettings apdu: " + Utils.getHexString(apdu, true)); // todo remove
+		if (debug) Log.d(TAG, "changeFileSettings apdu: " + Utils.getHexString(apdu, true)); // todo remove
 		apdu = preprocess(apdu, 1, cs);
-		Log.d(TAG, "preprocess offset 1 done"); // todo remove
-		Log.d(TAG, "changeFileSettings apdu: " + Utils.getHexString(apdu, true)); // todo remove
-		Log.d(TAG, "next data are manual encrypted changeFileSettings");
-		Log.d(TAG, "parameter " + Utils.getHexString(getTheFileSettingsCommand(skey), true));
+		if (debug) Log.d(TAG, "preprocess offset 1 done"); // todo remove
+		if (debug) Log.d(TAG, "changeFileSettings apdu: " + Utils.getHexString(apdu, true)); // todo remove
+		if (debug) Log.d(TAG, "next data are manual encrypted changeFileSettings");
+		if (debug) Log.d(TAG, "parameter " + Utils.getHexString(getTheFileSettingsCommand(skey), true));
 		//byte[] responseAPDU = new byte[0];
 
 		byte[] responseAPDU = transmit(apdu); // todo removed the comment on this line
@@ -947,8 +948,8 @@ public class DESFireEV1 {
 	private byte[] getTheFileSettingsCommand(byte [] SESSION_KEY_DES) {
 		int selectedFileIdInt = Integer.parseInt("2");
 		byte selectedFileIdByte = Byte.parseByte("2");
-		Log.d(TAG, "changeTheFileSettings for selectedFileId " + selectedFileIdInt);
-		Log.d(TAG, printData("DES session key", SESSION_KEY_DES));
+		if (debug) Log.d(TAG, "changeTheFileSettings for selectedFileId " + selectedFileIdInt);
+		if (debug) Log.d(TAG, printData("DES session key", SESSION_KEY_DES));
 
 		byte changeFileSettingsCommand = (byte) 0x5f;
 		// CD | File No | Comms setting byte | Access rights (2 bytes) | File size (3 bytes)
@@ -978,30 +979,30 @@ public class DESFireEV1 {
 		bytesForCrc[0] = commSettingsByte;
 		bytesForCrc[1] = accessRightsRwCar;
 		bytesForCrc[2] = accessRightsRW;
-		Log.d(TAG, printData("bytesForCrc", bytesForCrc));
+		if (debug) Log.d(TAG, printData("bytesForCrc", bytesForCrc));
 		byte[] crc16Value = CRC16.get(bytesForCrc);
-		Log.d(TAG, printData("crc16Value", crc16Value));
+		if (debug) Log.d(TAG, printData("crc16Value", crc16Value));
 		// create a 8 byte long array
 		byte[] bytesForDecryption = new byte[8];
 		System.arraycopy(bytesForCrc,0, bytesForDecryption, 0, 3);
 		System.arraycopy(crc16Value,0, bytesForDecryption, 3, 2);
-		Log.d(TAG, printData("bytesForDecryption", bytesForDecryption));
+		if (debug) Log.d(TAG, printData("bytesForDecryption", bytesForDecryption));
 		// generate 24 bytes long triple des key
 		byte[] tripleDES_SESSION_KEY = new byte[24];
 		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 0, 8);
 		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 8, 8);
 		System.arraycopy(SESSION_KEY_DES, 0, tripleDES_SESSION_KEY, 16, 8);
-		Log.d(TAG, printData("tripleDES Session Key", tripleDES_SESSION_KEY));
+		if (debug) Log.d(TAG, printData("tripleDES Session Key", tripleDES_SESSION_KEY));
 		byte[] IV_DES = new byte[8];
-		Log.d(TAG, printData("IV_DES", IV_DES));
+		if (debug) Log.d(TAG, printData("IV_DES", IV_DES));
 		//byte[] decryptedData = TripleDES.encrypt(IV_DES, tripleDES_SESSION_KEY, bytesForDecryption);
 		byte[] decryptedData = TripleDES.decrypt(IV_DES, tripleDES_SESSION_KEY, bytesForDecryption);
-		Log.d(TAG, printData("decryptedData", decryptedData));
+		if (debug) Log.d(TAG, printData("decryptedData", decryptedData));
 		// the parameter for wrapping
 		byte[] parameter = new byte[9];
 		parameter[0] = selectedFileIdByte;
 		System.arraycopy(decryptedData, 0, parameter, 1, 8);
-		Log.d(TAG, printData("parameter", parameter));
+		if (debug) Log.d(TAG, printData("parameter", parameter));
 		return parameter;
 	}
 
@@ -1538,14 +1539,14 @@ public class DESFireEV1 {
 	 */
 	private byte[] preprocess(byte[] apdu, int offset, DesfireFileCommunicationSettings commSett) {
 		if (commSett == null) {
-			Log.e(TAG, "preprocess: commSett is null");
+			if (debug) Log.e(TAG, "preprocess: commSett is null");
 			return null;
 		}
 		if (skey == null) {
-			Log.e(TAG, "preprocess: skey is null");
+			if (debug) Log.e(TAG, "preprocess: skey is null");
 			return apdu;
 		}
-		Log.d(TAG, "preprocess "
+		if (debug) Log.d(TAG, "preprocess "
 				+ de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("apdu", apdu)
 				+ " offset: " + offset);
 		switch (commSett) {
@@ -1562,10 +1563,10 @@ public class DESFireEV1 {
 
 	// update global IV
 	private byte[] preprocessPlain(byte[] apdu) {
-		Log.d(TAG, "preprocessPlain" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu));
+		if (debug) Log.d(TAG, "preprocessPlain" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu));
 		if (ktype == KeyType.TKTDES || ktype == KeyType.AES) {
 			iv = calculateApduCMAC(apdu, skey, iv, ktype);
-			Log.d(TAG, "preprocessPlain keyType == TKTDES or AES" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv));
+			if (debug) Log.d(TAG, "preprocessPlain keyType == TKTDES or AES" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv));
 		}
 		return apdu;
 	}
@@ -1601,24 +1602,24 @@ public class DESFireEV1 {
 
 	// calculate CRC and append, encrypt, and update global IV
 	private byte[] preprocessEnciphered(byte[] apdu, int offset) {
-		Log.d(TAG, "preprocessEnciphered "
+		if (debug) Log.d(TAG, "preprocessEnciphered "
 				+ de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("apdu", apdu)
 				+ " offset: " + offset);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("skey", skey));
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("skey", skey));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
 		byte[] ciphertext = encryptApdu(apdu, offset, skey, iv, ktype);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ciphertext", ciphertext));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ciphertext", ciphertext));
 
 		byte[] ret = new byte[5 + offset + ciphertext.length + 1];
 		System.arraycopy(apdu, 0, ret, 0, 5 + offset);
 		System.arraycopy(ciphertext, 0, ret, 5 + offset, ciphertext.length);
 		ret[4] = (byte) (offset + ciphertext.length);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ret", ret));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ret", ret));
 		if (ktype == KeyType.TKTDES || ktype == KeyType.AES) {
 			iv = new byte[iv.length];
 			System.arraycopy(ciphertext, ciphertext.length - iv.length, iv, 0, iv.length);
 		}
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
 		return ret;
 	}
 
@@ -1648,20 +1649,20 @@ public class DESFireEV1 {
 	private byte[] postprocess(byte[] apdu, int length, DesfireFileCommunicationSettings commSett) {
 		code = getSW2(apdu); // todo added
 		if (commSett == null) {
-			Log.e(TAG, "postprocess: commSett is null");
+			if (debug) Log.e(TAG, "postprocess: commSett is null");
 			return null;
 		}
-		System.out.println("*** postprocess " + Utils.getHexString(apdu));
+		if (debug) System.out.println("*** postprocess " + Utils.getHexString(apdu));
 		if (apdu[apdu.length - 1] != 0x00) {
-			Log.e(TAG, "postprocess: status <> 00 (" + Response.getResponse(apdu[apdu.length - 1]) + ")");
+			if (debug) Log.e(TAG, "postprocess: status <> 00 (" + Response.getResponse(apdu[apdu.length - 1]) + ")");
 			reset();
 			return null;
 		}
 		if (skey == null) {
-			Log.e(TAG, "postprocess: skey is null");
+			if (debug) Log.e(TAG, "postprocess: skey is null");
 			return Arrays.copyOfRange(apdu, 0, apdu.length - 2);
 		}
-		Log.d(TAG, "commSettings " + commSett.toString());
+		if (debug) Log.d(TAG, "commSettings " + commSett.toString());
 		switch (commSett) {
 			case PLAIN:
 				if (ktype == KeyType.DES || ktype == KeyType.TDES)
@@ -1677,7 +1678,7 @@ public class DESFireEV1 {
 	}
 
 	private byte[] postprocessMaced(byte[] apdu) {
-		Log.d(TAG, "postprocessMaced" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu));
+		if (debug) Log.d(TAG, "postprocessMaced" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu));
 		switch (ktype) {
 			case DES:
 			case TDES:
@@ -1698,14 +1699,14 @@ public class DESFireEV1 {
 				byte[] block2 = new byte[apdu.length - 9];
 				System.arraycopy(apdu, 0, block2, 0, apdu.length - 10);
 				block2[block2.length - 1] = apdu[apdu.length - 1];
-				Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("block2", block2));
+				if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("block2", block2));
 
 				CMAC.Type cmacType = ktype == KeyType.AES ? CMAC.Type.AES : CMAC.Type.TKTDES;
 				byte[] cmac = CMAC.get(cmacType, skey, block2, iv);
-				Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("cmac", cmac));
+				if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("cmac", cmac));
 				for (int i = 0, j = apdu.length - 10; i < 8 && j < apdu.length - 2; i++, j++) {
 					if (cmac[i] != apdu[j]) {
-						Log.e(TAG, "postprocessMaced: Received CMAC does not match calculated CMAC.");
+						if (debug) Log.e(TAG, "postprocessMaced: Received CMAC does not match calculated CMAC.");
 						return null;
 					}
 				}
@@ -1718,18 +1719,18 @@ public class DESFireEV1 {
 	}
 
 	private byte[] postprocessEnciphered(byte[] apdu, int length) {
-		Log.d(TAG, "postprocessEnciphered" +
+		if (debug) Log.d(TAG, "postprocessEnciphered" +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu) + " length: " + length);
 
 		assert apdu.length >= 2;
 
 		byte[] ciphertext = Arrays.copyOfRange(apdu, 0, apdu.length - 2);
-		Log.d(TAG, "postprocessEnciphered before recv" +
+		if (debug) Log.d(TAG, "postprocessEnciphered before recv" +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" skey", skey) +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv) +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" ciphertext", ciphertext));
 		byte[] plaintext = recv(skey, ciphertext, ktype, iv);
-		Log.d(TAG, "postprocessEnciphered after recv " +
+		if (debug) Log.d(TAG, "postprocessEnciphered after recv " +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" skey", skey) +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv) +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" ciphertext", ciphertext) +
@@ -1745,7 +1746,7 @@ public class DESFireEV1 {
 			case AES:
 				iv = Arrays.copyOfRange(apdu, apdu.length - 2 - iv.length, apdu.length - 2);
 				crc = calculateApduCRC32R(plaintext, length);
-				Log.d(TAG, "postprocessEnciphered CRC32R" +
+				if (debug) Log.d(TAG, "postprocessEnciphered CRC32R" +
 						de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" plaintext", plaintext) +
 						de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" crc", crc) +
 						de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv new", iv));
@@ -1755,7 +1756,7 @@ public class DESFireEV1 {
 		}
 		for (int i = 0; i < crc.length; i++) {
 			if (crc[i] != plaintext[i + length]) {
-				Log.e(TAG, "postprocessEnciphered: Received CMAC does not match calculated CMAC.");
+				if (debug) Log.e(TAG, "postprocessEnciphered: Received CMAC does not match calculated CMAC.");
 				return null;
 			}
 		}
@@ -1764,7 +1765,8 @@ public class DESFireEV1 {
 	}
 
 	private static byte[] calculateApduCMAC(byte[] apdu, byte[] sessionKey, byte[] iv, KeyType type) {
-		Log.d(TAG, "calculateApduCMAC" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu) +
+		boolean debug = false;
+		if (debug) Log.d(TAG, "calculateApduCMAC" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" apdu", apdu) +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" sessionKey", sessionKey) +
 				de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" iv", iv) + " KeyType: " + type.toString());
 		byte[] block;
@@ -1783,7 +1785,7 @@ public class DESFireEV1 {
 				return CMAC.get(CMAC.Type.TKTDES, sessionKey, block, iv);
 			case AES:
 				byte[] cmac = CMAC.get(CMAC.Type.AES, sessionKey, block, iv);
-				Log.d(TAG, "calculateApduCMAC AES key" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" cmac", cmac));
+				if (debug) Log.d(TAG, "calculateApduCMAC AES key" + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData(" cmac", cmac));
 				return cmac;
 			default:
 				return null;
@@ -1901,7 +1903,7 @@ public class DESFireEV1 {
 
 		// old DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, true, false, true, false); // todo ERROR changed
 		// new DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, kno, true, false, true, false);
-		Log.d(TAG, "getChangeFileSetting fileNo: " + fileNo + " kno: " + kno);
+		if (debug) Log.d(TAG, "getChangeFileSetting fileNo: " + fileNo + " kno: " + kno);
 		DesfireFile fileSett = updateFileSett(fileNo, false);
 		if(kno != null && fileSett.isChangeAccess(kno)) {
 			return DesfireFileCommunicationSettings.ENCIPHERED;
@@ -1909,7 +1911,7 @@ public class DESFireEV1 {
 			return DesfireFileCommunicationSettings.PLAIN;
 		}
 		// access is denied
-		Log.e(TAG, "getChangeFileSetting: access is denied - missing auth with CAR key ?");
+		if (debug) Log.e(TAG, "getChangeFileSetting: access is denied - missing auth with CAR key ?");
 		return null;
 	}
 
@@ -1931,36 +1933,36 @@ public class DESFireEV1 {
 		DesfireFile fileSett = updateFileSett(fileNo, false);
 
 		// todo this is a manual workaround
-		boolean deb = true; // debug mode, if true output
+		boolean deb = false; // debug mode, if true output
 		if (deb) {
 			DesfireFile desfireFile = updateFileSett(fileNo, false);
 			if (desfireFile == null) {
-				System.out.println("The file " + fileNo + " is NULL");
+				if (debug) System.out.println("The file " + fileNo + " is NULL");
 				//writeToUiAppend(output, "The file " + i + " is NULL");
 				// do nothing to keep the output short
 			} else {
 				String fileTypeName = desfireFile.getFileTypeName();
-				System.out.println("The file " + fileNo + " is of type " + fileTypeName);
+				if (debug) System.out.println("The file " + fileNo + " is of type " + fileTypeName);
 				int fileSize = 0;
 				if (!fileTypeName.equals("Standard")) {
-					System.out.println("The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
+					if (debug) System.out.println("The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
 				} else {
 					StandardDesfireFile standardDesfireFile = (StandardDesfireFile) desfireFile;
 					fileSize = standardDesfireFile.getFileSize();
 				}
-				System.out.println("file " + fileNo + " size: " + fileSize);
-				System.out.println("communication: " + desfireFile.getCommunicationSettings().getDescription());
+				if (debug) System.out.println("file " + fileNo + " size: " + fileSize);
+				if (debug) System.out.println("communication: " + desfireFile.getCommunicationSettings().getDescription());
 				Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
-				System.out.println("----- permission map ------");
+				if (debug) System.out.println("----- permission map ------");
 				for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
-					System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+					if (debug) System.out.println(entry.getKey() + ":" + entry.getValue().toString());
 				}
-				System.out.println("file " + fileNo + " is carAccess: " + desfireFile.isChangeAccess(fileNo));
-				System.out.println("file " + fileNo + " is rwAccess: " + desfireFile.isReadWriteAccess(fileNo));
-				System.out.println("file " + fileNo + " is wAccess: " + desfireFile.isWriteAccess(fileNo));
-				System.out.println("file " + fileNo + " is rAccess: " + desfireFile.isReadAccess(fileNo));
+				if (debug) System.out.println("file " + fileNo + " is carAccess: " + desfireFile.isChangeAccess(fileNo));
+				if (debug) System.out.println("file " + fileNo + " is rwAccess: " + desfireFile.isReadWriteAccess(fileNo));
+				if (debug) System.out.println("file " + fileNo + " is wAccess: " + desfireFile.isWriteAccess(fileNo));
+				if (debug) System.out.println("file " + fileNo + " is rAccess: " + desfireFile.isReadAccess(fileNo));
 
-				System.out.println("-----------");
+				if (debug) System.out.println("-----------");
 			}
 		}
 
@@ -2028,36 +2030,36 @@ public class DESFireEV1 {
 		DesfireFile fileSett = updateFileSett(fileNo, false);
 
 		// todo this is a manual workaround
-		boolean deb = true; // debug mode, if true output
+		boolean deb = false; // debug mode, if true output
 		if (deb) {
 			DesfireFile desfireFile = updateFileSett(fileNo, false);
 			if (desfireFile == null) {
-				System.out.println("The file " + fileNo + " is NULL");
+				if (debug) System.out.println("The file " + fileNo + " is NULL");
 				//writeToUiAppend(output, "The file " + i + " is NULL");
 				// do nothing to keep the output short
 			} else {
 				String fileTypeName = desfireFile.getFileTypeName();
-				System.out.println("The file " + fileNo + " is of type " + fileTypeName);
+				if (debug) System.out.println("The file " + fileNo + " is of type " + fileTypeName);
 				int fileSize = 0;
 				if (!fileTypeName.equals("Standard")) {
-					System.out.println("The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
+					if (debug) System.out.println("The file is not of type Standard but of type " + fileTypeName + ", no fileSize");
 				} else {
 					StandardDesfireFile standardDesfireFile = (StandardDesfireFile) desfireFile;
 					fileSize = standardDesfireFile.getFileSize();
 				}
-				System.out.println("file " + fileNo + " size: " + fileSize);
-				System.out.println("communication: " + desfireFile.getCommunicationSettings().getDescription());
+				if (debug) System.out.println("file " + fileNo + " size: " + fileSize);
+				if (debug) System.out.println("communication: " + desfireFile.getCommunicationSettings().getDescription());
 				Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
-				System.out.println("----- permission map ------");
+				if (debug) System.out.println("----- permission map ------");
 				for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
-					System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+					if (debug) System.out.println(entry.getKey() + ":" + entry.getValue().toString());
 				}
-				System.out.println("file " + fileNo + " is carAccess: " + desfireFile.isChangeAccess(fileNo));
-				System.out.println("file " + fileNo + " is rwAccess: " + desfireFile.isReadWriteAccess(fileNo));
-				System.out.println("file " + fileNo + " is wAccess: " + desfireFile.isWriteAccess(fileNo));
-				System.out.println("file " + fileNo + " is rAccess: " + desfireFile.isReadAccess(fileNo));
+				if (debug) System.out.println("file " + fileNo + " is carAccess: " + desfireFile.isChangeAccess(fileNo));
+				if (debug) System.out.println("file " + fileNo + " is rwAccess: " + desfireFile.isReadWriteAccess(fileNo));
+				if (debug) System.out.println("file " + fileNo + " is wAccess: " + desfireFile.isWriteAccess(fileNo));
+				if (debug) System.out.println("file " + fileNo + " is rAccess: " + desfireFile.isReadAccess(fileNo));
 
-				System.out.println("-----------");
+				if (debug) System.out.println("-----------");
 			}
 		}
 
@@ -2161,7 +2163,7 @@ public class DESFireEV1 {
 		//DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, true, false, true, false); // todo ERROR changed
 		DesfireFileCommunicationSettings cs = getFileCommSett(fileNumber, kno, true, false, true, false);
 		if (cs == null) {
-			Log.e(TAG, "read - cs are null, aborted"); // todo added
+			if (debug) Log.e(TAG, "read - cs are null, aborted"); // todo added
 			// as the method will immediately return false we need to set an error code for this
 			code = 174; // dec 174 = 0xAE = authentication error, todo added
 			return null;
@@ -2183,8 +2185,8 @@ public class DESFireEV1 {
 
 		byte[] responseAPDU = adapter.transmitChain(apdu);
 		feedback(apdu, responseAPDU);
-		System.out.println("*** READ APDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(apdu));
-		System.out.println("*** RESP APDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(responseAPDU));
+		if (debug) System.out.println("*** READ APDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(apdu));
+		if (debug) System.out.println("*** RESP APDU: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(responseAPDU));
 		//return postprocess(baos.toByteArray(), responseLength, cs); // todo ERROR, baos is empty
 		return postprocess(responseAPDU, responseLength, cs);
 	}
@@ -2236,19 +2238,19 @@ public class DESFireEV1 {
 	/* Support method for writeData/writeRecord. */
 	private boolean write(byte[] payload, byte cmd) throws Exception {
 /*
-		System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("payload", payload));
+		if (debug) System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("payload", payload));
 		DesfireFile desfireFile = getFileSettings(payload[0]);
 		int readAccessKey = desfireFile.getReadAccessKey();
 		int writeAccessKey = desfireFile.getWriteAccessKey();
 		String csDescription = desfireFile.getCommunicationSettings().getDescription();
-		System.out.println("read: " + readAccessKey + " write " + writeAccessKey + " comm: " + csDescription);
+		if (debug) System.out.println("read: " + readAccessKey + " write " + writeAccessKey + " comm: " + csDescription);
 		DesfireFileCommunicationSettings desfireFileCommunicationSettings = desfireFile.getCommunicationSettings();
 		Map<Integer, String> permMap = desfireFile.getCompactPermissionMap();
-		System.out.println("----- permission map ------");
+		if (debug) System.out.println("----- permission map ------");
 		for (Map.Entry<Integer, String> entry : permMap.entrySet()) {
-			System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+			if (debug) System.out.println(entry.getKey() + ":" + entry.getValue().toString());
 		}
-		System.out.println("-----------");
+		if (debug) System.out.println("-----------");
 */
 
 		//DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], true, false, false, true); // todo ERROR changed
@@ -2256,7 +2258,7 @@ public class DESFireEV1 {
 		DesfireFileCommunicationSettings cs = getFileCommSett(payload[0], kno, true, false, false, true);
 
 		if (cs == null) {
-			Log.e(TAG, "write - cs are NULL, aborted");
+			if (debug) Log.e(TAG, "write - cs are NULL, aborted");
 			// as the method will immediately return false we need to set an error code for this
 			code = 174; // dec 174 = 0xAE = authentication error, todo added
 			return false;
@@ -2270,17 +2272,17 @@ public class DESFireEV1 {
 		fullApdu[4] = (byte) (payload.length & (0xff)); // todo is this change correct ? This seems to work on a 32 byte long standard file
 
 		System.arraycopy(payload, 0, fullApdu, 5, payload.length);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("fullApdu1", fullApdu));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("fullApdu1", fullApdu));
 		fullApdu = preprocess(fullApdu, 7, cs);  // 7 = 1+3+3 (fileNo+off+len)
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("fullApdu2", fullApdu));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("fullApdu2", fullApdu));
 
 		byte[] responseAPDU = adapter.transmitChain(fullApdu);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
-		//System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
+		//if (debug) System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
 		//byte[] postprocessRes = postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN);
-		//System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("postprocessRes", postprocessRes));
+		//if (debug) System.out.println(de.androidcrypto.mifaredesfireev3examplesdesnfcjlib.Utils.printData("postprocessRes", postprocessRes));
 		//boolean post = postprocessRes != null;
-		//System.out.println("post: " + post);
+		//if (debug) System.out.println("post: " + post);
 
 		return postprocess(responseAPDU, DesfireFileCommunicationSettings.PLAIN) != null;
 	}
@@ -2956,7 +2958,7 @@ public class DESFireEV1 {
 				|| ktype == KeyType.TKTDES && oldKey.length != 24
 				|| ktype == KeyType.AES && oldKey.length != 16)) {
 			// basic checks to mitigate the possibility of messing up the keys
-			Log.e(TAG, "You're doing it wrong, chief! (changeKey: check your args)");
+			if (debug) Log.e(TAG, "You're doing it wrong, chief! (changeKey: check your args)");
 			this.code = Response.WRONG_ARGUMENT.getCode();
 			return false;
 		}
@@ -3016,11 +3018,11 @@ public class DESFireEV1 {
 		}
 */
 
-		Log.d(TAG, "keyNo: " + String.format("0x%02X", keyNo));
-		Log.d(TAG, "kno: " + String.format("0x%02X", kno));
+		if (debug) Log.d(TAG, "keyNo: " + String.format("0x%02X", keyNo));
+		if (debug) Log.d(TAG, "kno: " + String.format("0x%02X", kno));
 
 		if ((keyNo & 0x0F) != kno) {
-			Log.d(TAG, "if ((keyNo & 0x0F) != kno) {");
+			if (debug) Log.d(TAG, "if ((keyNo & 0x0F) != kno) {");
 			for (int i = 0; i < newKey.length; i++) {
 				plaintext[i] ^= oldKey[i % oldKey.length];
 			}
@@ -3039,9 +3041,9 @@ public class DESFireEV1 {
 					crc = CRC16.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 2, 2);
 				}
-				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
+				if (debug) System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, null);
-				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
+				if (debug) System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				break;
 			case TKTDES:
 			case AES:
@@ -3056,9 +3058,9 @@ public class DESFireEV1 {
 					crc = CRC32.get(newKey);
 					System.arraycopy(crc, 0, plaintext, nklen + addAesKeyVersionByte + 4, crc.length);
 				}
-				System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
+				if (debug) System.out.println("plaintext before encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(plaintext)); // todo delete
 				ciphertext = send(sessionKey, plaintext, ktype, iv);
-				System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
+				if (debug) System.out.println("ciphertext after encryption: " + de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.bytesToHexNpe(ciphertext)); // todo delete
 				iv = Arrays.copyOfRange(ciphertext, ciphertext.length - iv.length, ciphertext.length);
 				break;
 			default:
@@ -3107,14 +3109,14 @@ public class DESFireEV1 {
 		System.arraycopy(crc16Second, 0, plaintext,19, 2);
 		System.arraycopy(new byte[3], 0, plaintext,21, 3); // padding
 
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("plaintext", plaintext));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("plaintext", plaintext));
 		byte[] ciphertext = new byte[24];
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("skey", skey));
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("skey", skey));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("iv", iv));
 		KeyType kt = KeyType.DES;
-		Log.d(TAG, "ktype: " + kt.toString());
+		if (debug) Log.d(TAG, "ktype: " + kt.toString());
 		ciphertext = send(skey, plaintext, kt, iv);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ciphertext", ciphertext));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("ciphertext", ciphertext));
 
 		// now we are going to send this cryptogram to the card
 		byte[] apdu = new byte[5 + 1 + ciphertext.length + 1];
@@ -3131,7 +3133,7 @@ public class DESFireEV1 {
 		}
 		this.code = getSW2(responseAPDU);
 		feedback(apdu, responseAPDU);
-		Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
+		if (debug) Log.d(TAG, de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils.printData("responseAPDU", responseAPDU));
 
 		return false;
 	}
