@@ -41,7 +41,7 @@ This should be the perfect beginner app as it uses a brand new DESFire tag with 
 Some notes on typical sessions with the card: I recommend that you lay your phone on the tag and after the connection don't move the phone to hold the 
 connection.
 
-The usage of the app is described in an article I published on medium.com: xxx
+The usage of the app is described in an article I published on medium.com: https://medium.com/@androidcrypto/mifare-desfire-ev3-a-beginner-tutorial-android-java-using-the-desfire-for-android-tools-00aaecb8fa93
 
 ## Ready to use compiled and build debug app
 
