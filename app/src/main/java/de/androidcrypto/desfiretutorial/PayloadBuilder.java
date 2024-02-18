@@ -1,10 +1,4 @@
-package de.androidcrypto.mifaredesfireev3examplesnfcjlib;
-
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+package de.androidcrypto.desfiretutorial;
 
 /**
  * This class generates the payload for commands on Mifare DESFire EV1/2/3 cards

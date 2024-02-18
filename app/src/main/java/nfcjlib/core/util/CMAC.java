@@ -1,8 +1,6 @@
 package nfcjlib.core.util;
 
-import java.util.Arrays;
-
-import de.androidcrypto.mifaredesfireev3examplesnfcjlib.Utils;
+import de.androidcrypto.desfiretutorial.Utils;
 
 /**
  * CMAC implementation according to NIST 800-38B.

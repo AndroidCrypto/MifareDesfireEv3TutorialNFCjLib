@@ -24,6 +24,8 @@ https://github.com/andrade/notes-about-desfire/blob/master/nfc-0.4.pdf
 
 All mentioned documents are stored in the docs folder of this repository (please beware they could be outdated, so please use the official download links).
 
+![Application after tapping a DESFire tag](docs/screenshots/web/desfire02.png)
+
 ## About this app:
 
 It is developed using Android Studio version Hedgehog | 2023.1.1 Patch 2 and is running on SDK 21 to 33 (Android 13) (tested on 

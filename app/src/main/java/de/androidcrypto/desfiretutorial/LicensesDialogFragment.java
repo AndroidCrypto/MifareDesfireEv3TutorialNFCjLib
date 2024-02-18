@@ -1,4 +1,4 @@
-package de.androidcrypto.mifaredesfireev3examplesnfcjlib;
+package de.androidcrypto.desfiretutorial;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

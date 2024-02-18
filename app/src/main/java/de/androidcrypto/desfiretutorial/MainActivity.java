@@ -1,4 +1,4 @@
-package de.androidcrypto.mifaredesfireev3examplesnfcjlib;
+package de.androidcrypto.desfiretutorial;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,7 +28,6 @@ import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -44,7 +43,6 @@ import com.github.skjolber.desfire.ev1.model.file.StandardDesfireFile;
 import com.github.skjolber.desfire.ev1.model.key.DesfireKeyType;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
