@@ -43,7 +43,7 @@ connection.
 
 The usage of the app is described in an article I published on medium.com: xxx
 
-## Ready to use compiled and uild debug app
+## Ready to use compiled and build debug app
 
 A ready to use app in DEBUG mode is available under the debug folder.
 
