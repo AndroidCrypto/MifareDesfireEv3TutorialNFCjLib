@@ -43,6 +43,10 @@ connection.
 
 The usage of the app is described in an article I published on medium.com: xxx
 
+## Ready to use compiled and uild debug app
+
+A ready to use app in DEBUG mode is available under the debug folder.
+
 ## Alternative libraries
 
 This is an uncurated list of libraries that are been able to run Mifare DESFire commands or useful to run a communication:
