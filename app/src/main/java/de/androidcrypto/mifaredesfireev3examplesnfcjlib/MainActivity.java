@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -1674,26 +1675,39 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
 
-
-        MenuItem mApplications = menu.findItem(R.id.action_applications);
-        mApplications.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        MenuItem mLicenseInformation = menu.findItem(R.id.action_licenseInformation);
+        mLicenseInformation.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                llApplicationHandling.setVisibility(View.VISIBLE);
+                displayLicensesAlertDialog();
                 return false;
             }
         });
-
-        MenuItem mStandardFile = menu.findItem(R.id.action_standard_file);
-        mStandardFile.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        MenuItem mAbout = menu.findItem(R.id.action_about);
+        mAbout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                llStandardFile.setVisibility(View.VISIBLE);
+                Intent i = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(i);
                 return false;
             }
         });
 
         return super.onCreateOptionsMenu(menu);
     }
+
+    // run: displayLicensesAlertDialog();
+    // display licenses dialog see: https://bignerdranch.com/blog/open-source-licenses-and-android/
+    private void displayLicensesAlertDialog() {
+        WebView view = (WebView) LayoutInflater.from(this).inflate(R.layout.dialog_licenses, null);
+        view.loadUrl("file:///android_asset/open_source_licenses.html");
+        android.app.AlertDialog mAlertDialog = new android.app.AlertDialog.Builder(MainActivity.this).create();
+        mAlertDialog = new android.app.AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert)
+                .setTitle("Libraries used and their licenses")
+                .setView(view)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
 
 }

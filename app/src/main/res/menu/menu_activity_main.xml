@@ -3,36 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- https://fonts.google.com/icons?selected=Material+Icons -->
-
     <item
-        android:id="@+id/action_main2"
-        android:title="Main Activity Full"
+        android:id="@+id/action_licenseInformation"
+        android:title="Licenses"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_mainHce"
-        android:title="Main Activity HCE"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_applications"
-        android:title="applications"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_standard_file"
-        android:title="standard file"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_export_file"
-        android:title="Export File"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_export_binary_file"
-        android:title="Export binary File"
+        android:id="@+id/action_about"
+        android:title="About the app"
         app:showAsAction="never"/>
 
 </menu>
