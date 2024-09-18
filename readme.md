@@ -90,3 +90,7 @@ Nfc Simple PNG Transparent Background: https://www.freeiconspng.com/img/20581
 <a href="https://www.freeiconspng.com/img/20581">Nfc Png Simple</a>
 
 I used this online service to change the icon to my needs: Icon / Vector editor: https://editor.method.ac/
+
+## License
+
+Mifare Desfire EV3 Tutorial NfcJLib is available under the MIT license. See the LICENSE.md file for more info.
